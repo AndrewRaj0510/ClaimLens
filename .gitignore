@@ -219,7 +219,56 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-data/
-*.pt
-*.onnx
+# ---------------------------------------------------------------- ClaimLens
+
+# Local-only project files
+/docs/
+/requirements-dev.txt
+
+# Secrets: config comes from env vars; only the example file is committed
 .env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+*service-account*.json
+kubeconfig
+.kube/
+*.secret.yaml
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Data and models (CarDD is research-only: never commit or redistribute it or weights trained on it)
+data/
+datasets/
+runs/
+wandb/
+mlruns/
+*.pt
+*.pth
+*.onnx
+*.engine
+*.ckpt
+*.safetensors
+*.torchscript
+
+# Frontend (Next.js)
+node_modules/
+.next/
+.vercel/
+npm-debug.log*
+yarn-error.log*
+
+# Editors, OS, local tool settings
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+.claude/settings.local.json

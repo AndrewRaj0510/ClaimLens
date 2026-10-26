@@ -1,0 +1,37 @@
+# Local stack. Only the gateway is published to the host; vision is reachable
+# just on the compose network (http://vision:8000), like it will be in Kubernetes.
+#
+#   docker compose up --build
+#   curl -F "file=@car.jpg;type=image/jpeg" http://localhost:8000/detect
+#
+# Put the trained model at data/models/best.onnx (git-ignored), or point
+# MODELS_DIR at another folder. Without it, vision starts and /detect returns 503.
+
+services:
+  gateway:
+    build: ./services/gateway
+    ports:
+      - "8000:8000"
+    environment:
+      VISION_URL: http://vision:8000
+    depends_on:
+      vision:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  vision:
+    build: ./services/vision
+    volumes:
+      - ${MODELS_DIR:-./data/models}:/models:ro
+    environment:
+      MODEL_PATH: /models/best.onnx
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
