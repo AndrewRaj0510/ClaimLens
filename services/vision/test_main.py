@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
+import analysis
 import main
 from detector import Detection
 
@@ -103,7 +104,7 @@ def test_garbage_bytes_are_rejected(fake_model):
 
 
 def test_oversized_upload_is_rejected(fake_model, monkeypatch):
-    monkeypatch.setattr(main, "MAX_UPLOAD_MB", 0.001)  # ~1 KB
+    monkeypatch.setattr(analysis, "MAX_UPLOAD_MB", 0.001)  # ~1 KB
     assert post(fake_model, FIXTURE.read_bytes()).status_code == 413
 
 
@@ -126,3 +127,13 @@ def test_real_model_on_fixture(client):
     for d in body["detections"]:
         assert d["class_name"] in detector.names.values()
         assert 0 <= d["confidence"] <= 1
+
+
+def test_decompression_bomb_between_1x_and_2x_the_limit_is_rejected(fake_model):
+    # Pillow only raises above 2x MAX_IMAGE_PIXELS; this 64 MP PNG is ~62 KB on
+    # disk and would decode to ~190 MB of RGB without the explicit check.
+    buf = io.BytesIO()
+    Image.new("L", (8000, 8000)).save(buf, "PNG")
+    r = post(fake_model, buf.getvalue(), name="bomb.png", ctype="image/png")
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Image has too many pixels"

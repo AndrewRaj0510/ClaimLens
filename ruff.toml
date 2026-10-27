@@ -3,4 +3,4 @@ target-version = "py311"
 # Each service is its own top-level package (tests do `from main import app`),
 # so tell ruff where first-party code lives. Otherwise import sorting differs
 # depending on which folder ruff is run from.
-src = ["services/*", "mcp_servers/*", "training"]
+src = ["services/*", "mcp_servers/*", "training", "scripts"]

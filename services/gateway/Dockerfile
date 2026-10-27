@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY main.py .
+COPY main.py claims.py common.py vision_jobs.py storage.py ./
 
 # Run as a non-root user (security best practice)
 RUN useradd --create-home appuser

@@ -1,0 +1,7 @@
+mcp
+fastembed
+pypdf
+psycopg[binary]
+psycopg-pool
+pgvector
+numpy

@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+langgraph
+langgraph-checkpoint-postgres
+psycopg[binary]
+psycopg-pool
+mcp
+ollama
+redis
+boto3
+numpy
+pillow

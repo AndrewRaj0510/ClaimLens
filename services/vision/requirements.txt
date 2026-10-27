@@ -4,3 +4,5 @@ python-multipart
 onnxruntime
 numpy
 pillow
+redis
+boto3

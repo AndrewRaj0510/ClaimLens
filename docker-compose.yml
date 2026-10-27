@@ -1,21 +1,42 @@
-# Local stack. Only the gateway is published to the host; vision is reachable
-# just on the compose network (http://vision:8000), like it will be in Kubernetes.
+# Local stack. Only the gateway is published to the host (Postgres and Redis are
+# bound to 127.0.0.1 for local scripts and tests); everything else is reachable
+# only on the compose network by service name, like it will be in Kubernetes.
 #
+#   cp .env.example .env   # then fill in the passwords and keys
 #   docker compose up --build
 #   curl -F "file=@car.jpg;type=image/jpeg" http://localhost:8000/detect
 #
 # Put the trained model at data/models/best.onnx (git-ignored), or point
-# MODELS_DIR at another folder. Without it, vision starts and /detect returns 503.
+# MODELS_DIR at another folder. Without it, the stack still starts and
+# /detect returns 503.
+
+x-s3-env: &s3-env
+  # Upload limit, read by the gateway, the vision worker and the agent alike.
+  MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
+  S3_ENDPOINT: http://seaweedfs:8333
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY:?set S3_ACCESS_KEY in .env}
+  S3_SECRET_KEY: ${S3_SECRET_KEY:?set S3_SECRET_KEY in .env}
+  S3_BUCKET: ${S3_BUCKET:-claimlens}
 
 services:
+  # Uploads go to object storage and a job onto the Redis stream; vision
+  # workers pick jobs up. /detect waits for the result (202 + job ID if slow).
   gateway:
     build: ./services/gateway
+    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      VISION_URL: http://vision:8000
+      <<: *s3-env
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      AGENT_URL: http://agent:8000
+      ADJUSTER_API_KEY: ${ADJUSTER_API_KEY:-}
     depends_on:
-      vision:
+      redis:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+      agent:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
@@ -23,15 +44,161 @@ services:
       timeout: 3s
       retries: 3
 
-  vision:
-    build: ./services/vision
-    volumes:
-      - ${MODELS_DIR:-./data/models}:/models:ro
+  # LangGraph claim workflow. Internal only: reached through the gateway.
+  agent:
+    build: ./services/agent
+    restart: unless-stopped
     environment:
-      MODEL_PATH: /models/best.onnx
+      <<: *s3-env
+      DATABASE_URL: postgresql://claimlens:${POSTGRES_PASSWORD}@postgres:5432/claimlens
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      OLLAMA_HOST: ${OLLAMA_HOST:-https://ollama.com}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gpt-oss:120b}
+      # Without a key the agent still works: every LLM step falls back (see graph.py).
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+      policy:
+        condition: service_healthy
+      pricing:
+        condition: service_healthy
+      claims-history:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 3s
       retries: 3
+      start_period: 15s
+
+  # Queue consumer. Scale with: docker compose up --scale vision-worker=3
+  # (the HTTP API in services/vision/main.py is still in the image for direct use).
+  vision-worker:
+    build: ./services/vision
+    restart: unless-stopped
+    command: ["python", "worker.py"]
+    volumes:
+      - ${MODELS_DIR:-./data/models}:/models:ro
+    environment:
+      <<: *s3-env
+      MODEL_PATH: /models/best.onnx
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+    healthcheck:
+      # The worker touches this file every loop; stale means it's stuck.
+      test: ["CMD", "python", "-c", "import os, sys, time; sys.exit(time.time() - os.path.getmtime('/tmp/worker-heartbeat') > 30)"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+
+  # Job queue (Redis Streams). AOF persistence so queued jobs survive a restart.
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6380}:6379"
+    volumes:
+      - redisdata:/data
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # S3-compatible object storage for photos (MinIO's community edition is
+  # archived, see docs/decisions.md). The credentials are required: without
+  # them SeaweedFS's S3 gateway allows anonymous access.
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48
+    command: ["server", "-dir=/data", "-s3", "-s3.port=8333"]
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:?set S3_ACCESS_KEY in .env}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?set S3_SECRET_KEY in .env}
+    volumes:
+      - seaweeddata:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://127.0.0.1:8333/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
       start_period: 10s
+
+  # Postgres + pgvector: synthetic insurance data and policy-wording embeddings.
+  # db/schema.sql runs on first start (empty volume). Published on 127.0.0.1 only,
+  # so local scripts can load data; nothing outside this machine can reach it.
+  postgres:
+    image: pgvector/pgvector:0.8.1-pg17
+    environment:
+      POSTGRES_DB: claimlens
+      POSTGRES_USER: claimlens
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env (see .env.example)}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "claimlens", "-d", "claimlens"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # MCP tool servers the agent calls (streamable HTTP at http://<name>:8000/mcp).
+  # Internal only. MCP_ALLOWED_HOSTS is the DNS-rebinding allowlist: requests
+  # whose Host header isn't the service's own name are refused.
+  policy:
+    build: ./mcp_servers/policy
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://claimlens:${POSTGRES_PASSWORD}@postgres:5432/claimlens
+      MCP_ALLOWED_HOSTS: policy:*,localhost:*
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck: &mcp-health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+
+  pricing:
+    build: ./mcp_servers/pricing
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://claimlens:${POSTGRES_PASSWORD}@postgres:5432/claimlens
+      MCP_ALLOWED_HOSTS: pricing:*,localhost:*
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck: *mcp-health
+
+  # Hyphen, not underscore: underscores aren't valid in DNS names, and
+  # Kubernetes service names reject them.
+  claims-history:
+    build: ./mcp_servers/claims_history
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://claimlens:${POSTGRES_PASSWORD}@postgres:5432/claimlens
+      MCP_ALLOWED_HOSTS: claims-history:*,localhost:*
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck: *mcp-health
+
+volumes:
+  pgdata:
+  redisdata:
+  seaweeddata:
