@@ -1,7 +1,9 @@
 """Image -> damage detections. Shared by the HTTP API (main.py) and the queue
 worker (worker.py), so both validate untrusted bytes the same way."""
 
+import base64
 import io
+import math
 import os
 
 import numpy as np
@@ -42,6 +44,9 @@ class DetectionOut(BaseModel):
     confidence: float
     box: Box
     area_pct: float  # this damage's mask area as % of the photo
+    # The mask inside the box as a base64 1-bit PNG (white = damage), at
+    # inference resolution: stretch it over the box to draw it. None if empty.
+    mask_png: str | None = None
 
 
 class DetectResponse(BaseModel):
@@ -73,6 +78,25 @@ def load_image(data: bytes) -> Image.Image:
     return ImageOps.exif_transpose(image).convert("RGB")
 
 
+def mask_png(mask, box):
+    """Crop a full-image bool mask to its box and encode it as a 1-bit PNG.
+
+    PNG rather than polygons: Pillow already does it, holes and multi-part masks
+    come out right, and a 1-bit PNG of a typical damage is a few hundred bytes.
+    """
+    h, w = mask.shape
+    x1, y1 = max(0, math.floor(box[0])), max(0, math.floor(box[1]))
+    x2, y2 = min(w, math.ceil(box[2])), min(h, math.ceil(box[3]))
+    if x2 <= x1 or y2 <= y1:
+        return None
+    crop = mask[y1:y2, x1:x2]
+    if not crop.any():
+        return None
+    buf = io.BytesIO()
+    Image.fromarray(crop).save(buf, "PNG", optimize=True)  # bool array -> mode "1"
+    return base64.b64encode(buf.getvalue()).decode("ascii")
+
+
 def analyse(detector, data: bytes) -> DetectResponse:
     image = load_image(data)
     width, height = image.size
@@ -94,6 +118,7 @@ def analyse(detector, data: bytes) -> DetectResponse:
                 confidence=round(d.confidence, 4),
                 box=Box(x1=x1, y1=y1, x2=x2, y2=y2),
                 area_pct=round(100 * d.mask.sum() / pixels, 3),
+                mask_png=mask_png(d.mask, d.box),
             )
         )
     return DetectResponse(

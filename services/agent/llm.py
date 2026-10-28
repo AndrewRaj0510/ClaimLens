@@ -6,6 +6,10 @@ Two calls are used:
   anyway, since the model's output is untrusted.
 - chat(): free chat with tool definitions, for the bounded clause-search loop.
 
+structured() can also take images, for the vision model that reviews photos
+(VLM_MODEL, a second OllamaLLM). It only ever gets the redacted copies that
+services/guardrails returns: faces and any text in the photo pixelated, no EXIF.
+
 Temperature 0 so the same claim gives the same extraction where possible.
 """
 
@@ -17,6 +21,10 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gpt-oss:120b")
 OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
 # gpt-oss takes a reasoning level; "low" keeps each call to a few seconds.
 OLLAMA_THINK = os.getenv("OLLAMA_THINK", "low")
+# Qwen3-VL on Ollama Cloud: the instruct variant answers directly (no reasoning
+# level to set, unlike gpt-oss).
+VLM_MODEL = os.getenv("VLM_MODEL", "qwen3-vl:235b-instruct")
+VLM_THINK = os.getenv("VLM_THINK", "")
 LLM_TIMEOUT_S = float(os.getenv("LLM_TIMEOUT_S", "120"))
 
 
@@ -25,19 +33,26 @@ class LLMError(RuntimeError):
 
 
 class OllamaLLM:
-    def __init__(self, host=OLLAMA_HOST, model=OLLAMA_MODEL, api_key=OLLAMA_API_KEY):
+    def __init__(
+        self,
+        host=OLLAMA_HOST,
+        model=OLLAMA_MODEL,
+        api_key=OLLAMA_API_KEY,
+        think=OLLAMA_THINK,
+    ):
         from ollama import AsyncClient
 
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else None
         self.client = AsyncClient(host=host, headers=headers, timeout=LLM_TIMEOUT_S)
         self.model = model
+        self.think = think or None
 
     async def _chat(self, messages, **kwargs):
         try:
             response = await self.client.chat(
                 model=self.model,
                 messages=messages,
-                think=OLLAMA_THINK or None,
+                think=self.think,
                 options={"temperature": 0},
                 **kwargs,
             )
@@ -45,9 +60,12 @@ class OllamaLLM:
             raise LLMError(f"LLM call failed: {type(e).__name__}") from e
         return response.message
 
-    async def structured(self, system, user, schema):
+    async def structured(self, system, user, schema, images=None):
+        prompt = {"role": "user", "content": user}
+        if images:
+            prompt["images"] = list(images)  # JPEG bytes
         message = await self._chat(
-            [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            [{"role": "system", "content": system}, prompt],
             format=schema.model_json_schema(),
         )
         try:

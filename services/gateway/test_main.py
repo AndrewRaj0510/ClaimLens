@@ -5,6 +5,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 import common
+import fakes
+from auth import current_user
 from common import vision_jobs
 from main import app
 from vision_jobs import STREAM, VisionJobs
@@ -44,6 +46,9 @@ def jobs():
     def use(fake):
         app.dependency_overrides[vision_jobs] = lambda: fake
         return fake
+
+    # Logged in: the login itself is tested in test_auth.py.
+    app.dependency_overrides[current_user] = lambda: fakes.ADJUSTER
 
     yield use
     app.dependency_overrides.clear()

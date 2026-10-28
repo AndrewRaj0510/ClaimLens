@@ -5,7 +5,8 @@
 -- Loaded by:
 --   scripts/load_synthetic.py     customers ... claims, pricing, eval.fraud_labels
 --   mcp_servers/policy/ingest.py  policy_wordings, policy_chunks
--- LangGraph creates its own checkpoint tables.
+--   scripts/create_users.py       auth.users
+-- The agent creates its own tables: LangGraph's checkpoints and agent_claims.
 
 CREATE EXTENSION IF NOT EXISTS vector;
 
@@ -141,4 +142,20 @@ CREATE TABLE IF NOT EXISTS eval.fraud_labels (
     claim_id  text PRIMARY KEY REFERENCES claims ON DELETE CASCADE,
     is_fraud  boolean NOT NULL,
     patterns  text[] NOT NULL
+);
+
+-- Logins, read by the gateway. Their own schema, so Phase 4's per-service
+-- roles can give the gateway this and read access to policies, nothing more.
+-- No foreign key to customers on purpose: load_synthetic.py reloads with
+-- TRUNCATE ... CASCADE, which empties every referencing table, so an FK would
+-- delete the adjuster accounts on every data reload. A customer login whose
+-- customer is gone simply sees no policies.
+CREATE SCHEMA IF NOT EXISTS auth;
+CREATE TABLE IF NOT EXISTS auth.users (
+    username       text PRIMARY KEY,  -- lower case; customers log in with their email
+    password_hash  text NOT NULL,     -- scrypt, format in services/gateway/passwords.py
+    role           text NOT NULL CHECK (role IN ('customer', 'adjuster')),
+    display_name   text NOT NULL,
+    customer_id    text,
+    CHECK ((role = 'customer') = (customer_id IS NOT NULL))
 );

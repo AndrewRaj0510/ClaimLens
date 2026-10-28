@@ -25,6 +25,15 @@ class S3Store:
             Bucket=self.bucket, Key=key, Body=data, ContentType=content_type
         )
 
+    def get(self, key):
+        """(bytes, content type); KeyError if the object doesn't exist."""
+        try:
+            obj = self.client.get_object(Bucket=self.bucket, Key=key)
+        except self.client.exceptions.NoSuchKey as e:
+            raise KeyError(key) from e
+        with obj["Body"] as body:
+            return body.read(), obj.get("ContentType", "application/octet-stream")
+
     def ensure_bucket(self, attempts=10, delay_s=1.0):
         """Create the bucket if it's missing. Retries because storage may still
         be starting when the gateway does."""

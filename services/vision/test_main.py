@@ -137,3 +137,23 @@ def test_decompression_bomb_between_1x_and_2x_the_limit_is_rejected(fake_model):
     r = post(fake_model, buf.getvalue(), name="bomb.png", ctype="image/png")
     assert r.status_code == 400
     assert r.json()["detail"] == "Image has too many pixels"
+
+
+def test_masks_come_back_as_png_cropped_to_the_box(fake_model):
+    import base64
+
+    body = post(fake_model, FIXTURE.read_bytes()).json()
+    dent = body["detections"][0]  # box (10, 10)-(110, 60); mask = left 32 columns
+    mask = Image.open(io.BytesIO(base64.b64decode(dent["mask_png"])))
+    assert mask.mode == "1"
+    assert mask.size == (100, 50)
+    pixels = np.asarray(mask)
+    assert pixels[:, :22].all()  # columns 10-31 of the photo
+    assert not pixels[:, 22:].any()
+
+
+def test_mask_png_is_none_when_the_box_holds_no_mask():
+    mask = np.zeros((40, 40), dtype=bool)
+    mask[:5, :5] = True
+    assert analysis.mask_png(mask, (20.0, 20.0, 30.0, 30.0)) is None
+    assert analysis.mask_png(mask, (30.0, 30.0, 30.0, 35.0)) is None  # zero width

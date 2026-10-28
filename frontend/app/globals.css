@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+/*
+  "Case file": warm paper, ink, and one signal colour for damage and the
+  actions that matter. Mono for anything an adjuster might copy or compare
+  (IDs, amounts, scores), serif for headings, sans for reading.
+*/
+@theme {
+  --font-serif: var(--nf-serif), "Times New Roman", serif;
+  --font-sans: var(--nf-sans), ui-sans-serif, sans-serif;
+  --font-mono: var(--nf-mono), ui-monospace, monospace;
+
+  --color-paper: #f3efe6;
+  --color-sheet: #fbf9f4;
+  --color-ink: #1b1a17;
+  --color-graphite: #5c5a53;
+  --color-faint: #8c897f;
+  --color-rule: #d9d3c4;
+  --color-signal: #e2471a;
+  --color-signal-dark: #b8360f;
+  --color-amber: #b77d00;
+  --color-moss: #2f7a55;
+  --color-rust: #a3311b;
+  --color-slate: #2c3e50;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100dvh;
+    /* Faint ledger lines and grain: paper, not a flat fill. */
+    background-image:
+      radial-gradient(rgb(27 26 23 / 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, transparent 0 31px, rgb(27 26 23 / 0.025) 31px 32px);
+    background-size: 3px 3px, 100% 32px;
+  }
+  ::selection {
+    background: var(--color-signal);
+    color: white;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .sheet {
+    background: var(--color-sheet);
+    border: 1px solid var(--color-rule);
+    box-shadow: 0 1px 0 rgb(27 26 23 / 0.04), 0 12px 32px -18px rgb(27 26 23 / 0.25);
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+  .field {
+    width: 100%;
+    background: white;
+    border: 1px solid var(--color-rule);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.9375rem;
+    transition: border-color 150ms;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px rgb(226 71 26 / 0.15);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.125rem;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    border: 1px solid var(--color-ink);
+    transition: transform 120ms, background 150ms, color 150ms;
+    cursor: pointer;
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-ink {
+    background: var(--color-ink);
+    color: var(--color-sheet);
+  }
+  .btn-ink:hover:not(:disabled) {
+    background: var(--color-signal);
+    border-color: var(--color-signal);
+  }
+  .btn-line {
+    background: transparent;
+    color: var(--color-ink);
+  }
+  .btn-line:hover:not(:disabled) {
+    background: var(--color-ink);
+    color: var(--color-sheet);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes scan {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .animate-scan {
+    animation: none !important;
+  }
+}

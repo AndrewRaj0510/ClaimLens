@@ -33,3 +33,7 @@ def vision_jobs(request: Request) -> VisionJobs:
 
 def agent_client(request: Request) -> httpx.AsyncClient:
     return request.app.state.agent
+
+
+def photo_store(request: Request):
+    return request.app.state.store

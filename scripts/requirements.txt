@@ -1,3 +1,4 @@
 psycopg[binary]
 python-dotenv
 pytest
+huggingface_hub

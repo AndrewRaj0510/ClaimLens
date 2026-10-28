@@ -8,11 +8,14 @@ import httpx
 from fastapi import Depends, FastAPI, HTTPException, Path, UploadFile
 from fastapi.responses import JSONResponse
 
+import auth
 import claims
+from auth import CurrentUser
 from common import read_upload, vision_jobs
 from vision_jobs import VisionJobs
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 VISION_TIMEOUT_S = float(os.getenv("VISION_TIMEOUT_S", "30"))
 
 JobId = Annotated[str, Path(pattern=r"^[0-9a-f]{32}$")]
@@ -21,13 +24,13 @@ JobId = Annotated[str, Path(pattern=r"^[0-9a-f]{32}$")]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import redis.asyncio as redis
+    from psycopg_pool import ConnectionPool
 
     from storage import S3Store
 
-    if not claims.adjuster_key_usable(claims.ADJUSTER_API_KEY):
+    if not auth.COOKIE_SECURE:
         logging.getLogger("gateway").warning(
-            "ADJUSTER_API_KEY is unset or shorter than %d characters: decisions are locked",
-            claims.MIN_ADJUSTER_KEY_LENGTH,
+            "COOKIE_SECURE=false: session cookies will be sent over plain HTTP (local use only)"
         )
     store = S3Store()
     await asyncio.to_thread(store.ensure_bucket)
@@ -35,15 +38,24 @@ async def lifespan(app: FastAPI):
     client = redis.Redis.from_url(
         REDIS_URL, decode_responses=True, socket_timeout=VISION_TIMEOUT_S + 5
     )
+    app.state.store = store
     app.state.jobs = VisionJobs(client, store)
+    app.state.sessions = auth.Sessions(client)
+    app.state.limiter = auth.RateLimiter(client)
+    # Connections open in the background, so a slow database doesn't block startup.
+    pool = ConnectionPool(DATABASE_URL, min_size=1, max_size=4, open=False)
+    pool.open(wait=False)
+    app.state.users = auth.UserStore(pool)
     # One pooled client for the agent service, as the vision client was in Phase 1.
     async with httpx.AsyncClient(base_url=claims.AGENT_URL, timeout=30) as agent:
         app.state.agent = agent
         yield
+    pool.close()
     await client.aclose()
 
 
-app = FastAPI(title="ClaimLens Gateway", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="ClaimLens Gateway", version="0.3.0", lifespan=lifespan)
+app.include_router(auth.router)
 app.include_router(claims.router)
 
 
@@ -68,9 +80,11 @@ def job_response(job_id, out):
     raise HTTPException(status_code=502, detail="Vision service error")
 
 
+# /detect and /jobs need a login (any role): each detection costs a worker's time.
 @app.post("/detect")
 async def detect(
     file: UploadFile,
+    user: CurrentUser,
     jobs: Annotated[VisionJobs, Depends(vision_jobs)],
 ):
     data, content_type = await read_upload(file)
@@ -90,7 +104,11 @@ async def detect(
 
 
 @app.get("/jobs/{job_id}")
-async def get_job(job_id: JobId, jobs: Annotated[VisionJobs, Depends(vision_jobs)]):
+async def get_job(
+    job_id: JobId,
+    user: CurrentUser,
+    jobs: Annotated[VisionJobs, Depends(vision_jobs)],
+):
     out = await jobs.status(job_id)
     if out is None:
         raise HTTPException(status_code=404, detail="Unknown or expired job")

@@ -26,6 +26,7 @@ def client():
     @asynccontextmanager
     async def lifespan(app):
         app.state.graph = build_graph(d, InMemorySaver())
+        app.state.index = fakes.FakeIndex()
         yield
 
     with TestClient(create_app(lifespan=lifespan)) as c:
@@ -200,10 +201,14 @@ def test_claim_is_visible_before_its_first_checkpoint(client):
         return await real(*args, **kwargs)
 
     graph.ainvoke = delayed
-    client.post("/claims", json=new_claim())
+    client.post("/claims", json=new_claim(customer_id="C00001"))
     r = client.get(f"/claims/{CLAIM}")  # no checkpoint exists yet
     assert r.status_code == 200
     assert r.json()["status"] == "processing"
+    # The owner is known already: the gateway authorizes the customer on it.
+    # (Found end to end: the gateway 404'd customers on their own new claim.)
+    assert r.json()["customer_id"] == "C00001"
+    assert r.json()["state"] == {}
     gate.open = True
     wait_for(client, "awaiting_approval")
 
@@ -239,3 +244,48 @@ def test_retry_refused_for_a_healthy_claim(client):
     client.post("/claims", json=new_claim())
     wait_for(client, "awaiting_approval")
     assert client.post(f"/claims/{CLAIM}/retry").status_code == 409
+
+
+def test_claims_are_listed_with_status_and_summary(client):
+    client.post("/claims", json=new_claim(customer_id="C00001"))
+    wait_for(client, "awaiting_approval")
+    deadline = time.time() + 5
+    while True:  # the index is updated just after the run stops
+        rows = client.get("/claims").json()["claims"]
+        if rows[0]["status"] == "awaiting_approval" or time.time() > deadline:
+            break
+        time.sleep(0.02)
+    row = rows[0]
+    assert (row["claim_id"], row["customer_id"]) == (CLAIM, "C00001")
+    assert row["status"] == "awaiting_approval"
+    assert row["summary"]["recommendation"] == "approve"
+    assert row["summary"]["payable_expected"] == 50.0
+    assert row["summary"]["damages"] == ["dent (moderate)"]
+
+    assert client.get("/claims?customer_id=C00001").json()["claims"]
+    assert client.get("/claims?customer_id=C00002").json()["claims"] == []
+    assert client.get("/claims?status=completed").json()["claims"] == []
+    assert client.get("/claims?status=bogus").status_code == 422
+
+
+def test_a_stale_processing_row_is_answered_from_the_checkpoint(client):
+    client.post("/claims", json=new_claim())
+    wait_for(client, "awaiting_approval")
+    # As if the service restarted before the row was updated.
+    client.app.state.index.rows[CLAIM]["status"] = "processing"
+    client.app.state.runs.pop(CLAIM)
+    rows = client.get("/claims").json()["claims"]
+    assert rows[0]["status"] == "awaiting_approval"
+
+
+def test_claim_on_another_customers_policy_is_not_found(client):
+    # The fake policy P00001 belongs to C00001.
+    client.post("/claims", json=new_claim(customer_id="C00002"))
+    body = wait_for(client, "awaiting_approval")
+    assert body["state"]["policy"] is None
+    assert body["state"]["coverage"]["reasons"] == ["Policy not found."]
+    assert body["question"]["recommendation"]["action"] == "deny"
+
+
+def test_customer_id_is_validated(client):
+    assert client.post("/claims", json=new_claim(customer_id="x")).status_code == 422

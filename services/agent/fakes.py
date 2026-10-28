@@ -1,12 +1,14 @@
 """Test doubles for the graph's dependencies. The fake tools still enforce the
 real per-node allowlist, so tests exercise it."""
 
+import base64
 import io
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from pydantic import ValidationError
 
+from adapters import GuardrailsRejected, GuardrailsUnavailable
 from graph import Deps
 from llm import LLMError
 from tools import ToolFailed, check_allowed
@@ -128,9 +130,17 @@ class FakeLLM:
 
 class FakeTools:
     def __init__(
-        self, *, policy=POLICY, coverage=None, history=None, matches=(), fail=()
+        self,
+        *,
+        policy=POLICY,
+        coverage=None,
+        history=None,
+        matches=(),
+        fail=(),
+        searched=None,
     ):
         self.policy = policy
+        self.searched = searched or {}  # query -> search results, else CLAUSES
         self.coverage = coverage or {
             "policy_id": "P00001",
             "in_force": True,
@@ -160,7 +170,10 @@ class FakeTools:
         if tool == "check_coverage":
             return self.coverage
         if tool == "search_clauses":
-            return {"wording_id": "w1", "results": CLAUSES}
+            return {
+                "wording_id": "w1",
+                "results": self.searched.get(args["query"], CLAUSES),
+            }
         if tool == "estimate_repair_cost":
             total = 300.0 * len(args["damages"])
             return {
@@ -210,11 +223,131 @@ class FakeRecorder:
         self.recorded.append(state)
 
 
-def deps(*, llm=None, tools=None, photos=None, vision=None):
+class FakeIndex:
+    """In-memory ClaimIndex with the same ordering and filters."""
+
+    def __init__(self):
+        self.rows = {}
+        self.clock = 0
+
+    def _tick(self):
+        self.clock += 1
+        return f"2026-10-27T00:00:{self.clock:02d}+00:00"
+
+    async def setup(self):
+        pass
+
+    async def add(self, claim_id, customer_id, policy_id):
+        now = self._tick()
+        self.rows.setdefault(
+            claim_id,
+            {
+                "claim_id": claim_id,
+                "customer_id": customer_id,
+                "policy_id": policy_id,
+                "status": "processing",
+                "summary": {},
+                "created_at": now,
+                "updated_at": now,
+            },
+        )
+
+    async def update(self, claim_id, status, summary=None):
+        row = self.rows[claim_id]
+        row["status"], row["updated_at"] = status, self._tick()
+        if summary is not None:
+            row["summary"] = summary
+
+    async def list(self, customer_id=None, status=None, limit=50):
+        rows = [
+            dict(r)
+            for r in self.rows.values()
+            if customer_id in (None, r["customer_id"]) and status in (None, r["status"])
+        ]
+        return sorted(rows, key=lambda r: r["updated_at"], reverse=True)[:limit]
+
+
+class FakeGuardrails:
+    """Flags any text containing one of `trigger` words; per-photo results can
+    be scripted by the photo's bytes. down=True: the service is unreachable."""
+
+    def __init__(self, *, trigger=("ignore previous",), down=False, photos=None):
+        self.trigger = trigger
+        self.down = down
+        self.photos = photos or {}  # bytes -> partial inspect result
+        self.texts = []  # every text sent for scanning
+        self.profiles = []
+        self.inspected = 0
+
+    def _scan(self, text):
+        hit = any(t in text.lower() for t in self.trigger)
+        return {"flagged": hit, "score": 0.99 if hit else 0.01, "rules": []}
+
+    async def scan_texts(self, texts, profile="untrusted"):
+        if self.down:
+            raise GuardrailsUnavailable("/scan/text: ConnectError")
+        self.texts += list(texts)
+        self.profiles.append(profile)
+        return [self._scan(t) for t in texts]
+
+    async def inspect_photo(self, data, incident_date=None):
+        if self.down:
+            raise GuardrailsUnavailable("/images/inspect: ConnectError")
+        if data == b"not an image":
+            raise GuardrailsRejected("/images/inspect: HTTP 400")
+        self.inspected += 1
+        scripted = self.photos.get(data, {})
+        ocr = scripted.get("ocr", [])
+        text = "\n".join(r["text"] for r in ocr)
+        return {
+            "width": 800,
+            "height": 600,
+            "work_size": [800, 600],
+            "ocr": ocr,
+            "text_scan": self._scan(text) if text else None,
+            "text_scan_mode": "rules+classifier",
+            "redactions": {"faces": 0, "text_regions": len(ocr), "plates": 0},
+            "metadata": {
+                "camera": None,
+                "software": None,
+                "taken_at": None,
+                "has_exif": False,
+                "has_gps": False,
+                "findings": scripted.get("findings", []),
+            },
+            "ai_generated": scripted.get("ai_generated"),
+            "redacted_jpeg": base64.b64encode(b"redacted:" + data[:8]).decode(),
+        }
+
+
+class FakeVLM:
+    def __init__(self, *, down=False, review=None):
+        self.down = down
+        self.review = review
+        self.calls = []  # (user prompt, images)
+
+    async def structured(self, system, user, schema, images=None):
+        self.calls.append((user, list(images or [])))
+        if self.down:
+            raise LLMError("down")
+        return schema.model_validate(
+            self.review
+            or {
+                "matches_description": "yes",
+                "damage_seen": ["dent on the rear bumper"],
+                "concerns": [],
+                "summary": "A dent on the rear bumper, as described.",
+            }
+        )
+
+
+def deps(*, llm=None, tools=None, photos=None, vision=None, guardrails=None, vlm=None):
     return Deps(
         llm=llm or FakeLLM(),
         tools=tools or FakeTools(),
         photos=FakePhotos(photos or {}),
         vision=FakeVision(vision or {}),
         recorder=FakeRecorder(),
+        guardrails=guardrails or FakeGuardrails(),
+        vlm=vlm or FakeVLM(),
     )

@@ -1,10 +1,12 @@
-# Local stack. Only the gateway is published to the host (Postgres and Redis are
-# bound to 127.0.0.1 for local scripts and tests); everything else is reachable
-# only on the compose network by service name, like it will be in Kubernetes.
+# Local stack. The frontend (:3000) and the gateway (:8000) are published to the
+# host (Postgres and Redis are bound to 127.0.0.1 for local scripts and tests);
+# everything else is reachable only on the compose network by service name,
+# like it will be in Kubernetes.
 #
 #   cp .env.example .env   # then fill in the passwords and keys
 #   docker compose up --build
-#   curl -F "file=@car.jpg;type=image/jpeg" http://localhost:8000/detect
+#   python scripts/create_users.py --adjuster sam --demo-customers 3
+#   open http://localhost:3000
 #
 # Put the trained model at data/models/best.onnx (git-ignored), or point
 # MODELS_DIR at another folder. Without it, the stack still starts and
@@ -19,7 +21,27 @@ x-s3-env: &s3-env
   S3_BUCKET: ${S3_BUCKET:-claimlens}
 
 services:
-  # Uploads go to object storage and a job onto the Redis stream; vision
+  # Next.js: customer pages and the adjuster dashboard. The browser only talks
+  # to this origin; /api/* is proxied to the gateway, so the session cookie is
+  # first-party and there's no CORS to configure.
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GATEWAY_URL: http://gateway:8000
+    depends_on:
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/login').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # Login and roles, then: uploads go to object storage and a job onto the Redis stream; vision
   # workers pick jobs up. /detect waits for the result (202 + job ID if slow).
   gateway:
     build: ./services/gateway
@@ -30,8 +52,15 @@ services:
       <<: *s3-env
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
       AGENT_URL: http://agent:8000
-      ADJUSTER_API_KEY: ${ADJUSTER_API_KEY:-}
+      # Each service has its own database role (db/roles.sql): the gateway can
+      # read logins, policies and vehicles, nothing else.
+      DATABASE_URL: postgresql://claimlens_gateway:${DB_PASSWORD_GATEWAY:?set DB_PASSWORD_GATEWAY in .env}@postgres:5432/claimlens
+      # Locally the site is plain HTTP, where browsers drop Secure cookies.
+      # Behind TLS (the Ingress, Phase 6) this must be true, the default.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
       seaweedfs:
@@ -50,12 +79,15 @@ services:
     restart: unless-stopped
     environment:
       <<: *s3-env
-      DATABASE_URL: postgresql://claimlens:${POSTGRES_PASSWORD}@postgres:5432/claimlens
+      DATABASE_URL: postgresql://claimlens_agent:${DB_PASSWORD_AGENT:?set DB_PASSWORD_AGENT in .env}@postgres:5432/claimlens
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      GUARDRAILS_URL: http://guardrails:8000
       OLLAMA_HOST: ${OLLAMA_HOST:-https://ollama.com}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-gpt-oss:120b}
       # Without a key the agent still works: every LLM step falls back (see graph.py).
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+      # Vision model for photo_review; it only ever gets redacted photos.
+      VLM_MODEL: ${VLM_MODEL:-qwen3-vl:235b-instruct}
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,12 +101,33 @@ services:
         condition: service_healthy
       claims-history:
         condition: service_healthy
+      guardrails:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 3s
       retries: 3
       start_period: 15s
+
+  # Checks untrusted input before it reaches an LLM: injection scan of text and
+  # of text in photos (OCR), face/text redaction, image forensics. Internal
+  # only; the agent calls it. Models are mounted like vision's weights
+  # (python scripts/download_models.py); without them it runs rules-only and
+  # says so in /health.
+  guardrails:
+    build: ./services/guardrails
+    restart: unless-stopped
+    volumes:
+      - ${MODELS_DIR:-./data/models}:/models:ro
+    environment:
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
 
   # Queue consumer. Scale with: docker compose up --scale vision-worker=3
   # (the HTTP API in services/vision/main.py is still in the image for direct use).
@@ -144,11 +197,21 @@ services:
       POSTGRES_DB: claimlens
       POSTGRES_USER: claimlens
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env (see .env.example)}
+      # Per-service role passwords, set by db/role-passwords.sh on a fresh volume.
+      DB_PASSWORD_GATEWAY: ${DB_PASSWORD_GATEWAY:?set DB_PASSWORD_GATEWAY in .env}
+      DB_PASSWORD_AGENT: ${DB_PASSWORD_AGENT:?set DB_PASSWORD_AGENT in .env}
+      DB_PASSWORD_POLICY: ${DB_PASSWORD_POLICY:?set DB_PASSWORD_POLICY in .env}
+      DB_PASSWORD_PRICING: ${DB_PASSWORD_PRICING:?set DB_PASSWORD_PRICING in .env}
+      DB_PASSWORD_CLAIMS_HISTORY: ${DB_PASSWORD_CLAIMS_HISTORY:?set DB_PASSWORD_CLAIMS_HISTORY in .env}
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      # Per-service roles. On a volume created before these existed, run
+      # python scripts/apply_db_roles.py instead.
+      - ./db/roles.sql:/docker-entrypoint-initdb.d/002_roles.sql:ro
+      - ./db/role-passwords.sh:/docker-entrypoint-initdb.d/003_role_passwords.sh:ro
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "claimlens", "-d", "claimlens"]
       interval: 5s
@@ -162,7 +225,7 @@ services:
     build: ./mcp_servers/policy
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://claimlens:${POSTGRES_PASSWORD}@postgres:5432/claimlens
+      DATABASE_URL: postgresql://claimlens_policy:${DB_PASSWORD_POLICY:?set DB_PASSWORD_POLICY in .env}@postgres:5432/claimlens
       MCP_ALLOWED_HOSTS: policy:*,localhost:*
     depends_on:
       postgres:
@@ -178,7 +241,7 @@ services:
     build: ./mcp_servers/pricing
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://claimlens:${POSTGRES_PASSWORD}@postgres:5432/claimlens
+      DATABASE_URL: postgresql://claimlens_pricing:${DB_PASSWORD_PRICING:?set DB_PASSWORD_PRICING in .env}@postgres:5432/claimlens
       MCP_ALLOWED_HOSTS: pricing:*,localhost:*
     depends_on:
       postgres:
@@ -191,7 +254,7 @@ services:
     build: ./mcp_servers/claims_history
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://claimlens:${POSTGRES_PASSWORD}@postgres:5432/claimlens
+      DATABASE_URL: postgresql://claimlens_claims_history:${DB_PASSWORD_CLAIMS_HISTORY:?set DB_PASSWORD_CLAIMS_HISTORY in .env}@postgres:5432/claimlens
       MCP_ALLOWED_HOSTS: claims-history:*,localhost:*
     depends_on:
       postgres:

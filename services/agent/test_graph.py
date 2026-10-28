@@ -79,6 +79,7 @@ async def test_happy_path_stops_for_a_human_then_reports():
         "intake",
         "image_quality",
         "damage_analysis",
+        "photo_review",
         "policy_lookup",
         "cost_estimate",
         "fraud_checks",

@@ -4,3 +4,5 @@ httpx
 python-multipart
 redis
 boto3
+psycopg[binary]
+psycopg-pool

@@ -1,0 +1,8 @@
+node_modules
+.next
+coverage
+**/*.test.ts
+**/*.test.tsx
+Dockerfile
+.dockerignore
+tsconfig.tsbuildinfo

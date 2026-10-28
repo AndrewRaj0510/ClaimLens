@@ -1,6 +1,7 @@
 """Agent service: runs the claim graph and exposes its state.
 
     POST /claims                  start a claim (from the gateway, after photos are stored and queued)
+    GET  /claims                  claim list from the index (?customer_id=, ?status=)
     GET  /claims/{id}             status, the pending question (retake or approval), state, trace
     POST /claims/{id}/photos      answer a retake request
     POST /claims/{id}/decision    the adjuster's decision (the only way a claim gets decided)
@@ -9,8 +10,8 @@ Runs are started in the background and survive in the Postgres checkpointer:
 the state after every node is saved, so a paused claim waits for days at no
 cost and a restarted service picks up where it left off.
 
-Internal only: the gateway is the public entry point and will own
-authentication (customer vs adjuster) in Phase 3.
+Internal only: the gateway is the public entry point and owns authentication.
+It decides who may see or act on a claim; this service trusts its caller.
 """
 
 import asyncio
@@ -21,7 +22,7 @@ from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime
 from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Path
+from fastapi import FastAPI, HTTPException, Path, Query
 from langgraph.types import Command
 from pydantic import BaseModel, Field, field_validator
 
@@ -33,6 +34,15 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 log = logging.getLogger("agent")
 
 ClaimId = Annotated[str, Path(pattern=r"^[0-9a-f]{32}$")]
+CustomerId = Annotated[str, Field(pattern=r"^C\d{5}$")]
+STATUSES = (
+    "processing",
+    "awaiting_retake",
+    "awaiting_approval",
+    "completed",
+    "failed",
+    "interrupted",
+)
 ObjectKey = Annotated[str, Field(pattern=r"^claims/[0-9a-f]{32}/[0-9a-z_-]{1,64}$")]
 JobId = Annotated[str, Field(pattern=r"^[0-9a-f]{32}$")]
 WAITING_FOR = {"approval": "a decision", "retake": "photos"}
@@ -45,6 +55,9 @@ class Photo(BaseModel):
 
 class NewClaim(BaseModel):
     claim_id: Annotated[str, Field(pattern=r"^[0-9a-f]{32}$")] | None = None
+    # Who filed it (the gateway checks they own the policy). None for claims
+    # filed by internal tools, which then belong to no customer.
+    customer_id: CustomerId | None = None
     policy_id: Annotated[str, Field(pattern=r"^P\d{5}$")]
     incident_date: date
     description: Annotated[str, Field(min_length=10, max_length=4000)]
@@ -72,8 +85,14 @@ async def lifespan(app: FastAPI):
     from psycopg.rows import dict_row
     from psycopg_pool import AsyncConnectionPool
 
-    from adapters import ClaimRecorder, PhotoStore, VisionResults
-    from llm import OllamaLLM
+    from adapters import (
+        ClaimIndex,
+        ClaimRecorder,
+        Guardrails,
+        PhotoStore,
+        VisionResults,
+    )
+    from llm import VLM_MODEL, VLM_THINK, OllamaLLM
     from tools import McpTools
 
     # The checkpointer needs autocommit and dict rows (langgraph-checkpoint-postgres docs).
@@ -91,16 +110,49 @@ async def lifespan(app: FastAPI):
             photos=PhotoStore(),
             vision=VisionResults(r),
             recorder=ClaimRecorder(pool),
+            guardrails=Guardrails(),
+            vlm=OllamaLLM(model=VLM_MODEL, think=VLM_THINK),
         )
         app.state.graph = build_graph(deps, checkpointer)
+        app.state.index = ClaimIndex(pool)
+        await app.state.index.setup()
         yield
         await r.aclose()
+        await deps.guardrails.aclose()
+
+
+def summary_of(values):
+    """The few fields the claim lists show, so they don't load full state."""
+    rec, fraud, payable = (
+        values.get("recommendation"),
+        values.get("fraud"),
+        values.get("payable"),
+    )
+    decision = values.get("decision")
+    return {
+        "incident_date": values.get("incident_date"),
+        "damages": [
+            f"{d['damage_class']} ({d['severity']})" for d in values.get("damages", [])
+        ],
+        "recommendation": rec["action"] if rec else None,
+        "fraud_level": fraud["level"] if fraud else None,
+        "fraud_score": fraud["score"] if fraud else None,
+        "payable_expected": payable["expected"] if payable else None,
+        # Guardrails findings, so the queue can show which claims carry them.
+        "security_findings": len(values.get("security", [])),
+        "decision": {k: decision[k] for k in ("action", "amount")}
+        if decision
+        else None,
+    }
 
 
 def create_app(lifespan=lifespan):
     app = FastAPI(title="ClaimLens Agent", version="0.1.0", lifespan=lifespan)
     app.state.runs = {}  # claim_id -> asyncio.Task of the current run
     app.state.failures = {}  # claim_id -> error message of the last failed run
+    # claim_id -> customer_id for claims started here, so the owner is known
+    # before the run's first checkpoint exists (the state is empty until then).
+    app.state.owners = {}
 
     def config(claim_id):
         return {"configurable": {"thread_id": claim_id}}
@@ -114,6 +166,20 @@ def create_app(lifespan=lifespan):
         ) as e:  # recorded so GET shows "failed"; the checkpoint allows a retry
             log.exception("claim %s failed", claim_id)
             app.state.failures[claim_id] = f"{type(e).__name__}: {e}"[:500]
+        await sync_index(claim_id)
+
+    async def sync_index(claim_id):
+        """Copy the claim's status and summary into the index once a run stops.
+        A failure here is logged, not raised: the checkpoint is the truth, and
+        the claim itself must not fail because the list view is behind."""
+        try:
+            snap, question = await snapshot(claim_id)
+            if snap.values:  # the checkpoint knows the owner from here on
+                app.state.owners.pop(claim_id, None)
+            status = status_of(claim_id, snap, question, running=False)
+            await app.state.index.update(claim_id, status, summary_of(snap.values))
+        except Exception:
+            log.exception("claim %s: index update failed", claim_id)
 
     def start(claim_id, graph_input):
         current = app.state.runs.get(claim_id)
@@ -132,9 +198,16 @@ def create_app(lifespan=lifespan):
         pending = [i.value for t in snap.tasks for i in t.interrupts]
         return snap, (pending[0] if pending else None)
 
-    def status_of(claim_id, snap, question):
+    def is_running(claim_id):
         task = app.state.runs.get(claim_id)
-        if task and not task.done():
+        return bool(task and not task.done())
+
+    def status_of(claim_id, snap, question, running=None):
+        # A run reporting on itself as it finishes passes running=False: its
+        # own task doesn't count as done yet.
+        if running is None:
+            running = is_running(claim_id)
+        if running:
             return "processing"
         if claim_id in app.state.failures:
             return "failed"
@@ -182,8 +255,32 @@ def create_app(lifespan=lifespan):
             "retakes": 0,
             "trace": [],
         }
+        if claim.customer_id:
+            state["customer_id"] = claim.customer_id
+        # Indexed before the run starts, so the run's own update finds the row.
+        await app.state.index.add(claim_id, claim.customer_id, claim.policy_id)
+        app.state.owners[claim_id] = claim.customer_id
         start(claim_id, state)
         return {"claim_id": claim_id, "status": "processing"}
+
+    @app.get("/claims")
+    async def list_claims(
+        customer_id: Annotated[str | None, Query(pattern=r"^C\d{5}$")] = None,
+        status: Annotated[
+            str | None, Query(pattern="^(" + "|".join(STATUSES) + ")$")
+        ] = None,
+        limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    ):
+        rows = await app.state.index.list(customer_id, status, limit)
+        for row in rows:
+            if is_running(row["claim_id"]):
+                row["status"] = "processing"
+            elif row["status"] == "processing":
+                # Nothing running here, so the row is stale (e.g. the service
+                # restarted mid-run): ask the checkpoint.
+                snap, question = await snapshot(row["claim_id"])
+                row["status"] = status_of(row["claim_id"], snap, question)
+        return {"claims": rows}
 
     @app.get("/claims/{claim_id}")
     async def get_claim(claim_id: ClaimId):
@@ -191,6 +288,11 @@ def create_app(lifespan=lifespan):
         status = status_of(claim_id, snap, question)
         return {
             "claim_id": claim_id,
+            # Top level, and known even before the first checkpoint: the
+            # gateway authorizes on it.
+            "customer_id": snap.values.get(
+                "customer_id", app.state.owners.get(claim_id)
+            ),
             "status": status,
             "question": question,
             "error": error_of(claim_id, status),
@@ -206,6 +308,7 @@ def create_app(lifespan=lifespan):
                 detail=f"Claim isn't waiting for {WAITING_FOR[expected]}",
             )
         start(claim_id, Command(resume=value))
+        await app.state.index.update(claim_id, "processing")
         return {"claim_id": claim_id, "status": "processing"}
 
     @app.post("/claims/{claim_id}/photos", status_code=202)
@@ -234,6 +337,7 @@ def create_app(lifespan=lifespan):
         ):
             raise HTTPException(status_code=409, detail="Claim hasn't failed")
         start(claim_id, None)  # None = continue from the last checkpoint
+        await app.state.index.update(claim_id, "processing")
         return {"claim_id": claim_id, "status": "processing"}
 
     return app

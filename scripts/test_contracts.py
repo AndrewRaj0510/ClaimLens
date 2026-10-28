@@ -7,6 +7,7 @@ production (e.g. an agent that rejects photos the gateway accepted).
 """
 
 import importlib.util
+import re
 import sys
 from pathlib import Path
 
@@ -68,5 +69,67 @@ def test_upload_limit_is_the_same_everywhere(monkeypatch):
         "agent": load(
             "services/agent/adapters.py", "contract_agent_limits"
         ).PhotoStore.MAX_BYTES,
+        "guardrails": load(
+            "services/guardrails/main.py", "contract_guardrails"
+        ).MAX_UPLOAD_BYTES,
     }
     assert set(limits.values()) == {15 * 1024 * 1024}, limits
+
+
+def test_frontend_upload_checks_match_the_gateway():
+    # The frontend warns before uploading (frontend/lib/photos.ts). It can't
+    # read env vars, so it mirrors the defaults; if they drift, customers get
+    # "fine" in the browser and 413/415 from the gateway, or the reverse.
+    import re
+
+    source = (ROOT / "frontend" / "lib" / "photos.ts").read_text()
+
+    def const(name):
+        return re.search(rf"export const {name} = (.+?);", source).group(1)
+
+    gateway = load("services/gateway/common.py", "contract_gw_types")
+    claims = load("services/gateway/claims.py", "contract_gw_claims")
+    assert (
+        set(re.findall(r'"([^"]+)"', const("ALLOWED_TYPES"))) == gateway.ALLOWED_TYPES
+    )
+    assert float(const("MAX_MB")) == gateway.MAX_UPLOAD_MB
+    assert int(const("MAX_PHOTOS")) == claims.MAX_PHOTOS
+
+
+MCP_SERVERS = {
+    "policy": "mcp_servers/policy/main.py",
+    "pricing": "mcp_servers/pricing/main.py",
+    "claims_history": "mcp_servers/claims_history/main.py",
+}
+# A tool whose name sounds like it changes something. There must be none: the
+# agent's only route to a decision is the human-approval interrupt.
+WRITE_VERBS = re.compile(
+    r"approve|pay|decide|reject|settle|update|delete|insert|write|create|set_|close"
+)
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_every_mcp_tool_is_read_only_and_the_agent_allowlist_matches(
+    anyio_backend,
+):
+    from contextlib import asynccontextmanager
+
+    from mcp import Client
+
+    @asynccontextmanager
+    async def no_db(server):
+        yield None
+
+    tools = {}
+    for name, path in MCP_SERVERS.items():
+        server = load(path, f"contract_mcp_{name}").create_server(lifespan=no_db)
+        async with Client(server) as client:
+            listed = (await client.list_tools()).tools
+        for t in listed:
+            assert t.annotations and t.annotations.read_only_hint, (name, t.name)
+            assert not WRITE_VERBS.search(t.name), (name, t.name)
+            tools[(name, t.name)] = t
+    allowed = load("services/agent/tools.py", "contract_agent_tools").ALLOWED
+    for node, pairs in allowed.items():
+        assert pairs <= set(tools), (node, pairs - set(tools))

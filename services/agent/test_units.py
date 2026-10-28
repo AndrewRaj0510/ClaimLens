@@ -1,6 +1,7 @@
 """Unit tests for the deterministic parts: image checks, pHash, severity, fraud score."""
 
 import io
+import os
 from datetime import date
 
 import numpy as np
@@ -209,3 +210,48 @@ def test_open_image_refuses_a_decompression_bomb_before_decoding():
     assert len(buf.getvalue()) < 100_000
     with pytest.raises(ValueError, match="too many pixels"):
         images.open_image(buf.getvalue())
+
+
+# ---- ClaimIndex against a real Postgres ----
+
+TEST_DB = os.getenv("TEST_DATABASE_URL")
+
+
+@pytest.mark.skipif(not TEST_DB, reason="set TEST_DATABASE_URL to run")
+def test_claim_index_sql():
+    import asyncio
+
+    from psycopg.rows import dict_row
+    from psycopg_pool import AsyncConnectionPool
+
+    from adapters import ClaimIndex
+
+    async def scenario():
+        async with AsyncConnectionPool(
+            TEST_DB, kwargs={"autocommit": True, "row_factory": dict_row}, open=False
+        ) as pool:
+            index = ClaimIndex(pool)
+            await index.setup()
+            await index.setup()  # idempotent
+            async with pool.connection() as conn:
+                await conn.execute("TRUNCATE agent_claims")
+            await index.add("a" * 32, "C00001", "P00001")
+            await index.add("b" * 32, "C00002", "P00002")
+            await index.add("a" * 32, "C00009", "P00009")  # duplicate: ignored
+            await index.update("a" * 32, "awaiting_approval", {"fraud_level": "low"})
+            await index.update("b" * 32, "completed")  # summary kept
+            all_rows = await index.list()
+            mine = await index.list(customer_id="C00001")
+            waiting = await index.list(status="awaiting_approval")
+            return all_rows, mine, waiting
+
+    # psycopg's async mode needs a selector loop (Windows defaults to proactor).
+    with asyncio.Runner(loop_factory=asyncio.SelectorEventLoop) as runner:
+        all_rows, mine, waiting = runner.run(scenario())
+    assert [r["claim_id"] for r in all_rows] == ["b" * 32, "a" * 32]  # newest first
+    assert all_rows[0]["summary"] == {}
+    assert [(r["customer_id"], r["summary"]) for r in mine] == [
+        ("C00001", {"fraud_level": "low"})
+    ]
+    assert [r["claim_id"] for r in waiting] == ["a" * 32]
+    assert isinstance(all_rows[0]["created_at"], str)
