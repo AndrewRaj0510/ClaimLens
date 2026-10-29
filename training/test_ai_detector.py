@@ -1,3 +1,4 @@
+import io
 import random
 import sys
 from pathlib import Path
@@ -136,3 +137,47 @@ def test_metrics():
         "fpr": 0.3333,
         "n": 6,
     }
+
+
+def test_tiny_genimage_export_matches_genimage_layout(tmp_path):
+    pa = pytest.importorskip("pyarrow")
+    import pyarrow.parquet as pq
+
+    def png():
+        buf = io.BytesIO()
+        Image.new("RGB", (8, 8), "red").save(buf, format="PNG")
+        return buf.getvalue()
+
+    def jpg():
+        buf = io.BytesIO()
+        Image.new("RGB", (8, 8), "blue").save(buf, format="JPEG")
+        return buf.getvalue()
+
+    sd15, adm = ad.TINY_GENERATORS.index("SD15"), ad.TINY_GENERATORS.index("ADM")
+    rows = [
+        {"image": {"bytes": png(), "path": f"f{i}.png"}, "label": 1, "generator": g}
+        for i, g in enumerate([sd15, sd15, adm, adm])
+    ] + [
+        {"image": {"bytes": jpg(), "path": f"r{i}.JPEG"}, "label": 0, "generator": 0}
+        for i in range(4)
+    ]
+    for split in ("train", "validation"):
+        pq.write_table(
+            pa.Table.from_pylist(rows), tmp_path / f"{split}-00000-of-00001.parquet"
+        )
+
+    counts = ad.export_tiny_genimage(
+        sorted(tmp_path.glob("*.parquet")), tmp_path / "out"
+    )
+    assert counts["train"] == {
+        "ADM": {"ai": 2, "nature": 2},
+        "SD15": {"ai": 2, "nature": 2},
+    }
+    found = ad.find_generators(tmp_path / "out")
+    assert set(found) == {"adm", "sd15"} and set(found["sd15"]) == {"train", "val"}
+    images = {
+        label: ad.list_images(found["sd15"]["train"][label])
+        for label in ("ai", "nature")
+    }
+    # Bytes and formats unchanged, so the JPEG shortcut is still visible.
+    assert ad.format_report(images) == {"ai": {".png": 1.0}, "nature": {".jpeg": 1.0}}

@@ -1,0 +1,217 @@
+# ClaimLens CI: lint, every service's tests, every Docker build, and eval
+# gates that fail the build when a measured number regresses.
+#
+#   lint        ruff check + ruff format --check, whole repo
+#   test        pytest per service folder, with real Postgres (pgvector) and
+#               Redis service containers, so the DB and queue tests run too
+#   frontend    typecheck + vitest
+#   docker      build every image (not pushed; Phase 6 adds a registry)
+#   eval        the red-team suites against the guardrails with their real
+#               models, then services/eval/gate.py against baseline.json.
+#               Faithfulness (LLM-as-judge) runs weekly and on demand, when the
+#               OLLAMA_API_KEY secret is set: the free tier's GPU time is
+#               limited (decision 6). Detection needs CarDD, which can't be in
+#               CI: its committed result is gated, and it's re-run in Colab.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      faithfulness:
+        description: "Run the LLM-as-judge suite (uses Ollama Cloud quota)"
+        type: boolean
+        default: true
+  schedule:
+    - cron: "0 6 * * 1"  # Mondays: the LLM suite, so prompt or model drift shows up
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  RUFF_VERSION: "0.17.2"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install "ruff==${RUFF_VERSION}"
+      - run: ruff check --output-format=github .
+      - run: ruff format --check .
+
+  test:
+    name: test ${{ matrix.dir }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dir: services/gateway
+            requirements: services/gateway/requirements.txt
+          - dir: services/agent
+            requirements: services/agent/requirements.txt
+          - dir: services/vision
+            requirements: services/vision/requirements.txt
+          - dir: services/guardrails
+            requirements: services/guardrails/requirements.txt
+          - dir: services/eval
+            requirements: services/eval/requirements.txt
+            extra: pycocotools  # test_metrics checks AP against pycocotools itself
+          - dir: mcp_servers/policy
+            requirements: mcp_servers/policy/requirements.txt
+          - dir: mcp_servers/pricing
+            requirements: mcp_servers/pricing/requirements.txt
+          - dir: mcp_servers/claims_history
+            requirements: mcp_servers/claims_history/requirements.txt
+          - dir: scripts
+            # test_contracts loads all three MCP servers and the agent's tool
+            # policy; create_users uses the gateway's password hashing.
+            requirements: >-
+              scripts/requirements.txt mcp_servers/policy/requirements.txt
+              mcp_servers/pricing/requirements.txt mcp_servers/claims_history/requirements.txt
+              services/gateway/requirements.txt
+          - dir: training
+            requirements: ""
+            extra: numpy pillow onnxruntime scikit-learn pyarrow
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.1-pg17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: claimlens_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7.4-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/claimlens_test
+      TEST_REDIS_URL: redis://localhost:6379/15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "**/requirements.txt"
+      - name: Install
+        run: |
+          reqs=""
+          for f in ${{ matrix.requirements }}; do reqs="$reqs -r $f"; done
+          # httpx: FastAPI's TestClient needs a client, and not every service
+          # lists one (vision only uses it in tests).
+          pip install $reqs pytest anyio httpx ${{ matrix.extra }}
+      - name: pytest
+        working-directory: ${{ matrix.dir }}
+        run: python -m pytest -q -rs
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  docker:
+    name: docker ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: gateway, context: services/gateway, file: services/gateway/Dockerfile }
+          - { name: agent, context: services/agent, file: services/agent/Dockerfile }
+          - { name: vision, context: services/vision, file: services/vision/Dockerfile }
+          - { name: guardrails, context: services/guardrails, file: services/guardrails/Dockerfile }
+          # Built from the repo root: it imports the code it measures.
+          - { name: eval, context: ., file: services/eval/Dockerfile }
+          - { name: policy, context: mcp_servers/policy, file: mcp_servers/policy/Dockerfile }
+          - { name: pricing, context: mcp_servers/pricing, file: mcp_servers/pricing/Dockerfile }
+          - { name: claims-history, context: mcp_servers/claims_history, file: mcp_servers/claims_history/Dockerfile }
+          - { name: frontend, context: frontend, file: frontend/Dockerfile }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          push: false
+          tags: claimlens-${{ matrix.name }}:ci
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+
+  eval:
+    runs-on: ubuntu-latest
+    needs: lint
+    env:
+      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+      RUN_FAITHFULNESS: >-
+        ${{ github.event_name == 'schedule'
+            || (github.event_name == 'workflow_dispatch' && inputs.faithfulness) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "**/requirements.txt"
+      - name: Install
+        run: >-
+          pip install -r services/guardrails/requirements.txt
+          -r services/eval/requirements.txt -r scripts/requirements.txt
+      # The injection classifier (~740 MB) and YuNet, pinned by commit and
+      # SHA-256 in the script; cached so most runs don't download them.
+      - uses: actions/cache@v4
+        with:
+          path: data/models
+          key: guardrails-models-${{ hashFiles('scripts/download_models.py') }}
+      - run: python scripts/download_models.py
+
+      - name: Red-team suites (development + held-out)
+        run: python services/eval/run.py redteam
+      - name: Faithfulness (LLM-as-judge)
+        if: env.RUN_FAITHFULNESS == 'true' && env.OLLAMA_API_KEY != ''
+        run: python services/eval/run.py faithfulness
+      - name: Gates
+        run: |
+          require=redteam
+          if [ "$RUN_FAITHFULNESS" = "true" ] && [ -n "$OLLAMA_API_KEY" ]; then
+            require="$require,faithfulness"
+          fi
+          python services/eval/run.py gate --require "$require"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-results
+          path: |
+            services/eval/results/
+            data/redteam/report.json
+            data/redteam-heldout/report.json

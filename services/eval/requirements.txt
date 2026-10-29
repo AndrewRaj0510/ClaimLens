@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+numpy
+pillow
+# The code under test, imported from the repo (paths.py): the vision service's
+# ONNX post-processing, the agent's graph and LLM client, the pricing server.
+onnxruntime
+langgraph
+ollama
+mcp

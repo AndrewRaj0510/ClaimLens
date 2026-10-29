@@ -243,6 +243,31 @@ kubeconfig
 *.tfstate
 *.tfstate.*
 .terraform/
+# curl cookie jars from the README's API examples hold live session cookies
+cust.txt
+adj.txt
+cookies*.txt
+*.cookies
+# Env files under other names (e.g. a throwaway langfuse-test.env passed with
+# --env-file); .env.example doesn't match *.env, so it stays committed
+*.env
+# More credential files: SSH keys, npm/PyPI/netrc tokens, OAuth client secrets
+id_rsa*
+id_ed25519*
+*.ppk
+.netrc
+.npmrc
+client_secret*.json
+token.json
+# Local overrides and Helm values that may carry real passwords
+docker-compose.override.yml
+docker-compose.override.yaml
+compose.override.yml
+compose.override.yaml
+values.local.yaml
+*.local.yaml
+*.local.yml
+k8s/**/secrets*.yaml
 
 # Data and models (CarDD is research-only: never commit or redistribute it or weights trained on it)
 data/
@@ -257,6 +282,21 @@ mlruns/
 *.ckpt
 *.safetensors
 *.torchscript
+# Dataset archives and training outputs if downloaded locally (CarDD, GenImage)
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+CarDD*/
+cardd_yolo/
+GenImage*/
+genimage*/
+tiny-genimage*/
+*.parquet
+# ONNX weights over 2 GB are saved as external data next to the .onnx
+*.onnx.data
+*.onnx_data
 
 # Frontend (Next.js)
 node_modules/
@@ -264,6 +304,11 @@ node_modules/
 next-env.d.ts
 *.tsbuildinfo
 .vercel/
+test-results/
+coverage/
+playwright-report/
+blob-report/
+playwright/.cache/
 npm-debug.log*
 yarn-error.log*
 

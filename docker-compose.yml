@@ -87,7 +87,14 @@ services:
       # Without a key the agent still works: every LLM step falls back (see graph.py).
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
       # Vision model for photo_review; it only ever gets redacted photos.
-      VLM_MODEL: ${VLM_MODEL:-qwen3-vl:235b-instruct}
+      # gemma4:31b is the free tier's only vision model on Ollama Cloud.
+      VLM_MODEL: ${VLM_MODEL:-gemma4:31b}
+      # Langfuse tracing: off unless both keys are set. Langfuse Cloud by
+      # default; for the self-hosted one, add -f docker-compose.tracing.yml.
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LANGFUSE_BASE_URL: ${LANGFUSE_BASE_URL:-https://cloud.langfuse.com}
+      OTEL_SERVICE_NAME: agent
     depends_on:
       postgres:
         condition: service_healthy
@@ -128,6 +135,41 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
+
+  # Offline evaluation: detection mAP and cost error, report faithfulness
+  # (LLM-as-judge), the red-team suites, and the gates CI enforces. Internal
+  # only. The suites run as batch jobs; EVAL_COMMIT records which code was
+  # measured (the image has no git), e.g.:
+  #   export EVAL_COMMIT=$(git describe --always --dirty)
+  #   docker compose run --rm eval python run.py redteam
+  #   docker compose run --rm eval python run.py faithfulness
+  # Built from the repo root: it imports the code it measures (paths.py).
+  # Results land in services/eval/results/ (committed).
+  eval:
+    build:
+      context: .
+      dockerfile: services/eval/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./data:/repo/data
+      - ./services/eval/results:/repo/services/eval/results
+    environment:
+      GUARDRAILS_URL: http://guardrails:8000
+      EVAL_COMMIT: ${EVAL_COMMIT:-}
+      OLLAMA_HOST: ${OLLAMA_HOST:-https://ollama.com}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gpt-oss:120b}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+      # The judge is another model family than the report writer (gpt-oss).
+      JUDGE_MODEL: ${JUDGE_MODEL:-gemma4:31b}
+    depends_on:
+      guardrails:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
 
   # Queue consumer. Scale with: docker compose up --scale vision-worker=3
   # (the HTTP API in services/vision/main.py is still in the image for direct use).

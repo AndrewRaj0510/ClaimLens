@@ -37,6 +37,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from typing import Annotated, Literal, TypedDict
 
+from langgraph.errors import GraphInterrupt
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import RetryPolicy, interrupt
 from PIL import ImageOps
@@ -45,6 +46,7 @@ from pydantic import BaseModel, Field, create_model
 import damage
 import fraud
 import images
+import tracing
 from adapters import GuardrailsUnavailable
 from llm import LLMError
 from tools import ToolFailed, ToolNotAllowed
@@ -335,6 +337,41 @@ def recommend(state):
     }
 
 
+REPORT_FACT_KEYS = (
+    "claim_id",
+    "policy_id",
+    "incident_date",
+    "peril",
+    "damages",
+    "coverage",
+    "estimate",
+    "payable",
+    "recommendation",
+    "decision",
+)
+
+
+def report_facts(state):
+    """What the report LLM is given: the only facts it may use. services/eval
+    judges reports against exactly this, so it's one function for both."""
+    facts = {k: state.get(k) for k in REPORT_FACT_KEYS}
+    facts["description_summary"] = state["intake"]["summary"]
+    facts["cited_clauses"] = [
+        {k: c[k] for k in ("id", "section", "page_start")}
+        for c in state["clauses"]
+        if c["id"] in state["opinion"].get("citations", [])
+    ]
+    return facts
+
+
+async def write_report(llm, facts):
+    """The report LLM call (raises LLMError). Also used by services/eval."""
+    out = await llm.structured(
+        REPORT_SYSTEM, tagged("facts", json.dumps(facts, default=str)), Report
+    )
+    return out.model_dump()
+
+
 def template_report(state):
     """Used when the LLM is unavailable, so a claim is never stuck on it."""
     d = state["decision"]
@@ -357,6 +394,28 @@ def template_report(state):
 def transient(error):
     """Retry network-ish failures; not tool errors, refused tools or bad data."""
     return not isinstance(error, (ToolFailed, ToolNotAllowed, ValueError))
+
+
+def traced(name, fn):
+    """Run a node inside its own tracing span (a no-op when tracing is off), so
+    the LLM calls it makes nest under it. An interrupt is a pause for a human,
+    not an error, so it's recorded as such and re-raised outside the span."""
+
+    async def run(state):
+        paused = None
+        with tracing.node(name) as span:
+            try:
+                out = await fn(state)
+            except GraphInterrupt as e:
+                span.update(status_message="paused: waiting for a person")
+                paused = e
+            else:
+                span.update(output=out)
+        if paused:
+            raise paused
+        return out
+
+    return run
 
 
 def build_graph(deps: Deps, checkpointer):
@@ -1003,35 +1062,8 @@ def build_graph(deps: Deps, checkpointer):
         }
 
     async def final_report(state):
-        facts = {
-            k: state.get(k)
-            for k in (
-                "claim_id",
-                "policy_id",
-                "incident_date",
-                "peril",
-                "damages",
-                "coverage",
-                "estimate",
-                "payable",
-                "recommendation",
-                "decision",
-            )
-        }
-        facts["description_summary"] = state["intake"]["summary"]
-        facts["cited_clauses"] = [
-            {k: c[k] for k in ("id", "section", "page_start")}
-            for c in state["clauses"]
-            if c["id"] in state["opinion"].get("citations", [])
-        ]
         try:
-            report = (
-                await deps.llm.structured(
-                    REPORT_SYSTEM,
-                    tagged("facts", json.dumps(facts, default=str)),
-                    Report,
-                )
-            ).model_dump()
+            report = await write_report(deps.llm, report_facts(state))
             source = "llm"
         except LLMError:
             report, source = template_report(state), "fallback"
@@ -1046,15 +1078,22 @@ def build_graph(deps: Deps, checkpointer):
 
     retry = RetryPolicy(max_attempts=3, retry_on=transient)
     g = StateGraph(ClaimState)
-    g.add_node("intake", intake, retry_policy=retry)
-    g.add_node("image_quality", image_quality, retry_policy=retry)
-    g.add_node("damage_analysis", damage_analysis, retry_policy=retry)
-    g.add_node("photo_review", photo_review, retry_policy=retry)
-    g.add_node("policy_lookup", policy_lookup, retry_policy=retry)
-    g.add_node("cost_estimate", cost_estimate, retry_policy=retry)
-    g.add_node("fraud_checks", fraud_checks, retry_policy=retry)
-    g.add_node("human_approval", human_approval)
-    g.add_node("final_report", final_report, retry_policy=retry)
+    nodes = (
+        intake,
+        image_quality,
+        damage_analysis,
+        photo_review,
+        policy_lookup,
+        cost_estimate,
+        fraud_checks,
+        human_approval,
+        final_report,
+    )
+    for fn in nodes:
+        # human_approval isn't retried: it only re-raises the interrupt or
+        # validates the adjuster's answer, and a bad answer won't improve.
+        policy = None if fn is human_approval else retry
+        g.add_node(fn.__name__, traced(fn.__name__, fn), retry_policy=policy)
     g.add_edge(START, "intake")
     g.add_edge("intake", "image_quality")
     g.add_conditional_edges(

@@ -255,3 +255,59 @@ def test_claim_index_sql():
     ]
     assert [r["claim_id"] for r in waiting] == ["a" * 32]
     assert isinstance(all_rows[0]["created_at"], str)
+
+
+# ---- structured output from models that don't honour format= ----
+
+
+def test_field_list_names_every_field_and_choice():
+    from graph import PhotoReview
+    from llm import field_list
+
+    text = field_list(PhotoReview)
+    assert '- "matches_description": "yes" | "no" | "unclear"' in text
+    assert '- "damage_seen": list of strings' in text
+    assert '- "summary": string' in text
+
+
+def test_field_list_spells_out_nested_objects():
+    from typing import Literal
+
+    from pydantic import BaseModel
+
+    from llm import field_list
+
+    class Item(BaseModel):
+        text: str
+        verdict: Literal["supported", "contradicted"]
+
+    class Outer(BaseModel):
+        items: list[Item]
+        note: str
+
+    text = field_list(Outer)
+    assert '- "items": list of objects, each with exactly these fields:' in text
+    assert '  - "text": string' in text
+    assert '  - "verdict": "supported" | "contradicted"' in text
+    assert '- "note": string' in text
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        '{"a": 1}',
+        '```json\n{"a": 1}\n```',
+        'Here you go: {"a": 1} Hope that helps.',
+    ],
+)
+def test_json_object_is_cut_out_of_fences_and_prose(reply):
+    from llm import json_object
+
+    assert json_object(reply) == {"a": 1}
+
+
+def test_json_object_refuses_replies_without_one():
+    from llm import json_object
+
+    with pytest.raises(ValueError):
+        json_object("The image shows a car.")

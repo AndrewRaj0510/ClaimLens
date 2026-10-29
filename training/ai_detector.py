@@ -9,8 +9,10 @@ broad, well-shaped region of its feature space; a linear boundary there
 generalises to generators it never saw much better than a CNN trained end to
 end, which learns one generator's artefacts.
 
-Protocol (GenImage's own): train on Stable Diffusion v1.4 only, test on the
-val split of every generator. Generators other than SD v1.4 are unseen.
+Protocol (GenImage's own): train on one generator only, test on the val split
+of every generator; the others are unseen. Full GenImage: SD v1.4. Tiny-GenImage
+(the Hugging Face subset the notebook uses by default) has no SD v1.4, so it
+trains on SD v1.5, its successor.
 
 The JPEG shortcut: in GenImage, real images are ImageNet JPEGs and generated
 ones are PNGs. A detector can score well by spotting JPEG compression, which
@@ -33,7 +35,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "services" / "guardrails"))
 from forensics import clip_preprocess
 
-TRAIN_GENERATOR = "sdv4"  # matched against folder names, e.g. imagenet_ai_0419_sdv4
+TRAIN_GENERATOR = (
+    "sdv4"  # matched against folder names, e.g. imagenet_ai_0419_sdv4 (full GenImage)
+)
 JPEG_QUALITY = (65, 95)
 DOWNSCALE = (0.5, 1.0)
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
@@ -54,6 +58,63 @@ def find_generators(root):
             "nature": nature,
         }
     return found
+
+
+TINY_GENIMAGE = "TheKernel01/Tiny-GenImage"
+TINY_GENERATORS = [
+    "Real",
+    "ADM",
+    "BigGAN",
+    "GLIDE",
+    "Midjourney",
+    "SD14",
+    "SD15",
+    "VQDM",
+    "Wukong",
+]
+
+
+def export_tiny_genimage(parquet_files, root):
+    """Write Tiny-GenImage (Hugging Face, Parquet) in GenImage's folder layout,
+    <root>/<gen>/<gen>/{train,val}/{ai,nature}, so the same pipeline reads both.
+
+    Tiny-GenImage has no SD v1.4 (checked: 7 generators, 2,000 fakes each in
+    train and 500 in validation), so it's trained on SD v1.5 instead. Its real
+    images aren't tied to a generator; they're dealt out round-robin, which
+    gives each generator as many reals as fakes (14,000 / 7 and 3,500 / 7).
+    Image bytes are written unchanged (reals JPEG, fakes PNG), so
+    format_report still shows the shortcut that `align` removes.
+    Returns {split: {generator: {"ai": n, "nature": n}}}."""
+    import pyarrow.parquet as pq
+
+    root = Path(root)
+    rows = {"train": {"fake": [], "real": []}, "val": {"fake": [], "real": []}}
+    for path in parquet_files:
+        split = "val" if "validation" in Path(path).name else "train"
+        table = pq.read_table(path, columns=["image", "label", "generator"])
+        for r in table.to_pylist():
+            kind = "real" if r["label"] == 0 else "fake"
+            rows[split][kind].append((TINY_GENERATORS[r["generator"]], r["image"]))
+    counts = {}
+    for split, by_kind in rows.items():
+        gens = sorted({g for g, _ in by_kind["fake"]})
+        if not gens:
+            continue
+        counts[split] = {g: {"ai": 0, "nature": 0} for g in gens}
+        reals = [
+            (gens[i % len(gens)], image) for i, (_, image) in enumerate(by_kind["real"])
+        ]
+        for label, items in (("ai", by_kind["fake"]), ("nature", reals)):
+            for g, image in items:
+                folder = root / g.lower() / g.lower() / split / label
+                folder.mkdir(parents=True, exist_ok=True)
+                n = counts[split][g][label]
+                suffix = Path(image.get("path") or "").suffix.lower() or (
+                    ".png" if image["bytes"][:4] == b"\x89PNG" else ".jpg"
+                )
+                (folder / f"{n:05d}{suffix}").write_bytes(image["bytes"])
+                counts[split][g][label] = n + 1
+    return counts
 
 
 def list_images(folder):

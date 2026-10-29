@@ -1,15 +1,22 @@
 """Run the red-team set (scripts/generate_redteam.py) against the guardrails
 and the agent's own checks, and report what was caught.
 
-    python scripts/run_redteam.py [--out data/redteam/report.json]
+    python scripts/run_redteam.py [--data data/redteam] [--guardrails-url URL]
 
-Runs in-process: the guardrails FastAPI app through TestClient with the real
-models (data/models, see scripts/download_models.py), the agent's pHash and
-tool allowlist imported directly. Faster in the guardrails container than on
-Windows (finding 4 in Phase 4), e.g.:
+Two ways to reach guardrails, same requests either way:
+- in-process (default): the guardrails FastAPI app through TestClient, with
+  the real models (data/models, see scripts/download_models.py). Faster in
+  the guardrails container than on Windows (finding 4 in Phase 4), e.g.:
 
     docker run --rm -v "$PWD:/repo" -v "$PWD/data/models:/models:ro" -w /repo \\
         claimlens-guardrails python scripts/run_redteam.py
+
+- --guardrails-url http://guardrails:8000: the running service (services/eval
+  does this in Docker Compose and CI).
+
+The agent's pHash and tool allowlist are imported directly either way.
+--data picks the case set: data/redteam (scripts/generate_redteam.py) or the
+held-out data/redteam-heldout (scripts/generate_redteam_heldout.py).
 
 "Caught" per expectation:
   flag          the scan flagged the text, or the text OCR read in the photo
@@ -47,35 +54,43 @@ if _yunet.exists():
 DUPLICATE_DISTANCE = 8  # find_duplicate_photos' default max_distance
 
 
-def load_modules():
-    sys.path.insert(0, str(ROOT / "services" / "guardrails"))
-    import main as guardrails
-    import photos
-
-    sys.path.insert(0, str(ROOT / "services" / "agent"))
+def agent_modules():
+    """The agent's pHash and tool policy: pure modules, imported directly."""
+    path = str(ROOT / "services" / "agent")
+    if path not in sys.path:
+        sys.path.append(path)
     import images
     import tools
 
-    return guardrails, photos, images, tools
+    return images, tools
+
+
+def guardrails_app():
+    """The guardrails FastAPI app, for running in-process. Loaded from its file
+    under its own name: services/eval (which calls this) has a main.py too."""
+    import importlib.util
+
+    folder = ROOT / "services" / "guardrails"
+    sys.path.insert(0, str(folder))  # for its own imports (text_scan, photos, ...)
+    spec = importlib.util.spec_from_file_location("guardrails_main", folder / "main.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.app
 
 
 class Runner:
-    def __init__(self, client, photos, images, tools):
-        self.client, self.photos, self.images, self.tools = (
-            client,
-            photos,
-            images,
-            tools,
-        )
-        self.ocr = photos.Ocr()
+    """client: anything with httpx's post/get (TestClient or httpx.Client)."""
+
+    def __init__(self, client, images, tools, data_dir=DATA):
+        self.client, self.images, self.tools = client, images, tools
+        self.data = Path(data_dir)
 
     def scan(self, text, profile):
         r = self.client.post("/scan/text", json={"texts": [text], "profile": profile})
         r.raise_for_status()
         return r.json()["results"][0]
 
-    def inspect(self, path, incident_date=None):
-        data = (DATA / path).read_bytes()
+    def inspect_bytes(self, data, incident_date=None):
         form = {"incident_date": incident_date} if incident_date else {}
         r = self.client.post(
             "/images/inspect", files={"file": ("p", data, "image/jpeg")}, data=form
@@ -83,15 +98,15 @@ class Runner:
         r.raise_for_status()
         return r.json()
 
+    def inspect(self, path, incident_date=None):
+        return self.inspect_bytes((self.data / path).read_bytes(), incident_date)
+
     def readable_after_redaction(self, report):
-        redacted = Image.open(
-            io.BytesIO(base64.b64decode(report["redacted_jpeg"]))
-        ).convert("RGB")
-        return " ".join(
-            r["text"]
-            for r in self.ocr.read(redacted)
-            if r["score"] >= self.photos.OCR_MIN_SCORE
-        )
+        """What OCR can still read in the redacted copy the vision LLM gets.
+        Read by the service itself: its OCR, at its working size, with its
+        confidence cut-off (the copy is already at that size)."""
+        redacted = base64.b64decode(report["redacted_jpeg"])
+        return " ".join(r["text"] for r in self.inspect_bytes(redacted)["ocr"])
 
     def run(self, case):
         """Returns (caught, detail)."""
@@ -134,8 +149,8 @@ class Runner:
                 return case["code"] in codes, detail
         if kind == "reuse":
             open_ = self.images.open_image
-            new = open_((DATA / case["image"]).read_bytes())
-            old = self.images.phash(open_((DATA / case["original"]).read_bytes()))
+            new = open_((self.data / case["image"]).read_bytes())
+            old = self.images.phash(open_((self.data / case["original"]).read_bytes()))
             d = self.images.hamming(self.images.phash(new), old)
             d_mirror = self.images.hamming(self.images.phash(ImageOps.mirror(new)), old)
             best = min(d, d_mirror)
@@ -217,48 +232,58 @@ def summarise(results):
     }
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--out", default=str(DATA / "report.json"))
-    parser.add_argument("--only", help="run only cases whose id starts with this")
-    args = parser.parse_args()
-    cases = [
-        json.loads(line)
-        for line in (DATA / "cases.jsonl").read_text(encoding="utf-8").splitlines()
-    ]
-    if args.only:
-        cases = [c for c in cases if c["id"].startswith(args.only)]
+def load_cases(data_dir):
+    lines = (Path(data_dir) / "cases.jsonl").read_text(encoding="utf-8").splitlines()
+    return [json.loads(line) for line in lines]
 
-    from fastapi.testclient import TestClient
 
-    guardrails, photos, images, tools = load_modules()
+def run_cases(client, cases, data_dir=DATA):
+    """Runs the cases through `client`. Returns (summary, per-case results)."""
+    images, tools = agent_modules()
     started = time.time()
-    with TestClient(guardrails.app) as client:
-        health = client.get("/health").json()
-        runner = Runner(client, photos, images, tools)
-        results = []
-        for c in cases:
-            caught, detail = runner.run(c)
-            results.append(
-                {
-                    k: c[k]
-                    for k in (
-                        "id",
-                        "category",
-                        "owasp",
-                        "attack",
-                        "known_limit",
-                        "expect",
-                    )
-                }
-                | {"caught": bool(caught), "detail": detail}
-            )
+    health = client.get("/health").json()
+    runner = Runner(client, images, tools, data_dir)
+    results = []
+    for c in cases:
+        caught, detail = runner.run(c)
+        results.append(
+            {
+                k: c[k]
+                for k in ("id", "category", "owasp", "attack", "known_limit", "expect")
+            }
+            | {"caught": bool(caught), "detail": detail}
+        )
     summary = summarise(results)
     summary["guardrails"] = health
     summary["seconds"] = round(time.time() - started, 1)
-    Path(args.out).write_text(
-        json.dumps({"summary": summary, "results": results}, indent=1)
-    )
+    return summary, results
+
+
+def client_for(guardrails_url=None):
+    """A client (use it in a with block) for the running service or the app."""
+    if guardrails_url:
+        import httpx
+
+        return httpx.Client(base_url=guardrails_url, timeout=120)
+    from fastapi.testclient import TestClient
+
+    return TestClient(guardrails_app())
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--data", default=str(DATA), help="folder with cases.jsonl")
+    parser.add_argument("--out", help="default: <data>/report.json")
+    parser.add_argument("--guardrails-url", help="use the running service")
+    parser.add_argument("--only", help="run only cases whose id starts with this")
+    args = parser.parse_args()
+    cases = load_cases(args.data)
+    if args.only:
+        cases = [c for c in cases if c["id"].startswith(args.only)]
+    with client_for(args.guardrails_url) as client:
+        summary, results = run_cases(client, cases, args.data)
+    out = Path(args.out or Path(args.data) / "report.json")
+    out.write_text(json.dumps({"summary": summary, "results": results}, indent=1))
 
     print(json.dumps(summary, indent=1))
     misses = [r for r in results if not r["caught"]]

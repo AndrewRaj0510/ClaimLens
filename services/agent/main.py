@@ -12,6 +12,9 @@ cost and a restarted service picks up where it left off.
 
 Internal only: the gateway is the public entry point and owns authentication.
 It decides who may see or act on a claim; this service trusts its caller.
+
+With Langfuse keys set, every run is traced (tracing.py): one trace per claim,
+a span per run, per node and per LLM call.
 """
 
 import asyncio
@@ -26,6 +29,7 @@ from fastapi import FastAPI, HTTPException, Path, Query
 from langgraph.types import Command
 from pydantic import BaseModel, Field, field_validator
 
+import tracing
 from graph import Decision, Deps, build_graph
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
@@ -119,6 +123,7 @@ async def lifespan(app: FastAPI):
         yield
         await r.aclose()
         await deps.guardrails.aclose()
+        tracing.flush()
 
 
 def summary_of(values):
@@ -157,9 +162,14 @@ def create_app(lifespan=lifespan):
     def config(claim_id):
         return {"configurable": {"thread_id": claim_id}}
 
-    async def run(claim_id, graph_input):
+    async def run(claim_id, graph_input, kind):
         try:
-            await app.state.graph.ainvoke(graph_input, config(claim_id))
+            owner = app.state.owners.get(claim_id)
+            if owner is None and tracing.ENABLED:  # a resumed run: ask the checkpoint
+                snap = await app.state.graph.aget_state(config(claim_id))
+                owner = snap.values.get("customer_id")
+            with tracing.claim_run(claim_id, kind, owner):
+                await app.state.graph.ainvoke(graph_input, config(claim_id))
             app.state.failures.pop(claim_id, None)
         except (
             Exception
@@ -181,13 +191,13 @@ def create_app(lifespan=lifespan):
         except Exception:
             log.exception("claim %s: index update failed", claim_id)
 
-    def start(claim_id, graph_input):
+    def start(claim_id, graph_input, kind):
         current = app.state.runs.get(claim_id)
         if current and not current.done():
             raise HTTPException(
                 status_code=409, detail="Claim is already being processed"
             )
-        app.state.runs[claim_id] = asyncio.create_task(run(claim_id, graph_input))
+        app.state.runs[claim_id] = asyncio.create_task(run(claim_id, graph_input, kind))
 
     async def snapshot(claim_id):
         snap = await app.state.graph.aget_state(config(claim_id))
@@ -260,7 +270,7 @@ def create_app(lifespan=lifespan):
         # Indexed before the run starts, so the run's own update finds the row.
         await app.state.index.add(claim_id, claim.customer_id, claim.policy_id)
         app.state.owners[claim_id] = claim.customer_id
-        start(claim_id, state)
+        start(claim_id, state, "start")
         return {"claim_id": claim_id, "status": "processing"}
 
     @app.get("/claims")
@@ -307,7 +317,7 @@ def create_app(lifespan=lifespan):
                 status_code=409,
                 detail=f"Claim isn't waiting for {WAITING_FOR[expected]}",
             )
-        start(claim_id, Command(resume=value))
+        start(claim_id, Command(resume=value), expected)
         await app.state.index.update(claim_id, "processing")
         return {"claim_id": claim_id, "status": "processing"}
 
@@ -336,7 +346,7 @@ def create_app(lifespan=lifespan):
             "interrupted",
         ):
             raise HTTPException(status_code=409, detail="Claim hasn't failed")
-        start(claim_id, None)  # None = continue from the last checkpoint
+        start(claim_id, None, "retry")  # None = continue from the last checkpoint
         await app.state.index.update(claim_id, "processing")
         return {"claim_id": claim_id, "status": "processing"}
 

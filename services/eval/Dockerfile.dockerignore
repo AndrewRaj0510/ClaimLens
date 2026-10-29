@@ -1,0 +1,11 @@
+# The build context is the repo root: send only what the eval image copies.
+**
+!services/eval/**
+!services/agent/**
+!services/vision/**
+!mcp_servers/pricing/**
+!scripts/**
+!services/guardrails/fixtures/**
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache

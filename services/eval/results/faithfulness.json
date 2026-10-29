@@ -1,0 +1,120 @@
+{
+ "suite": "faithfulness",
+ "ran_at": "2026-10-29T09:24:17+00:00",
+ "commit": "dafa06a-dirty",
+ "result": {
+  "writer_model": "gpt-oss:120b",
+  "judge_model": "gemma4:31b",
+  "cases": 12,
+  "reports": 12,
+  "judged": 12,
+  "failures": [],
+  "grounding_pass_rate": 0.833,
+  "judge_faithful_rate": 0.917,
+  "mean_faithfulness": 0.987,
+  "planted_errors": 56,
+  "judge_catch_rate": 1.0,
+  "grounding_catch_rate": 0.714,
+  "by_planted_error": {
+   "invented_clause": {
+    "n": 12,
+    "judge": 1.0,
+    "grounding": 1.0
+   },
+   "invented_event": {
+    "n": 12,
+    "judge": 1.0,
+    "grounding": 0.167
+   },
+   "wrong_amount": {
+    "n": 12,
+    "judge": 1.0,
+    "grounding": 1.0
+   },
+   "wrong_date": {
+    "n": 12,
+    "judge": 1.0,
+    "grounding": 1.0
+   },
+   "wrong_outcome": {
+    "n": 8,
+    "judge": 1.0,
+    "grounding": 0.25
+   }
+  },
+  "by_scenario": {
+   "approve": {
+    "reports": 3,
+    "judge_faithful": 1.0,
+    "grounding_ok": 1.0
+   },
+   "edit": {
+    "reports": 3,
+    "judge_faithful": 1.0,
+    "grounding_ok": 0.667
+   },
+   "deny": {
+    "reports": 2,
+    "judge_faithful": 1.0,
+    "grounding_ok": 1.0
+   },
+   "fraud": {
+    "reports": 2,
+    "judge_faithful": 1.0,
+    "grounding_ok": 1.0
+   },
+   "deductible": {
+    "reports": 2,
+    "judge_faithful": 0.5,
+    "grounding_ok": 0.5
+   }
+  },
+  "flagged": [
+   {
+    "scenario": "deductible",
+    "report": {
+     "customer_message": "Your claim has been reviewed and approved, but the estimated repair cost ($444.50) is less than your deductible of $633. As a result, no payment will be made on this claim.",
+     "adjuster_summary": "Claim ID 5464ecc280b0c08bc77024208aa4248c, Policy P83420, incident on 2026-09-11 (collision). Coverage in force and peril covered, deductible $633. Damages: minor lamp broken (9.17% area) and minor scratch (8.45% area). Estimated repair total $444.50 (parts $266, labour $78, paint $100.5). Estimate range $377.82–$533.40. Payable amount $0 due to deductible exceeding estimate. Recommendation: review; decision: approve with $0 payout. Adjuster: alex."
+    },
+    "grounding": {
+     "amounts": [
+      "$266",
+      "$100.5"
+     ]
+    },
+    "judge": [
+     {
+      "text": "parts $266",
+      "verdict": "contradicted",
+      "reason": "Total parts cost is 228.0 + 38.0 = 266.0, but the report lists it as $266. Wait, 228+38 is 266. This is supported."
+     },
+     {
+      "text": "labour $78",
+      "verdict": "contradicted",
+      "reason": "Total labour cost is (0.5 + 1.0) * 78 = 117.0, not 78."
+     },
+     {
+      "text": "paint $100.5",
+      "verdict": "unsupported",
+      "reason": "Paint hours are 0.5, but the cost for paint is not explicitly provided as a separate total in the facts; only total cost per line item is given."
+     }
+    ]
+   },
+   {
+    "scenario": "edit",
+    "report": {
+     "customer_message": "Your claim (ID b8c9817af8be8831f237e45acd02c5e1) has been approved for a payment of $1,404.55 after the adjuster reviewed the damage. Thank you for your patience.",
+     "adjuster_summary": "Claim ID b8c9817af8be8831f237e45acd02c5e1, Policy P51884, incident on 2026-09-12 (tree branch fell on car). Peril: comprehensive, coverage in force and peril covered. Damages: severe bumper crack (1.29% area) and moderate flat tire (9.45% area). Estimate total $2,178.60 (parts $1,255.5, labour $5.2 hrs, paint $3.5 hrs). Payable range $1,351.81–$2,114.32, expected $1,678.60. Recommendation: review due to poor photo quality. Decision: edit, adjusted payment $1,404.55 by adjuster Alex, noting part of the damage predates the incident."
+    },
+    "grounding": {
+     "amounts": [
+      "$1,255.5",
+      "$5.2"
+     ]
+    },
+    "judge": []
+   }
+  ],
+  "seconds": 208.3
+ }
+}
