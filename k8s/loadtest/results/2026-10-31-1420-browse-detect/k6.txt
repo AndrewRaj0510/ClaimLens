@@ -1,0 +1,2140 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: /scripts/claimlens.js
+        output: -
+
+     scenarios: (100.00%) 2 scenarios, 700 max VUs, 8m0s max duration (incl. graceful stop):
+              * browse: Up to 150.00 iterations/s for 5m30s over 7 stages (maxVUs: 50-400, exec: browse, gracefulStop: 30s)
+              * detect: Up to 16.00 iterations/s for 7m30s over 7 stages (maxVUs: 40-300, exec: detect, gracefulStop: 30s)
+
+
+Run      [ 100% ] setup()
+browse   [   0% ]
+detect   [   0% ]
+
+Run      [ 100% ] setup()
+browse   [   0% ]
+detect   [   0% ]
+
+Run      [ 100% ] setup()
+browse   [   0% ]
+detect   [   0% ]
+
+running (0m04.0s), 000/090 VUs, 4 complete and 0 interrupted iterations
+browse   [   0% ] 000/050 VUs  0m00.9s/5m30s  005.57 iters/s
+detect   [   0% ] 000/040 VUs  0m00.9s/7m30s  01.02 iters/s
+
+running (0m05.0s), 000/090 VUs, 11 complete and 0 interrupted iterations
+browse   [   1% ] 000/050 VUs  0m01.9s/5m30s  006.24 iters/s
+detect   [   0% ] 000/040 VUs  0m01.9s/7m30s  01.05 iters/s
+
+running (0m06.0s), 001/090 VUs, 19 complete and 0 interrupted iterations
+browse   [   1% ] 000/050 VUs  0m02.9s/5m30s  006.95 iters/s
+detect   [   1% ] 001/040 VUs  0m02.9s/7m30s  01.11 iters/s
+
+running (0m07.0s), 001/090 VUs, 27 complete and 0 interrupted iterations
+browse   [   1% ] 000/050 VUs  0m03.9s/5m30s  007.59 iters/s
+detect   [   1% ] 001/040 VUs  0m03.9s/7m30s  01.14 iters/s
+
+running (0m08.0s), 001/090 VUs, 36 complete and 0 interrupted iterations
+browse   [   1% ] 000/050 VUs  0m04.9s/5m30s  008.27 iters/s
+detect   [   1% ] 001/040 VUs  0m04.9s/7m30s  01.17 iters/s
+
+running (0m09.0s), 000/090 VUs, 47 complete and 0 interrupted iterations
+browse   [   2% ] 000/050 VUs  0m05.9s/5m30s  008.96 iters/s
+detect   [   1% ] 000/040 VUs  0m05.9s/7m30s  01.20 iters/s
+
+running (0m10.0s), 000/090 VUs, 57 complete and 0 interrupted iterations
+browse   [   2% ] 000/050 VUs  0m06.9s/5m30s  009.61 iters/s
+detect   [   2% ] 000/040 VUs  0m06.9s/7m30s  01.22 iters/s
+
+running (0m11.0s), 000/090 VUs, 68 complete and 0 interrupted iterations
+browse   [   2% ] 000/050 VUs  0m07.9s/5m30s  010.28 iters/s
+detect   [   2% ] 000/040 VUs  0m07.9s/7m30s  01.25 iters/s
+
+running (0m12.0s), 001/090 VUs, 80 complete and 0 interrupted iterations
+browse   [   3% ] 000/050 VUs  0m08.9s/5m30s  010.97 iters/s
+detect   [   2% ] 001/040 VUs  0m08.9s/7m30s  01.30 iters/s
+
+running (0m13.0s), 001/090 VUs, 92 complete and 0 interrupted iterations
+browse   [   3% ] 000/050 VUs  0m09.9s/5m30s  011.62 iters/s
+detect   [   2% ] 001/040 VUs  0m09.9s/7m30s  01.33 iters/s
+
+running (0m14.0s), 000/090 VUs, 106 complete and 0 interrupted iterations
+browse   [   3% ] 000/050 VUs  0m10.9s/5m30s  012.29 iters/s
+detect   [   2% ] 000/040 VUs  0m10.9s/7m30s  01.35 iters/s
+
+running (0m15.0s), 002/090 VUs, 119 complete and 0 interrupted iterations
+browse   [   4% ] 001/050 VUs  0m11.9s/5m30s  012.97 iters/s
+detect   [   3% ] 001/040 VUs  0m11.9s/7m30s  01.40 iters/s
+
+running (0m16.0s), 000/090 VUs, 135 complete and 0 interrupted iterations
+browse   [   4% ] 000/050 VUs  0m12.9s/5m30s  013.63 iters/s
+detect   [   3% ] 000/040 VUs  0m12.9s/7m30s  01.43 iters/s
+
+running (0m17.0s), 001/090 VUs, 150 complete and 0 interrupted iterations
+browse   [   4% ] 000/050 VUs  0m13.9s/5m30s  014.29 iters/s
+detect   [   3% ] 001/040 VUs  0m13.9s/7m30s  01.47 iters/s
+
+running (0m18.0s), 001/090 VUs, 165 complete and 0 interrupted iterations
+browse   [   5% ] 000/050 VUs  0m14.9s/5m30s  014.93 iters/s
+detect   [   3% ] 001/040 VUs  0m14.9s/7m30s  01.49 iters/s
+
+running (0m19.0s), 002/090 VUs, 182 complete and 0 interrupted iterations
+browse   [   5% ] 001/050 VUs  0m15.9s/5m30s  015.63 iters/s
+detect   [   4% ] 001/040 VUs  0m15.9s/7m30s  01.54 iters/s
+
+running (0m20.0s), 001/090 VUs, 200 complete and 0 interrupted iterations
+browse   [   5% ] 001/050 VUs  0m16.9s/5m30s  016.30 iters/s
+detect   [   4% ] 000/040 VUs  0m16.9s/7m30s  01.56 iters/s
+
+running (0m21.0s), 001/090 VUs, 218 complete and 0 interrupted iterations
+browse   [   5% ] 000/050 VUs  0m17.9s/5m30s  016.94 iters/s
+detect   [   4% ] 001/040 VUs  0m17.9s/7m30s  01.60 iters/s
+
+running (0m22.0s), 001/090 VUs, 237 complete and 0 interrupted iterations
+browse   [   6% ] 001/050 VUs  0m18.9s/5m30s  017.64 iters/s
+detect   [   4% ] 000/040 VUs  0m18.9s/7m30s  01.62 iters/s
+
+running (0m23.0s), 001/090 VUs, 256 complete and 0 interrupted iterations
+browse   [   6% ] 000/050 VUs  0m19.9s/5m30s  018.27 iters/s
+detect   [   4% ] 001/040 VUs  0m19.9s/7m30s  01.66 iters/s
+
+running (0m24.0s), 001/090 VUs, 277 complete and 0 interrupted iterations
+browse   [   6% ] 000/050 VUs  0m20.9s/5m30s  018.95 iters/s
+detect   [   5% ] 001/040 VUs  0m20.9s/7m30s  01.70 iters/s
+
+running (0m25.0s), 001/090 VUs, 297 complete and 0 interrupted iterations
+browse   [   7% ] 000/050 VUs  0m21.9s/5m30s  019.60 iters/s
+detect   [   5% ] 001/040 VUs  0m21.9s/7m30s  01.72 iters/s
+
+running (0m26.0s), 001/090 VUs, 319 complete and 0 interrupted iterations
+browse   [   7% ] 000/050 VUs  0m22.9s/5m30s  020.27 iters/s
+detect   [   5% ] 001/040 VUs  0m22.9s/7m30s  01.76 iters/s
+
+running (0m27.0s), 001/090 VUs, 342 complete and 0 interrupted iterations
+browse   [   7% ] 000/050 VUs  0m23.9s/5m30s  020.95 iters/s
+detect   [   5% ] 001/040 VUs  0m23.9s/7m30s  01.80 iters/s
+
+running (0m28.0s), 001/090 VUs, 365 complete and 0 interrupted iterations
+browse   [   8% ] 000/050 VUs  0m24.9s/5m30s  021.61 iters/s
+detect   [   6% ] 001/040 VUs  0m24.9s/7m30s  01.83 iters/s
+
+running (0m29.0s), 001/090 VUs, 389 complete and 0 interrupted iterations
+browse   [   8% ] 000/050 VUs  0m25.9s/5m30s  022.28 iters/s
+detect   [   6% ] 001/040 VUs  0m25.9s/7m30s  01.87 iters/s
+
+running (0m30.0s), 002/090 VUs, 413 complete and 0 interrupted iterations
+browse   [   8% ] 000/050 VUs  0m26.9s/5m30s  022.96 iters/s
+detect   [   6% ] 002/040 VUs  0m26.9s/7m30s  01.91 iters/s
+
+running (0m31.0s), 001/090 VUs, 438 complete and 0 interrupted iterations
+browse   [   8% ] 000/050 VUs  0m27.9s/5m30s  023.61 iters/s
+detect   [   6% ] 001/040 VUs  0m27.9s/7m30s  01.92 iters/s
+
+running (0m32.0s), 001/090 VUs, 464 complete and 0 interrupted iterations
+browse   [   9% ] 000/050 VUs  0m28.9s/5m30s  024.28 iters/s
+detect   [   6% ] 001/040 VUs  0m28.9s/7m30s  01.96 iters/s
+
+running (0m33.0s), 002/090 VUs, 490 complete and 0 interrupted iterations
+browse   [   9% ] 001/050 VUs  0m29.9s/5m30s  024.96 iters/s
+detect   [   7% ] 001/040 VUs  0m29.9s/7m30s  01.99 iters/s
+
+running (0m34.0s), 002/090 VUs, 517 complete and 0 interrupted iterations
+browse   [   9% ] 001/050 VUs  0m30.9s/5m30s  025.00 iters/s
+detect   [   7% ] 001/040 VUs  0m30.9s/7m30s  02.00 iters/s
+
+running (0m35.0s), 003/090 VUs, 543 complete and 0 interrupted iterations
+browse   [  10% ] 001/050 VUs  0m31.9s/5m30s  025.00 iters/s
+detect   [   7% ] 002/040 VUs  0m31.9s/7m30s  02.00 iters/s
+
+running (0m36.0s), 003/090 VUs, 570 complete and 0 interrupted iterations
+browse   [  10% ] 001/050 VUs  0m32.9s/5m30s  025.00 iters/s
+detect   [   7% ] 002/040 VUs  0m32.9s/7m30s  02.00 iters/s
+
+running (0m37.0s), 003/090 VUs, 597 complete and 0 interrupted iterations
+browse   [  10% ] 001/050 VUs  0m33.9s/5m30s  025.00 iters/s
+detect   [   8% ] 002/040 VUs  0m33.9s/7m30s  02.00 iters/s
+
+running (0m38.0s), 003/090 VUs, 624 complete and 0 interrupted iterations
+browse   [  11% ] 001/050 VUs  0m34.9s/5m30s  025.00 iters/s
+detect   [   8% ] 002/040 VUs  0m34.9s/7m30s  02.00 iters/s
+
+running (0m39.0s), 004/090 VUs, 650 complete and 0 interrupted iterations
+browse   [  11% ] 001/050 VUs  0m35.9s/5m30s  025.00 iters/s
+detect   [   8% ] 003/040 VUs  0m35.9s/7m30s  02.00 iters/s
+
+running (0m40.0s), 004/090 VUs, 677 complete and 0 interrupted iterations
+browse   [  11% ] 001/050 VUs  0m36.9s/5m30s  025.00 iters/s
+detect   [   8% ] 003/040 VUs  0m36.9s/7m30s  02.00 iters/s
+
+running (0m41.0s), 004/090 VUs, 704 complete and 0 interrupted iterations
+browse   [  11% ] 001/050 VUs  0m37.9s/5m30s  025.00 iters/s
+detect   [   8% ] 003/040 VUs  0m37.9s/7m30s  02.00 iters/s
+
+running (0m42.0s), 004/090 VUs, 731 complete and 0 interrupted iterations
+browse   [  12% ] 001/050 VUs  0m38.9s/5m30s  025.00 iters/s
+detect   [   9% ] 003/040 VUs  0m38.9s/7m30s  02.00 iters/s
+
+running (0m43.0s), 005/090 VUs, 757 complete and 0 interrupted iterations
+browse   [  12% ] 001/050 VUs  0m39.9s/5m30s  025.00 iters/s
+detect   [   9% ] 004/040 VUs  0m39.9s/7m30s  02.00 iters/s
+
+running (0m44.0s), 005/090 VUs, 784 complete and 0 interrupted iterations
+browse   [  12% ] 001/050 VUs  0m40.9s/5m30s  025.00 iters/s
+detect   [   9% ] 004/040 VUs  0m40.9s/7m30s  02.00 iters/s
+
+running (0m45.0s), 005/090 VUs, 811 complete and 0 interrupted iterations
+browse   [  13% ] 001/050 VUs  0m41.9s/5m30s  025.00 iters/s
+detect   [   9% ] 004/040 VUs  0m41.9s/7m30s  02.00 iters/s
+
+running (0m46.0s), 005/090 VUs, 838 complete and 0 interrupted iterations
+browse   [  13% ] 001/050 VUs  0m42.9s/5m30s  025.00 iters/s
+detect   [  10% ] 004/040 VUs  0m42.9s/7m30s  02.00 iters/s
+
+running (0m47.0s), 006/090 VUs, 864 complete and 0 interrupted iterations
+browse   [  13% ] 001/050 VUs  0m43.9s/5m30s  025.00 iters/s
+detect   [  10% ] 005/040 VUs  0m43.9s/7m30s  02.00 iters/s
+
+running (0m48.0s), 006/090 VUs, 891 complete and 0 interrupted iterations
+browse   [  14% ] 001/050 VUs  0m44.9s/5m30s  025.00 iters/s
+detect   [  10% ] 005/040 VUs  0m44.9s/7m30s  02.00 iters/s
+
+running (0m49.0s), 006/090 VUs, 918 complete and 0 interrupted iterations
+browse   [  14% ] 001/050 VUs  0m45.9s/5m30s  025.00 iters/s
+detect   [  10% ] 005/040 VUs  0m45.9s/7m30s  02.00 iters/s
+
+running (0m50.0s), 006/090 VUs, 945 complete and 0 interrupted iterations
+browse   [  14% ] 001/050 VUs  0m46.9s/5m30s  025.00 iters/s
+detect   [  10% ] 005/040 VUs  0m46.9s/7m30s  02.00 iters/s
+
+running (0m51.0s), 006/090 VUs, 972 complete and 0 interrupted iterations
+browse   [  15% ] 001/050 VUs  0m47.9s/5m30s  025.00 iters/s
+detect   [  11% ] 005/040 VUs  0m47.9s/7m30s  02.00 iters/s
+
+running (0m52.0s), 006/090 VUs, 999 complete and 0 interrupted iterations
+browse   [  15% ] 001/050 VUs  0m48.9s/5m30s  025.00 iters/s
+detect   [  11% ] 005/040 VUs  0m48.9s/7m30s  02.00 iters/s
+
+running (0m53.0s), 007/090 VUs, 1025 complete and 0 interrupted iterations
+browse   [  15% ] 001/050 VUs  0m49.9s/5m30s  025.00 iters/s
+detect   [  11% ] 006/040 VUs  0m49.9s/7m30s  02.00 iters/s
+
+running (0m54.0s), 007/090 VUs, 1052 complete and 0 interrupted iterations
+browse   [  15% ] 001/050 VUs  0m50.9s/5m30s  025.00 iters/s
+detect   [  11% ] 006/040 VUs  0m50.9s/7m30s  02.00 iters/s
+
+running (0m55.0s), 007/090 VUs, 1079 complete and 0 interrupted iterations
+browse   [  16% ] 001/050 VUs  0m51.9s/5m30s  025.00 iters/s
+detect   [  12% ] 006/040 VUs  0m51.9s/7m30s  02.00 iters/s
+
+running (0m56.0s), 008/090 VUs, 1105 complete and 0 interrupted iterations
+browse   [  16% ] 001/050 VUs  0m52.9s/5m30s  025.00 iters/s
+detect   [  12% ] 007/040 VUs  0m52.9s/7m30s  02.00 iters/s
+
+running (0m57.0s), 008/090 VUs, 1132 complete and 0 interrupted iterations
+browse   [  16% ] 001/050 VUs  0m53.9s/5m30s  025.00 iters/s
+detect   [  12% ] 007/040 VUs  0m53.9s/7m30s  02.00 iters/s
+
+running (0m58.0s), 008/090 VUs, 1159 complete and 0 interrupted iterations
+browse   [  17% ] 001/050 VUs  0m54.9s/5m30s  025.00 iters/s
+detect   [  12% ] 007/040 VUs  0m54.9s/7m30s  02.00 iters/s
+
+running (0m59.0s), 008/090 VUs, 1186 complete and 0 interrupted iterations
+browse   [  17% ] 001/050 VUs  0m55.9s/5m30s  025.00 iters/s
+detect   [  12% ] 007/040 VUs  0m55.9s/7m30s  02.00 iters/s
+
+running (1m00.0s), 009/090 VUs, 1212 complete and 0 interrupted iterations
+browse   [  17% ] 001/050 VUs  0m56.9s/5m30s  025.00 iters/s
+detect   [  13% ] 008/040 VUs  0m56.9s/7m30s  02.00 iters/s
+
+running (1m01.0s), 007/090 VUs, 1241 complete and 0 interrupted iterations
+browse   [  18% ] 001/050 VUs  0m57.9s/5m30s  025.00 iters/s
+detect   [  13% ] 006/040 VUs  0m57.9s/7m30s  02.00 iters/s
+
+running (1m02.0s), 006/090 VUs, 1269 complete and 0 interrupted iterations
+browse   [  18% ] 001/050 VUs  0m58.9s/5m30s  025.00 iters/s
+detect   [  13% ] 005/040 VUs  0m58.9s/7m30s  02.00 iters/s
+
+running (1m03.0s), 005/090 VUs, 1297 complete and 0 interrupted iterations
+browse   [  18% ] 001/050 VUs  0m59.9s/5m30s  025.00 iters/s
+detect   [  13% ] 004/040 VUs  0m59.9s/7m30s  02.00 iters/s
+
+running (1m04.0s), 003/090 VUs, 1326 complete and 0 interrupted iterations
+browse   [  18% ] 001/050 VUs  1m00.9s/5m30s  025.00 iters/s
+detect   [  14% ] 002/040 VUs  1m00.9s/7m30s  02.00 iters/s
+
+running (1m05.0s), 001/090 VUs, 1355 complete and 0 interrupted iterations
+browse   [  19% ] 001/050 VUs  1m01.9s/5m30s  025.00 iters/s
+detect   [  14% ] 000/040 VUs  1m01.9s/7m30s  02.00 iters/s
+
+running (1m06.0s), 001/090 VUs, 1382 complete and 0 interrupted iterations
+browse   [  19% ] 001/050 VUs  1m02.9s/5m30s  025.00 iters/s
+detect   [  14% ] 000/040 VUs  1m02.9s/7m30s  02.00 iters/s
+
+running (1m07.0s), 002/090 VUs, 1408 complete and 0 interrupted iterations
+browse   [  19% ] 001/050 VUs  1m03.9s/5m30s  025.00 iters/s
+detect   [  14% ] 001/040 VUs  1m03.9s/7m30s  02.00 iters/s
+
+running (1m08.0s), 001/090 VUs, 1436 complete and 0 interrupted iterations
+browse   [  20% ] 001/050 VUs  1m04.9s/5m30s  025.00 iters/s
+detect   [  14% ] 000/040 VUs  1m04.9s/7m30s  02.00 iters/s
+
+running (1m09.0s), 002/090 VUs, 1462 complete and 0 interrupted iterations
+browse   [  20% ] 001/050 VUs  1m05.9s/5m30s  025.00 iters/s
+detect   [  15% ] 001/040 VUs  1m05.9s/7m30s  02.00 iters/s
+
+running (1m10.0s), 002/090 VUs, 1489 complete and 0 interrupted iterations
+browse   [  20% ] 001/050 VUs  1m06.9s/5m30s  025.00 iters/s
+detect   [  15% ] 001/040 VUs  1m06.9s/7m30s  02.00 iters/s
+
+running (1m11.0s), 002/090 VUs, 1516 complete and 0 interrupted iterations
+browse   [  21% ] 001/050 VUs  1m07.9s/5m30s  025.00 iters/s
+detect   [  15% ] 001/040 VUs  1m07.9s/7m30s  02.00 iters/s
+
+running (1m12.0s), 002/090 VUs, 1543 complete and 0 interrupted iterations
+browse   [  21% ] 001/050 VUs  1m08.9s/5m30s  025.00 iters/s
+detect   [  15% ] 001/040 VUs  1m08.9s/7m30s  02.00 iters/s
+
+running (1m13.0s), 002/090 VUs, 1570 complete and 0 interrupted iterations
+browse   [  21% ] 001/050 VUs  1m09.9s/5m30s  025.00 iters/s
+detect   [  16% ] 001/040 VUs  1m09.9s/7m30s  02.00 iters/s
+
+running (1m14.0s), 002/090 VUs, 1597 complete and 0 interrupted iterations
+browse   [  21% ] 001/050 VUs  1m10.9s/5m30s  025.00 iters/s
+detect   [  16% ] 001/040 VUs  1m10.9s/7m30s  02.00 iters/s
+
+running (1m15.0s), 002/090 VUs, 1624 complete and 0 interrupted iterations
+browse   [  22% ] 001/050 VUs  1m11.9s/5m30s  025.00 iters/s
+detect   [  16% ] 001/040 VUs  1m11.9s/7m30s  02.00 iters/s
+
+running (1m16.0s), 002/090 VUs, 1651 complete and 0 interrupted iterations
+browse   [  22% ] 001/050 VUs  1m12.9s/5m30s  025.00 iters/s
+detect   [  16% ] 001/040 VUs  1m12.9s/7m30s  02.00 iters/s
+
+running (1m17.0s), 002/090 VUs, 1678 complete and 0 interrupted iterations
+browse   [  22% ] 001/050 VUs  1m13.9s/5m30s  025.00 iters/s
+detect   [  16% ] 001/040 VUs  1m13.9s/7m30s  02.00 iters/s
+
+running (1m18.0s), 002/090 VUs, 1705 complete and 0 interrupted iterations
+browse   [  23% ] 001/050 VUs  1m14.9s/5m30s  025.00 iters/s
+detect   [  17% ] 001/040 VUs  1m14.9s/7m30s  02.00 iters/s
+
+running (1m19.0s), 002/090 VUs, 1732 complete and 0 interrupted iterations
+browse   [  23% ] 001/050 VUs  1m15.9s/5m30s  025.00 iters/s
+detect   [  17% ] 001/040 VUs  1m15.9s/7m30s  02.00 iters/s
+
+running (1m20.0s), 002/090 VUs, 1759 complete and 0 interrupted iterations
+browse   [  23% ] 001/050 VUs  1m16.9s/5m30s  025.00 iters/s
+detect   [  17% ] 001/040 VUs  1m16.9s/7m30s  02.00 iters/s
+
+running (1m21.0s), 001/090 VUs, 1787 complete and 0 interrupted iterations
+browse   [  24% ] 001/050 VUs  1m17.9s/5m30s  025.00 iters/s
+detect   [  17% ] 000/040 VUs  1m17.9s/7m30s  02.00 iters/s
+
+running (1m22.0s), 002/090 VUs, 1813 complete and 0 interrupted iterations
+browse   [  24% ] 001/050 VUs  1m18.9s/5m30s  025.00 iters/s
+detect   [  18% ] 001/040 VUs  1m18.9s/7m30s  02.00 iters/s
+
+running (1m23.0s), 002/090 VUs, 1840 complete and 0 interrupted iterations
+browse   [  24% ] 001/050 VUs  1m19.9s/5m30s  025.00 iters/s
+detect   [  18% ] 001/040 VUs  1m19.9s/7m30s  02.00 iters/s
+
+running (1m24.0s), 001/090 VUs, 1868 complete and 0 interrupted iterations
+browse   [  25% ] 001/050 VUs  1m20.9s/5m30s  025.00 iters/s
+detect   [  18% ] 000/040 VUs  1m20.9s/7m30s  02.00 iters/s
+
+running (1m25.0s), 001/090 VUs, 1895 complete and 0 interrupted iterations
+browse   [  25% ] 001/050 VUs  1m21.9s/5m30s  025.00 iters/s
+detect   [  18% ] 000/040 VUs  1m21.9s/7m30s  02.00 iters/s
+
+running (1m26.0s), 002/090 VUs, 1921 complete and 0 interrupted iterations
+browse   [  25% ] 001/050 VUs  1m22.9s/5m30s  025.00 iters/s
+detect   [  18% ] 001/040 VUs  1m22.9s/7m30s  02.00 iters/s
+
+running (1m27.0s), 002/090 VUs, 1948 complete and 0 interrupted iterations
+browse   [  25% ] 001/050 VUs  1m23.9s/5m30s  025.00 iters/s
+detect   [  19% ] 001/040 VUs  1m23.9s/7m30s  02.00 iters/s
+
+running (1m28.0s), 002/090 VUs, 1975 complete and 0 interrupted iterations
+browse   [  26% ] 001/050 VUs  1m24.9s/5m30s  025.00 iters/s
+detect   [  19% ] 001/040 VUs  1m24.9s/7m30s  02.00 iters/s
+
+running (1m29.0s), 002/090 VUs, 2002 complete and 0 interrupted iterations
+browse   [  26% ] 001/050 VUs  1m25.9s/5m30s  025.00 iters/s
+detect   [  19% ] 001/040 VUs  1m25.9s/7m30s  02.00 iters/s
+
+running (1m30.0s), 001/090 VUs, 2030 complete and 0 interrupted iterations
+browse   [  26% ] 001/050 VUs  1m26.9s/5m30s  025.00 iters/s
+detect   [  19% ] 000/040 VUs  1m26.9s/7m30s  02.00 iters/s
+
+running (1m31.0s), 001/090 VUs, 2057 complete and 0 interrupted iterations
+browse   [  27% ] 001/050 VUs  1m27.9s/5m30s  025.00 iters/s
+detect   [  20% ] 000/040 VUs  1m27.9s/7m30s  02.00 iters/s
+
+running (1m32.0s), 002/090 VUs, 2083 complete and 0 interrupted iterations
+browse   [  27% ] 001/050 VUs  1m28.9s/5m30s  025.00 iters/s
+detect   [  20% ] 001/040 VUs  1m28.9s/7m30s  02.00 iters/s
+
+running (1m33.0s), 003/090 VUs, 2109 complete and 0 interrupted iterations
+browse   [  27% ] 002/050 VUs  1m29.9s/5m30s  025.00 iters/s
+detect   [  20% ] 001/040 VUs  1m29.9s/7m30s  02.00 iters/s
+
+running (1m34.0s), 001/090 VUs, 2138 complete and 0 interrupted iterations
+browse   [  28% ] 000/050 VUs  1m30.9s/5m30s  026.52 iters/s
+detect   [  20% ] 001/040 VUs  1m30.9s/7m30s  02.14 iters/s
+
+running (1m35.0s), 002/090 VUs, 2168 complete and 0 interrupted iterations
+browse   [  28% ] 001/050 VUs  1m31.9s/5m30s  028.23 iters/s
+detect   [  20% ] 001/040 VUs  1m31.9s/7m30s  02.41 iters/s
+
+running (1m36.0s), 002/090 VUs, 2199 complete and 0 interrupted iterations
+browse   [  28% ] 001/050 VUs  1m32.9s/5m30s  029.89 iters/s
+detect   [  21% ] 001/040 VUs  1m32.9s/7m30s  02.57 iters/s
+
+running (1m37.0s), 001/090 VUs, 2233 complete and 0 interrupted iterations
+browse   [  28% ] 000/050 VUs  1m33.9s/5m30s  031.52 iters/s
+detect   [  21% ] 001/040 VUs  1m33.9s/7m30s  02.79 iters/s
+
+running (1m38.0s), 003/090 VUs, 2267 complete and 0 interrupted iterations
+browse   [  29% ] 001/050 VUs  1m34.9s/5m30s  033.22 iters/s
+detect   [  21% ] 002/040 VUs  1m34.9s/7m30s  03.00 iters/s
+
+running (1m39.0s), 003/090 VUs, 2304 complete and 0 interrupted iterations
+browse   [  29% ] 001/050 VUs  1m35.9s/5m30s  034.88 iters/s
+detect   [  21% ] 002/040 VUs  1m35.9s/7m30s  03.19 iters/s
+
+running (1m40.0s), 003/090 VUs, 2343 complete and 0 interrupted iterations
+browse   [  29% ] 001/050 VUs  1m36.9s/5m30s  036.56 iters/s
+detect   [  22% ] 002/040 VUs  1m36.9s/7m30s  03.38 iters/s
+
+running (1m41.0s), 003/090 VUs, 2384 complete and 0 interrupted iterations
+browse   [  30% ] 001/050 VUs  1m37.9s/5m30s  038.21 iters/s
+detect   [  22% ] 002/040 VUs  1m37.9s/7m30s  03.61 iters/s
+
+running (1m42.0s), 002/090 VUs, 2427 complete and 0 interrupted iterations
+browse   [  30% ] 000/050 VUs  1m38.9s/5m30s  039.87 iters/s
+detect   [  22% ] 002/040 VUs  1m38.9s/7m30s  03.77 iters/s
+
+running (1m43.0s), 004/090 VUs, 2470 complete and 0 interrupted iterations
+browse   [  30% ] 001/050 VUs  1m39.9s/5m30s  041.55 iters/s
+detect   [  22% ] 003/040 VUs  1m39.9s/7m30s  03.97 iters/s
+
+running (1m44.0s), 003/090 VUs, 2517 complete and 0 interrupted iterations
+browse   [  31% ] 000/050 VUs  1m40.9s/5m30s  043.20 iters/s
+detect   [  22% ] 003/040 VUs  1m40.9s/7m30s  04.17 iters/s
+
+running (1m45.0s), 004/090 VUs, 2565 complete and 0 interrupted iterations
+browse   [  31% ] 000/050 VUs  1m41.9s/5m30s  044.87 iters/s
+detect   [  23% ] 004/040 VUs  1m41.9s/7m30s  04.40 iters/s
+
+running (1m46.0s), 007/090 VUs, 2612 complete and 0 interrupted iterations
+browse   [  31% ] 001/050 VUs  1m42.9s/5m30s  046.55 iters/s
+detect   [  23% ] 006/040 VUs  1m42.9s/7m30s  04.58 iters/s
+
+running (1m47.0s), 007/090 VUs, 2664 complete and 0 interrupted iterations
+browse   [  31% ] 000/050 VUs  1m43.9s/5m30s  048.20 iters/s
+detect   [  23% ] 007/040 VUs  1m43.9s/7m30s  04.80 iters/s
+
+running (1m48.0s), 008/090 VUs, 2717 complete and 0 interrupted iterations
+browse   [  32% ] 000/050 VUs  1m44.9s/5m30s  049.87 iters/s
+detect   [  23% ] 008/040 VUs  1m44.9s/7m30s  05.00 iters/s
+
+running (1m49.0s), 012/090 VUs, 2769 complete and 0 interrupted iterations
+browse   [  32% ] 001/050 VUs  1m45.9s/5m30s  051.54 iters/s
+detect   [  24% ] 011/040 VUs  1m45.9s/7m30s  05.20 iters/s
+
+running (1m50.0s), 012/090 VUs, 2826 complete and 0 interrupted iterations
+browse   [  32% ] 000/050 VUs  1m46.9s/5m30s  053.20 iters/s
+detect   [  24% ] 012/040 VUs  1m46.9s/7m30s  05.39 iters/s
+
+running (1m51.0s), 013/090 VUs, 2884 complete and 0 interrupted iterations
+browse   [  33% ] 000/050 VUs  1m47.9s/5m30s  054.86 iters/s
+detect   [  24% ] 013/040 VUs  1m47.9s/7m30s  05.57 iters/s
+
+running (1m52.0s), 018/090 VUs, 2941 complete and 0 interrupted iterations
+browse   [  33% ] 001/050 VUs  1m48.9s/5m30s  056.54 iters/s
+detect   [  24% ] 017/040 VUs  1m48.9s/7m30s  05.78 iters/s
+
+running (1m53.0s), 019/090 VUs, 3003 complete and 0 interrupted iterations
+browse   [  33% ] 000/050 VUs  1m49.9s/5m30s  058.20 iters/s
+detect   [  24% ] 019/040 VUs  1m49.9s/7m30s  05.98 iters/s
+
+running (1m54.0s), 021/090 VUs, 3066 complete and 0 interrupted iterations
+browse   [  34% ] 000/050 VUs  1m50.9s/5m30s  059.86 iters/s
+detect   [  25% ] 021/040 VUs  1m50.9s/7m30s  06.18 iters/s
+
+running (1m55.0s), 025/090 VUs, 3129 complete and 0 interrupted iterations
+browse   [  34% ] 000/050 VUs  1m51.9s/5m30s  061.54 iters/s
+detect   [  25% ] 025/040 VUs  1m51.9s/7m30s  06.37 iters/s
+
+running (1m56.0s), 028/090 VUs, 3195 complete and 0 interrupted iterations
+browse   [  34% ] 000/050 VUs  1m52.9s/5m30s  063.19 iters/s
+detect   [  25% ] 028/040 VUs  1m52.9s/7m30s  06.59 iters/s
+
+running (1m57.0s), 033/090 VUs, 3262 complete and 0 interrupted iterations
+browse   [  35% ] 002/050 VUs  1m53.9s/5m30s  064.88 iters/s
+detect   [  25% ] 031/040 VUs  1m53.9s/7m30s  06.80 iters/s
+
+running (1m58.0s), 036/090 VUs, 3330 complete and 0 interrupted iterations
+browse   [  35% ] 001/050 VUs  1m54.9s/5m30s  066.53 iters/s
+detect   [  26% ] 035/040 VUs  1m54.9s/7m30s  06.97 iters/s
+
+running (1m59.0s), 041/090 VUs, 3401 complete and 0 interrupted iterations
+browse   [  35% ] 001/050 VUs  1m55.9s/5m30s  068.22 iters/s
+detect   [  26% ] 040/040 VUs  1m55.9s/7m30s  07.20 iters/s
+
+running (2m00.0s), 044/092 VUs, 3472 complete and 0 interrupted iterations
+browse   [  35% ] 002/050 VUs  1m56.9s/5m30s  069.88 iters/s
+detect   [  26% ] 042/042 VUs  1m56.9s/7m30s  07.39 iters/s
+
+running (2m01.0s), 046/095 VUs, 3544 complete and 0 interrupted iterations
+browse   [  36% ] 003/050 VUs  1m57.9s/5m30s  071.53 iters/s
+detect   [  26% ] 043/045 VUs  1m57.9s/7m30s  07.58 iters/s
+
+running (2m02.0s), 046/097 VUs, 3623 complete and 0 interrupted iterations
+browse   [  36% ] 002/050 VUs  1m58.9s/5m30s  073.21 iters/s
+detect   [  26% ] 044/047 VUs  1m58.9s/7m30s  07.78 iters/s
+
+running (2m03.0s), 084/098 VUs, 3662 complete and 0 interrupted iterations
+browse   [  36% ] 036/050 VUs  2m00.0s/5m30s  074.83 iters/s
+detect   [  27% ] 048/048 VUs  2m00.0s/7m30s  07.96 iters/s
+
+running (2m04.0s), 106/111 VUs, 3702 complete and 0 interrupted iterations
+browse   [  37% ] 057/062 VUs  2m00.9s/5m30s  075.00 iters/s
+detect   [  27% ] 049/049 VUs  2m00.9s/7m30s  08.00 iters/s
+
+running (2m05.0s), 121/121 VUs, 3753 complete and 0 interrupted iterations
+browse   [  37% ] 068/068 VUs  2m01.9s/5m30s  075.00 iters/s
+detect   [  27% ] 053/053 VUs  2m01.9s/7m30s  08.00 iters/s
+
+running (2m06.0s), 120/127 VUs, 3814 complete and 0 interrupted iterations
+browse   [  37% ] 066/072 VUs  2m02.9s/5m30s  075.00 iters/s
+detect   [  27% ] 054/055 VUs  2m02.9s/7m30s  08.00 iters/s
+
+running (2m07.0s), 136/139 VUs, 3858 complete and 0 interrupted iterations
+browse   [  38% ] 078/080 VUs  2m03.9s/5m30s  075.00 iters/s
+detect   [  28% ] 058/059 VUs  2m03.9s/7m30s  08.00 iters/s
+
+running (2m08.0s), 149/153 VUs, 3908 complete and 0 interrupted iterations
+browse   [  38% ] 089/093 VUs  2m04.9s/5m30s  075.00 iters/s
+detect   [  28% ] 060/060 VUs  2m04.9s/7m30s  08.00 iters/s
+
+running (2m09.0s), 159/161 VUs, 3965 complete and 0 interrupted iterations
+browse   [  38% ] 096/097 VUs  2m06.0s/5m30s  075.00 iters/s
+detect   [  28% ] 063/064 VUs  2m06.0s/7m30s  08.00 iters/s
+
+running (2m10.0s), 165/174 VUs, 4026 complete and 0 interrupted iterations
+browse   [  38% ] 101/108 VUs  2m06.9s/5m30s  075.00 iters/s
+detect   [  28% ] 064/066 VUs  2m06.9s/7m30s  08.00 iters/s
+
+running (2m11.0s), 171/184 VUs, 4082 complete and 0 interrupted iterations
+browse   [  39% ] 105/115 VUs  2m07.9s/5m30s  075.00 iters/s
+detect   [  28% ] 066/069 VUs  2m07.9s/7m30s  08.00 iters/s
+
+running (2m12.0s), 205/206 VUs, 4091 complete and 0 interrupted iterations
+browse   [  39% ] 135/135 VUs  2m08.9s/5m30s  075.00 iters/s
+detect   [  29% ] 070/071 VUs  2m08.9s/7m30s  08.00 iters/s
+
+running (2m13.0s), 230/231 VUs, 4106 complete and 0 interrupted iterations
+browse   [  39% ] 157/159 VUs  2m09.9s/5m30s  075.00 iters/s
+detect   [  29% ] 072/072 VUs  2m09.9s/7m30s  08.00 iters/s
+
+running (2m13.8s), 243/248 VUs, 4125 complete and 0 interrupted iterations
+browse   [  40% ] 171/171 VUs  2m10.9s/5m30s  075.00 iters/s
+detect   [  29% ] 072/076 VUs  2m10.9s/7m30s  08.00 iters/s
+
+running (2m14.8s), 259/260 VUs, 4141 complete and 0 interrupted iterations
+browse   [  40% ] 182/182 VUs  2m11.9s/5m30s  075.00 iters/s
+detect   [  29% ] 077/078 VUs  2m11.9s/7m30s  08.00 iters/s
+
+running (2m15.8s), 276/276 VUs, 4175 complete and 0 interrupted iterations
+browse   [  40% ] 197/197 VUs  2m12.9s/5m30s  075.00 iters/s
+detect   [  30% ] 079/079 VUs  2m12.9s/7m30s  08.00 iters/s
+
+running (2m16.8s), 298/301 VUs, 4206 complete and 0 interrupted iterations
+browse   [  41% ] 219/219 VUs  2m13.9s/5m30s  075.00 iters/s
+detect   [  30% ] 079/082 VUs  2m13.9s/7m30s  08.00 iters/s
+
+running (2m17.8s), 318/322 VUs, 4233 complete and 0 interrupted iterations
+browse   [  41% ] 238/238 VUs  2m14.9s/5m30s  075.00 iters/s
+detect   [  30% ] 080/084 VUs  2m14.9s/7m30s  08.00 iters/s
+
+running (2m18.8s), 337/339 VUs, 4255 complete and 0 interrupted iterations
+browse   [  41% ] 251/253 VUs  2m15.9s/5m30s  075.00 iters/s
+detect   [  30% ] 086/086 VUs  2m15.9s/7m30s  08.00 iters/s
+
+running (2m19.8s), 344/347 VUs, 4297 complete and 0 interrupted iterations
+browse   [  41% ] 257/260 VUs  2m16.9s/5m30s  075.00 iters/s
+detect   [  30% ] 087/087 VUs  2m16.9s/7m30s  08.00 iters/s
+
+running (2m20.8s), 352/357 VUs, 4356 complete and 0 interrupted iterations
+browse   [  42% ] 265/266 VUs  2m17.9s/5m30s  075.00 iters/s
+detect   [  31% ] 087/091 VUs  2m18.0s/7m30s  08.00 iters/s
+
+running (2m21.8s), 372/372 VUs, 4377 complete and 0 interrupted iterations
+browse   [  42% ] 279/279 VUs  2m18.9s/5m30s  075.00 iters/s
+detect   [  31% ] 093/093 VUs  2m18.9s/7m30s  08.00 iters/s
+
+running (2m22.8s), 384/385 VUs, 4429 complete and 0 interrupted iterations
+browse   [  42% ] 290/290 VUs  2m19.9s/5m30s  075.00 iters/s
+detect   [  31% ] 094/095 VUs  2m19.9s/7m30s  08.00 iters/s
+
+running (2m23.8s), 407/408 VUs, 4457 complete and 0 interrupted iterations
+browse   [  43% ] 309/309 VUs  2m20.9s/5m30s  075.00 iters/s
+detect   [  31% ] 098/099 VUs  2m20.9s/7m30s  08.00 iters/s
+
+running (2m24.8s), 421/429 VUs, 4503 complete and 0 interrupted iterations
+browse   [  43% ] 322/327 VUs  2m21.9s/5m30s  075.00 iters/s
+detect   [  32% ] 098/102 VUs  2m21.9s/7m30s  08.00 iters/s
+
+running (2m25.9s), 429/434 VUs, 4533 complete and 0 interrupted iterations
+browse   [  43% ] 327/332 VUs  2m23.0s/5m30s  075.00 iters/s
+detect   [  32% ] 102/102 VUs  2m23.0s/7m30s  08.00 iters/s
+
+running (2m26.8s), 441/444 VUs, 4580 complete and 0 interrupted iterations
+browse   [  44% ] 340/340 VUs  2m23.9s/5m30s  075.00 iters/s
+detect   [  32% ] 101/104 VUs  2m23.9s/7m30s  08.00 iters/s
+
+running (2m27.8s), 455/456 VUs, 4612 complete and 0 interrupted iterations
+browse   [  44% ] 349/349 VUs  2m24.9s/5m30s  075.00 iters/s
+detect   [  32% ] 106/107 VUs  2m24.9s/7m30s  08.00 iters/s
+
+running (2m28.8s), 461/464 VUs, 4661 complete and 0 interrupted iterations
+browse   [  44% ] 355/356 VUs  2m25.9s/5m30s  075.00 iters/s
+detect   [  32% ] 107/108 VUs  2m25.9s/7m30s  08.00 iters/s
+
+running (2m29.8s), 457/472 VUs, 4711 complete and 0 interrupted iterations
+browse   [  45% ] 349/361 VUs  2m26.9s/5m30s  075.00 iters/s
+detect   [  33% ] 107/111 VUs  2m27.0s/7m30s  08.00 iters/s
+
+running (2m30.8s), 474/478 VUs, 4755 complete and 0 interrupted iterations
+browse   [  45% ] 362/365 VUs  2m27.9s/5m30s  075.00 iters/s
+detect   [  33% ] 112/113 VUs  2m27.9s/7m30s  08.00 iters/s
+
+running (2m31.8s), 478/484 VUs, 4817 complete and 0 interrupted iterations
+browse   [  45% ] 364/369 VUs  2m28.9s/5m30s  075.00 iters/s
+detect   [  33% ] 114/115 VUs  2m28.9s/7m30s  08.00 iters/s
+
+running (2m32.8s), 493/493 VUs, 4833 complete and 0 interrupted iterations
+browse   [  45% ] 375/375 VUs  2m29.9s/5m30s  075.00 iters/s
+detect   [  33% ] 118/118 VUs  2m29.9s/7m30s  08.00 iters/s
+
+running (2m33.8s), 500/502 VUs, 4884 complete and 0 interrupted iterations
+browse   [  46% ] 381/381 VUs  2m30.9s/5m30s  075.00 iters/s
+detect   [  34% ] 119/121 VUs  2m30.9s/7m30s  08.00 iters/s
+
+running (2m34.8s), 518/518 VUs, 4914 complete and 0 interrupted iterations
+browse   [  46% ] 394/394 VUs  2m31.9s/5m30s  075.00 iters/s
+detect   [  34% ] 124/124 VUs  2m31.9s/7m30s  08.00 iters/s
+time="2026-10-31T10:22:54Z" level=warning msg="Insufficient VUs, reached 400 active VUs and cannot initialize more" executor=ramping-arrival-rate scenario=browse
+
+running (2m35.8s), 520/526 VUs, 4981 complete and 0 interrupted iterations
+browse   [  46% ] 395/400 VUs  2m32.9s/5m30s  075.00 iters/s
+detect   [  34% ] 125/126 VUs  2m32.9s/7m30s  08.00 iters/s
+
+running (2m36.8s), 528/529 VUs, 5035 complete and 0 interrupted iterations
+browse   [  47% ] 399/400 VUs  2m33.9s/5m30s  075.00 iters/s
+detect   [  34% ] 129/129 VUs  2m33.9s/7m30s  08.00 iters/s
+
+running (2m37.8s), 498/531 VUs, 5130 complete and 0 interrupted iterations
+browse   [  47% ] 373/400 VUs  2m34.9s/5m30s  075.00 iters/s
+detect   [  34% ] 125/131 VUs  2m35.0s/7m30s  08.00 iters/s
+
+running (2m38.8s), 448/531 VUs, 5263 complete and 0 interrupted iterations
+browse   [  47% ] 324/400 VUs  2m35.9s/5m30s  075.00 iters/s
+detect   [  35% ] 125/131 VUs  2m35.9s/7m30s  08.00 iters/s
+
+running (2m39.9s), 458/531 VUs, 5329 complete and 0 interrupted iterations
+browse   [  48% ] 327/400 VUs  2m37.2s/5m30s  075.00 iters/s
+detect   [  35% ] 131/131 VUs  2m37.2s/7m30s  08.00 iters/s
+
+running (2m40.8s), 470/531 VUs, 5346 complete and 0 interrupted iterations
+browse   [  48% ] 339/400 VUs  2m37.9s/5m30s  075.00 iters/s
+detect   [  35% ] 131/131 VUs  2m37.9s/7m30s  08.00 iters/s
+
+running (2m42.5s), 498/531 VUs, 5400 complete and 0 interrupted iterations
+browse   [  48% ] 367/400 VUs  2m39.6s/5m30s  075.00 iters/s
+detect   [  36% ] 127/131 VUs  2m40.0s/7m30s  08.00 iters/s
+
+running (2m43.3s), 528/531 VUs, 5419 complete and 0 interrupted iterations
+browse   [  49% ] 400/400 VUs  2m40.4s/5m30s  075.00 iters/s
+detect   [  36% ] 128/131 VUs  2m40.4s/7m30s  08.00 iters/s
+
+running (2m44.0s), 528/531 VUs, 5424 complete and 0 interrupted iterations
+browse   [  49% ] 400/400 VUs  2m41.0s/5m30s  075.00 iters/s
+detect   [  36% ] 128/131 VUs  2m41.1s/7m30s  08.00 iters/s
+
+running (2m44.9s), 369/532 VUs, 5608 complete and 0 interrupted iterations
+browse   [  49% ] 253/400 VUs  2m42.0s/5m30s  075.00 iters/s
+detect   [  36% ] 117/132 VUs  2m42.0s/7m30s  08.00 iters/s
+
+running (2m46.0s), 282/532 VUs, 5765 complete and 0 interrupted iterations
+browse   [  49% ] 167/400 VUs  2m43.1s/5m30s  075.00 iters/s
+detect   [  36% ] 117/132 VUs  2m43.2s/7m30s  08.00 iters/s
+
+running (2m46.5s), 252/532 VUs, 5868 complete and 0 interrupted iterations
+browse   [  50% ] 136/400 VUs  2m44.0s/5m30s  075.00 iters/s
+detect   [  36% ] 116/132 VUs  2m44.0s/7m30s  08.00 iters/s
+
+running (2m47.5s), 283/532 VUs, 5934 complete and 0 interrupted iterations
+browse   [  50% ] 162/400 VUs  2m44.9s/5m30s  075.00 iters/s
+detect   [  37% ] 121/132 VUs  2m44.9s/7m30s  08.00 iters/s
+time="2026-10-31T10:23:06Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:39728->172.19.0.2:30080: write: broken pipe"
+time="2026-10-31T10:23:06Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:59474->172.19.0.2:30080: write: broken pipe"
+time="2026-10-31T10:23:07Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:50372->172.19.0.2:30080: write: broken pipe"
+time="2026-10-31T10:23:07Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:39930->172.19.0.2:30080: write: broken pipe"
+time="2026-10-31T10:23:07Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:59388->172.19.0.2:30080: write: broken pipe"
+time="2026-10-31T10:23:07Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:59402->172.19.0.2:30080: write: broken pipe"
+
+running (2m48.5s), 170/532 VUs, 6102 complete and 0 interrupted iterations
+browse   [  50% ] 052/400 VUs  2m46.0s/5m30s  075.00 iters/s
+detect   [  37% ] 118/132 VUs  2m46.0s/7m30s  08.00 iters/s
+
+running (2m49.5s), 306/532 VUs, 6108 complete and 0 interrupted iterations
+browse   [  51% ] 180/400 VUs  2m47.0s/5m30s  075.00 iters/s
+detect   [  37% ] 126/132 VUs  2m47.0s/7m30s  08.00 iters/s
+
+running (2m50.5s), 392/532 VUs, 6121 complete and 0 interrupted iterations
+browse   [  51% ] 260/400 VUs  2m47.9s/5m30s  075.00 iters/s
+detect   [  37% ] 132/132 VUs  2m47.9s/7m30s  08.00 iters/s
+
+running (2m51.5s), 442/534 VUs, 6147 complete and 0 interrupted iterations
+browse   [  51% ] 309/400 VUs  2m48.9s/5m30s  075.00 iters/s
+detect   [  38% ] 133/134 VUs  2m48.9s/7m30s  08.00 iters/s
+
+running (2m52.5s), 482/536 VUs, 6184 complete and 0 interrupted iterations
+browse   [  51% ] 347/400 VUs  2m49.9s/5m30s  075.00 iters/s
+detect   [  38% ] 135/136 VUs  2m49.9s/7m30s  08.00 iters/s
+
+running (2m53.5s), 521/538 VUs, 6223 complete and 0 interrupted iterations
+browse   [  52% ] 383/400 VUs  2m50.9s/5m30s  075.00 iters/s
+detect   [  38% ] 138/138 VUs  2m50.9s/7m30s  08.00 iters/s
+
+running (2m54.5s), 540/540 VUs, 6226 complete and 0 interrupted iterations
+browse   [  52% ] 400/400 VUs  2m51.9s/5m30s  075.00 iters/s
+detect   [  38% ] 140/140 VUs  2m51.9s/7m30s  08.00 iters/s
+
+running (2m55.5s), 542/542 VUs, 6254 complete and 0 interrupted iterations
+browse   [  52% ] 400/400 VUs  2m52.9s/5m30s  075.00 iters/s
+detect   [  38% ] 142/142 VUs  2m53.0s/7m30s  08.00 iters/s
+
+running (2m56.5s), 545/545 VUs, 6301 complete and 0 interrupted iterations
+browse   [  53% ] 400/400 VUs  2m53.9s/5m30s  075.00 iters/s
+detect   [  39% ] 145/146 VUs  2m53.9s/7m30s  08.00 iters/s
+
+running (2m57.5s), 543/549 VUs, 6345 complete and 0 interrupted iterations
+browse   [  53% ] 394/400 VUs  2m54.9s/5m30s  075.00 iters/s
+detect   [  39% ] 149/149 VUs  2m54.9s/7m30s  08.00 iters/s
+
+running (2m58.5s), 552/552 VUs, 6380 complete and 0 interrupted iterations
+browse   [  53% ] 400/400 VUs  2m55.9s/5m30s  075.00 iters/s
+detect   [  39% ] 152/152 VUs  2m55.9s/7m30s  08.00 iters/s
+
+running (2m59.5s), 547/554 VUs, 6409 complete and 0 interrupted iterations
+browse   [  54% ] 400/400 VUs  2m56.9s/5m30s  075.00 iters/s
+detect   [  39% ] 147/154 VUs  2m56.9s/7m30s  08.00 iters/s
+
+running (3m00.5s), 507/555 VUs, 6525 complete and 0 interrupted iterations
+browse   [  54% ] 362/400 VUs  2m57.9s/5m30s  075.00 iters/s
+detect   [  40% ] 145/155 VUs  2m57.9s/7m30s  08.00 iters/s
+
+running (3m01.5s), 475/555 VUs, 6641 complete and 0 interrupted iterations
+browse   [  54% ] 332/400 VUs  2m59.0s/5m30s  075.00 iters/s
+detect   [  40% ] 143/155 VUs  2m59.0s/7m30s  08.00 iters/s
+
+running (3m02.5s), 422/555 VUs, 6776 complete and 0 interrupted iterations
+browse   [  55% ] 289/400 VUs  2m59.9s/5m30s  075.00 iters/s
+detect   [  40% ] 133/155 VUs  2m59.9s/7m30s  08.00 iters/s
+
+running (3m03.7s), 448/555 VUs, 6802 complete and 0 interrupted iterations
+browse   [  55% ] 312/400 VUs  3m01.1s/5m30s  076.73 iters/s
+detect   [  40% ] 136/155 VUs  3m01.1s/7m30s  08.00 iters/s
+
+running (3m04.5s), 452/555 VUs, 6839 complete and 0 interrupted iterations
+browse   [  55% ] 310/400 VUs  3m02.3s/5m30s  077.89 iters/s
+detect   [  41% ] 147/155 VUs  3m02.6s/7m30s  08.00 iters/s
+
+running (3m06.1s), 507/555 VUs, 6876 complete and 0 interrupted iterations
+browse   [  56% ] 352/400 VUs  3m03.6s/5m30s  080.17 iters/s
+detect   [  41% ] 155/155 VUs  3m03.6s/7m30s  08.00 iters/s
+
+running (3m06.8s), 527/555 VUs, 6886 complete and 0 interrupted iterations
+browse   [  56% ] 372/400 VUs  3m05.1s/5m30s  081.29 iters/s
+detect   [  42% ] 155/155 VUs  3m07.2s/7m30s  08.00 iters/s
+
+running (3m11.0s), 555/555 VUs, 6912 complete and 0 interrupted iterations
+browse   [  57% ] 400/400 VUs  3m08.4s/5m30s  082.33 iters/s
+detect   [  42% ] 155/155 VUs  3m08.4s/7m30s  08.00 iters/s
+
+running (3m11.5s), 555/555 VUs, 6912 complete and 0 interrupted iterations
+browse   [  57% ] 400/400 VUs  3m09.0s/5m30s  082.33 iters/s
+detect   [  42% ] 155/155 VUs  3m09.4s/7m30s  08.00 iters/s
+
+running (3m12.0s), 555/555 VUs, 6912 complete and 0 interrupted iterations
+browse   [  57% ] 400/400 VUs  3m09.4s/5m30s  082.33 iters/s
+detect   [  42% ] 155/155 VUs  3m09.4s/7m30s  08.00 iters/s
+
+running (3m12.5s), 555/555 VUs, 6912 complete and 0 interrupted iterations
+browse   [  58% ] 400/400 VUs  3m10.0s/5m30s  082.36 iters/s
+detect   [  42% ] 155/155 VUs  3m10.0s/7m30s  08.00 iters/s
+time="2026-10-31T10:23:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:37378->172.19.0.2:30080: write: broken pipe"
+time="2026-10-31T10:23:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:37400->172.19.0.2:30080: use of closed network connection"
+time="2026-10-31T10:23:32Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:48004->172.19.0.2:30080: use of closed network connection"
+time="2026-10-31T10:23:32Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:37416->172.19.0.2:30080: write: broken pipe"
+time="2026-10-31T10:23:32Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:47908->172.19.0.2:30080: write: broken pipe"
+
+running (3m13.5s), 555/556 VUs, 6912 complete and 0 interrupted iterations
+browse   [  58% ] 400/400 VUs  3m11.0s/5m30s  082.36 iters/s
+detect   [  42% ] 155/156 VUs  3m11.0s/7m30s  08.00 iters/s
+
+running (3m14.5s), 553/557 VUs, 6916 complete and 0 interrupted iterations
+browse   [  58% ] 397/400 VUs  3m11.9s/5m30s  082.39 iters/s
+detect   [  43% ] 156/157 VUs  3m12.0s/7m30s  08.00 iters/s
+
+running (3m15.5s), 555/558 VUs, 6925 complete and 0 interrupted iterations
+browse   [  58% ] 398/400 VUs  3m13.0s/5m30s  082.66 iters/s
+detect   [  43% ] 157/158 VUs  3m13.0s/7m30s  08.00 iters/s
+
+running (3m16.5s), 531/559 VUs, 6962 complete and 0 interrupted iterations
+browse   [  59% ] 381/400 VUs  3m13.9s/5m30s  083.02 iters/s
+detect   [  43% ] 150/159 VUs  3m13.9s/7m30s  08.00 iters/s
+
+running (3m17.5s), 233/560 VUs, 7350 complete and 0 interrupted iterations
+browse   [  59% ] 075/400 VUs  3m14.9s/5m30s  085.51 iters/s
+detect   [  43% ] 160/160 VUs  3m15.0s/7m30s  08.00 iters/s
+
+running (3m18.4s), 361/561 VUs, 7365 complete and 0 interrupted iterations
+browse   [  59% ] 200/400 VUs  3m15.9s/5m30s  089.62 iters/s
+detect   [  44% ] 161/161 VUs  3m15.9s/7m30s  08.00 iters/s
+
+running (3m19.4s), 487/562 VUs, 7377 complete and 0 interrupted iterations
+browse   [  60% ] 325/400 VUs  3m16.9s/5m30s  093.55 iters/s
+detect   [  44% ] 162/162 VUs  3m17.0s/7m30s  08.00 iters/s
+
+running (3m20.3s), 564/564 VUs, 7389 complete and 0 interrupted iterations
+browse   [  60% ] 400/400 VUs  3m17.9s/5m30s  119.80 iters/s
+detect   [  44% ] 164/164 VUs  3m17.9s/7m30s  08.00 iters/s
+
+running (3m21.3s), 566/566 VUs, 7409 complete and 0 interrupted iterations
+browse   [  60% ] 400/400 VUs  3m18.9s/5m30s  122.34 iters/s
+detect   [  44% ] 166/166 VUs  3m18.9s/7m30s  08.00 iters/s
+
+running (3m22.3s), 567/568 VUs, 7439 complete and 0 interrupted iterations
+browse   [  61% ] 399/400 VUs  3m19.9s/5m30s  124.81 iters/s
+detect   [  44% ] 168/168 VUs  3m19.9s/7m30s  08.00 iters/s
+
+running (3m23.4s), 571/571 VUs, 7484 complete and 0 interrupted iterations
+browse   [  61% ] 400/400 VUs  3m20.9s/5m30s  127.35 iters/s
+detect   [  45% ] 171/171 VUs  3m20.9s/7m30s  08.00 iters/s
+
+running (3m24.3s), 573/573 VUs, 7510 complete and 0 interrupted iterations
+browse   [  61% ] 400/400 VUs  3m21.9s/5m30s  129.84 iters/s
+detect   [  45% ] 173/173 VUs  3m21.9s/7m30s  08.00 iters/s
+
+running (3m25.3s), 575/575 VUs, 7542 complete and 0 interrupted iterations
+browse   [  61% ] 400/400 VUs  3m22.9s/5m30s  132.33 iters/s
+detect   [  45% ] 175/175 VUs  3m22.9s/7m30s  08.00 iters/s
+
+running (3m26.3s), 577/578 VUs, 7559 complete and 0 interrupted iterations
+browse   [  62% ] 400/400 VUs  3m23.9s/5m30s  134.84 iters/s
+detect   [  45% ] 177/178 VUs  3m23.9s/7m30s  08.00 iters/s
+
+running (3m27.4s), 576/579 VUs, 7600 complete and 0 interrupted iterations
+browse   [  62% ] 396/400 VUs  3m24.9s/5m30s  137.30 iters/s
+detect   [  46% ] 179/179 VUs  3m25.0s/7m30s  08.00 iters/s
+
+running (3m28.4s), 488/579 VUs, 7736 complete and 0 interrupted iterations
+browse   [  62% ] 309/400 VUs  3m26.0s/5m30s  138.61 iters/s
+detect   [  46% ] 179/179 VUs  3m26.0s/7m30s  08.00 iters/s
+
+running (3m29.4s), 512/580 VUs, 7809 complete and 0 interrupted iterations
+browse   [  63% ] 341/400 VUs  3m27.0s/5m30s  140.12 iters/s
+detect   [  46% ] 172/180 VUs  3m27.0s/7m30s  08.00 iters/s
+
+running (3m34.4s), 581/581 VUs, 7850 complete and 0 interrupted iterations
+browse   [  64% ] 400/400 VUs  3m32.0s/5m30s  149.96 iters/s
+detect   [  47% ] 181/181 VUs  3m32.0s/7m30s  08.00 iters/s
+
+running (3m35.9s), 574/582 VUs, 7858 complete and 0 interrupted iterations
+browse   [  65% ] 392/400 VUs  3m33.5s/5m30s  149.97 iters/s
+detect   [  47% ] 182/182 VUs  3m33.5s/7m30s  08.00 iters/s
+
+running (3m36.4s), 574/583 VUs, 7858 complete and 0 interrupted iterations
+browse   [  65% ] 392/400 VUs  3m34.0s/5m30s  149.97 iters/s
+detect   [  48% ] 182/183 VUs  3m34.0s/7m30s  08.00 iters/s
+
+running (3m37.4s), 582/584 VUs, 7859 complete and 0 interrupted iterations
+browse   [  65% ] 399/400 VUs  3m35.0s/5m30s  150.00 iters/s
+detect   [  48% ] 183/184 VUs  3m35.0s/7m30s  08.00 iters/s
+
+running (3m38.4s), 579/585 VUs, 7864 complete and 0 interrupted iterations
+browse   [  65% ] 395/400 VUs  3m36.0s/5m30s  150.00 iters/s
+detect   [  48% ] 184/185 VUs  3m36.0s/7m30s  08.00 iters/s
+
+running (3m39.3s), 561/585 VUs, 7888 complete and 0 interrupted iterations
+browse   [  66% ] 376/400 VUs  3m36.9s/5m30s  150.00 iters/s
+detect   [  48% ] 185/185 VUs  3m37.0s/7m30s  08.00 iters/s
+
+running (3m40.4s), 564/586 VUs, 7916 complete and 0 interrupted iterations
+browse   [  66% ] 378/400 VUs  3m38.0s/5m30s  150.00 iters/s
+detect   [  48% ] 186/186 VUs  3m38.0s/7m30s  08.00 iters/s
+
+running (3m43.1s), 505/589 VUs, 8114 complete and 0 interrupted iterations
+browse   [  67% ] 319/400 VUs  3m40.7s/5m30s  150.00 iters/s
+detect   [  49% ] 189/189 VUs  3m40.7s/7m30s  08.00 iters/s
+
+running (3m43.3s), 510/589 VUs, 8121 complete and 0 interrupted iterations
+browse   [  67% ] 322/400 VUs  3m40.9s/5m30s  150.00 iters/s
+detect   [  49% ] 188/189 VUs  3m40.9s/7m30s  08.00 iters/s
+
+running (3m44.3s), 592/592 VUs, 8167 complete and 0 interrupted iterations
+browse   [  67% ] 400/400 VUs  3m41.9s/5m30s  150.00 iters/s
+detect   [  49% ] 192/192 VUs  3m41.9s/7m30s  08.00 iters/s
+
+running (3m45.3s), 592/594 VUs, 8174 complete and 0 interrupted iterations
+browse   [  68% ] 399/400 VUs  3m42.9s/5m30s  150.00 iters/s
+detect   [  50% ] 193/194 VUs  3m42.9s/7m30s  08.00 iters/s
+
+running (3m46.4s), 461/595 VUs, 8356 complete and 0 interrupted iterations
+browse   [  68% ] 266/400 VUs  3m44.0s/5m30s  150.00 iters/s
+detect   [  50% ] 195/195 VUs  3m44.0s/7m30s  08.00 iters/s
+
+running (3m47.4s), 594/596 VUs, 8371 complete and 0 interrupted iterations
+browse   [  68% ] 398/400 VUs  3m44.9s/5m30s  150.00 iters/s
+detect   [  50% ] 196/196 VUs  3m45.0s/7m30s  08.00 iters/s
+
+running (3m48.3s), 597/597 VUs, 8371 complete and 0 interrupted iterations
+browse   [  68% ] 400/400 VUs  3m45.9s/5m30s  150.00 iters/s
+detect   [  50% ] 197/197 VUs  3m46.0s/7m30s  08.00 iters/s
+time="2026-10-31T10:24:08Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (3m49.3s), 597/599 VUs, 8386 complete and 0 interrupted iterations
+browse   [  69% ] 400/400 VUs  3m46.9s/5m30s  150.00 iters/s
+detect   [  50% ] 197/199 VUs  3m46.9s/7m30s  08.00 iters/s
+time="2026-10-31T10:24:08Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:08Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:08Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:08Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:08Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:08Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:09Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:09Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (3m50.4s), 598/600 VUs, 8413 complete and 0 interrupted iterations
+browse   [  69% ] 400/400 VUs  3m48.0s/5m30s  150.00 iters/s
+detect   [  51% ] 198/200 VUs  3m48.0s/7m30s  08.00 iters/s
+time="2026-10-31T10:24:09Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (3m51.3s), 600/601 VUs, 8425 complete and 0 interrupted iterations
+browse   [  69% ] 400/400 VUs  3m48.9s/5m30s  150.00 iters/s
+detect   [  51% ] 200/201 VUs  3m48.9s/7m30s  08.00 iters/s
+time="2026-10-31T10:24:10Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (3m52.3s), 602/602 VUs, 8460 complete and 0 interrupted iterations
+browse   [  70% ] 400/400 VUs  3m49.9s/5m30s  150.00 iters/s
+detect   [  51% ] 202/202 VUs  3m49.9s/7m30s  08.00 iters/s
+time="2026-10-31T10:24:11Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (3m53.3s), 604/604 VUs, 8469 complete and 0 interrupted iterations
+browse   [  70% ] 400/400 VUs  3m50.9s/5m30s  150.00 iters/s
+detect   [  51% ] 204/204 VUs  3m50.9s/7m30s  08.00 iters/s
+time="2026-10-31T10:24:13Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (3m54.3s), 561/605 VUs, 8546 complete and 0 interrupted iterations
+browse   [  70% ] 371/400 VUs  3m52.3s/5m30s  150.00 iters/s
+detect   [  52% ] 176/205 VUs  3m52.3s/7m30s  08.00 iters/s
+
+running (3m55.3s), 202/605 VUs, 8958 complete and 0 interrupted iterations
+browse   [  71% ] 073/400 VUs  3m52.9s/5m30s  150.00 iters/s
+detect   [  52% ] 128/205 VUs  3m52.9s/7m30s  08.00 iters/s
+time="2026-10-31T10:24:14Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:14Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:14Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:14Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (3m56.4s), 159/605 VUs, 9194 complete and 0 interrupted iterations
+browse   [  71% ] 052/400 VUs  3m54.0s/5m30s  150.00 iters/s
+detect   [  52% ] 108/205 VUs  3m54.0s/7m30s  08.00 iters/s
+time="2026-10-31T10:24:15Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:15Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:16Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:16Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (3m57.3s), 125/605 VUs, 9489 complete and 0 interrupted iterations
+browse   [  71% ] 025/400 VUs  3m54.9s/5m30s  150.00 iters/s
+detect   [  52% ] 100/205 VUs  3m54.9s/7m30s  08.00 iters/s
+
+running (3m58.4s), 107/605 VUs, 9663 complete and 0 interrupted iterations
+browse   [  72% ] 017/400 VUs  3m56.0s/5m30s  150.00 iters/s
+detect   [  52% ] 090/205 VUs  3m56.0s/7m30s  08.00 iters/s
+
+running (3m59.6s), 144/605 VUs, 9803 complete and 0 interrupted iterations
+browse   [  72% ] 053/400 VUs  3m57.3s/5m30s  150.00 iters/s
+detect   [  53% ] 091/205 VUs  3m57.4s/7m30s  08.00 iters/s
+
+running (4m00.4s), 160/605 VUs, 9824 complete and 0 interrupted iterations
+browse   [  72% ] 077/400 VUs  3m58.1s/5m30s  150.00 iters/s
+detect   [  53% ] 079/205 VUs  3m58.1s/7m30s  08.00 iters/s
+
+running (4m01.4s), 096/605 VUs, 9950 complete and 0 interrupted iterations
+browse   [  72% ] 022/400 VUs  3m59.0s/5m30s  150.00 iters/s
+detect   [  53% ] 071/205 VUs  3m59.0s/7m30s  08.00 iters/s
+
+running (4m02.4s), 103/605 VUs, 10053 complete and 0 interrupted iterations
+browse   [  73% ] 032/400 VUs  4m00.0s/5m30s  150.00 iters/s
+detect   [  53% ] 071/205 VUs  4m00.0s/7m30s  08.00 iters/s
+
+running (4m03.4s), 198/605 VUs, 10086 complete and 0 interrupted iterations
+browse   [  73% ] 123/400 VUs  4m01.0s/5m30s  150.00 iters/s
+detect   [  54% ] 076/205 VUs  4m01.0s/7m30s  08.28 iters/s
+
+running (4m04.3s), 289/605 VUs, 10131 complete and 0 interrupted iterations
+browse   [  73% ] 206/400 VUs  4m01.9s/5m30s  150.00 iters/s
+detect   [  54% ] 084/205 VUs  4m01.9s/7m30s  08.53 iters/s
+
+running (4m05.3s), 489/605 VUs, 10150 complete and 0 interrupted iterations
+browse   [  74% ] 400/400 VUs  4m02.9s/5m30s  150.00 iters/s
+detect   [  54% ] 089/205 VUs  4m03.0s/7m30s  08.78 iters/s
+
+running (4m06.3s), 498/605 VUs, 10174 complete and 0 interrupted iterations
+browse   [  74% ] 399/400 VUs  4m03.9s/5m30s  150.00 iters/s
+detect   [  54% ] 098/205 VUs  4m03.9s/7m30s  09.05 iters/s
+time="2026-10-31T10:24:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m06.2s), 506/605 VUs, 10223 complete and 0 interrupted iterations
+browse   [  74% ] 400/400 VUs  4m04.9s/5m30s  150.00 iters/s
+detect   [  54% ] 106/205 VUs  4m05.0s/7m30s  09.31 iters/s
+time="2026-10-31T10:24:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m07.2s), 511/605 VUs, 10265 complete and 0 interrupted iterations
+browse   [  75% ] 400/400 VUs  4m06.0s/5m30s  150.00 iters/s
+detect   [  55% ] 111/205 VUs  4m06.0s/7m30s  09.59 iters/s
+time="2026-10-31T10:24:27Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:27Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:27Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m08.1s), 517/605 VUs, 10300 complete and 0 interrupted iterations
+browse   [  75% ] 400/400 VUs  4m06.9s/5m30s  150.00 iters/s
+detect   [  55% ] 117/205 VUs  4m06.9s/7m30s  09.84 iters/s
+
+running (4m09.2s), 522/605 VUs, 10343 complete and 0 interrupted iterations
+browse   [  75% ] 400/400 VUs  4m07.9s/5m30s  150.00 iters/s
+detect   [  55% ] 122/205 VUs  4m07.9s/7m30s  10.11 iters/s
+time="2026-10-31T10:24:28Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:28Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m10.2s), 525/605 VUs, 10393 complete and 0 interrupted iterations
+browse   [  75% ] 400/400 VUs  4m08.9s/5m30s  150.00 iters/s
+detect   [  55% ] 125/205 VUs  4m08.9s/7m30s  10.39 iters/s
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": write tcp 172.19.0.3:48706->172.19.0.2:30080: write: broken pipe"
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m11.1s), 522/605 VUs, 10461 complete and 0 interrupted iterations
+browse   [  76% ] 400/400 VUs  4m09.9s/5m30s  150.00 iters/s
+detect   [  56% ] 122/205 VUs  4m09.9s/7m30s  10.65 iters/s
+
+running (4m12.1s), 533/605 VUs, 10485 complete and 0 interrupted iterations
+browse   [  76% ] 400/400 VUs  4m10.9s/5m30s  150.00 iters/s
+detect   [  56% ] 133/205 VUs  4m10.9s/7m30s  10.92 iters/s
+time="2026-10-31T10:24:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m13.1s), 542/605 VUs, 10501 complete and 0 interrupted iterations
+browse   [  76% ] 400/400 VUs  4m11.9s/5m30s  150.00 iters/s
+detect   [  56% ] 142/205 VUs  4m11.9s/7m30s  11.18 iters/s
+time="2026-10-31T10:24:32Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:32Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:32Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:32Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m14.2s), 549/605 VUs, 10505 complete and 0 interrupted iterations
+browse   [  77% ] 400/400 VUs  4m12.9s/5m30s  150.00 iters/s
+detect   [  56% ] 149/205 VUs  4m12.9s/7m30s  11.44 iters/s
+time="2026-10-31T10:24:33Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:33Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m15.1s), 559/605 VUs, 10507 complete and 0 interrupted iterations
+browse   [  77% ] 400/400 VUs  4m13.9s/5m30s  150.00 iters/s
+detect   [  56% ] 159/205 VUs  4m13.9s/7m30s  11.72 iters/s
+time="2026-10-31T10:24:34Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:34Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:34Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:34Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:34Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:34Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:34Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:35Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:35Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m16.1s), 562/605 VUs, 10516 complete and 0 interrupted iterations
+browse   [  77% ] 400/400 VUs  4m14.9s/5m30s  150.00 iters/s
+detect   [  57% ] 162/205 VUs  4m14.9s/7m30s  11.99 iters/s
+time="2026-10-31T10:24:35Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:35Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:35Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:35Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:35Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:35Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m17.1s), 568/605 VUs, 10522 complete and 0 interrupted iterations
+browse   [  78% ] 400/400 VUs  4m15.9s/5m30s  150.00 iters/s
+detect   [  57% ] 168/205 VUs  4m15.9s/7m30s  12.25 iters/s
+
+running (4m18.2s), 580/605 VUs, 10522 complete and 0 interrupted iterations
+browse   [  78% ] 400/400 VUs  4m16.9s/5m30s  150.00 iters/s
+detect   [  57% ] 180/205 VUs  4m16.9s/7m30s  12.51 iters/s
+time="2026-10-31T10:24:37Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m19.2s), 592/605 VUs, 10523 complete and 0 interrupted iterations
+browse   [  78% ] 400/400 VUs  4m17.9s/5m30s  150.00 iters/s
+detect   [  57% ] 192/205 VUs  4m17.9s/7m30s  12.79 iters/s
+time="2026-10-31T10:24:38Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:39Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m20.2s), 603/605 VUs, 10525 complete and 0 interrupted iterations
+browse   [  78% ] 400/400 VUs  4m18.9s/5m30s  150.00 iters/s
+detect   [  58% ] 203/205 VUs  4m18.9s/7m30s  13.05 iters/s
+time="2026-10-31T10:24:39Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:40Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m21.2s), 608/608 VUs, 10527 complete and 0 interrupted iterations
+browse   [  79% ] 400/400 VUs  4m19.9s/5m30s  150.00 iters/s
+detect   [  58% ] 208/208 VUs  4m19.9s/7m30s  13.32 iters/s
+time="2026-10-31T10:24:40Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:40Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m22.2s), 613/613 VUs, 10529 complete and 0 interrupted iterations
+browse   [  79% ] 400/400 VUs  4m20.9s/5m30s  150.00 iters/s
+detect   [  58% ] 213/213 VUs  4m20.9s/7m30s  13.57 iters/s
+time="2026-10-31T10:24:41Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m23.2s), 617/617 VUs, 10534 complete and 0 interrupted iterations
+browse   [  79% ] 400/400 VUs  4m21.9s/5m30s  150.00 iters/s
+detect   [  58% ] 217/217 VUs  4m21.9s/7m30s  13.85 iters/s
+time="2026-10-31T10:24:43Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m24.2s), 623/624 VUs, 10535 complete and 0 interrupted iterations
+browse   [  80% ] 400/400 VUs  4m22.9s/5m30s  150.00 iters/s
+detect   [  58% ] 223/224 VUs  4m22.9s/7m30s  14.11 iters/s
+
+running (4m25.1s), 630/631 VUs, 10535 complete and 0 interrupted iterations
+browse   [  80% ] 400/400 VUs  4m23.9s/5m30s  150.00 iters/s
+detect   [  59% ] 230/231 VUs  4m23.9s/7m30s  14.38 iters/s
+
+running (4m26.2s), 638/638 VUs, 10535 complete and 0 interrupted iterations
+browse   [  80% ] 400/400 VUs  4m24.9s/5m30s  150.00 iters/s
+detect   [  59% ] 238/238 VUs  4m24.9s/7m30s  14.65 iters/s
+
+running (4m27.1s), 645/645 VUs, 10535 complete and 0 interrupted iterations
+browse   [  81% ] 400/400 VUs  4m25.9s/5m30s  150.00 iters/s
+detect   [  59% ] 245/245 VUs  4m25.9s/7m30s  14.92 iters/s
+
+running (4m28.2s), 653/653 VUs, 10535 complete and 0 interrupted iterations
+browse   [  81% ] 400/400 VUs  4m26.9s/5m30s  150.00 iters/s
+detect   [  59% ] 253/253 VUs  4m26.9s/7m30s  15.19 iters/s
+time="2026-10-31T10:24:47Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:24:47Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m29.2s), 659/659 VUs, 10537 complete and 0 interrupted iterations
+browse   [  81% ] 400/400 VUs  4m27.9s/5m30s  150.00 iters/s
+detect   [  60% ] 259/259 VUs  4m27.9s/7m30s  15.45 iters/s
+
+running (4m30.2s), 666/667 VUs, 10537 complete and 0 interrupted iterations
+browse   [  81% ] 400/400 VUs  4m28.9s/5m30s  150.00 iters/s
+detect   [  60% ] 267/267 VUs  4m28.9s/7m30s  15.72 iters/s
+
+running (4m31.2s), 674/674 VUs, 10537 complete and 0 interrupted iterations
+browse   [  82% ] 400/400 VUs  4m29.9s/5m30s  150.00 iters/s
+detect   [  60% ] 274/275 VUs  4m29.9s/7m30s  15.97 iters/s
+
+running (4m32.2s), 682/682 VUs, 10537 complete and 0 interrupted iterations
+browse   [  82% ] 400/400 VUs  4m30.9s/5m30s  150.00 iters/s
+detect   [  60% ] 282/282 VUs  4m30.9s/7m30s  16.00 iters/s
+
+running (4m33.1s), 685/685 VUs, 10537 complete and 0 interrupted iterations
+browse   [  82% ] 400/400 VUs  4m31.9s/5m30s  150.00 iters/s
+detect   [  60% ] 285/285 VUs  4m31.9s/7m30s  16.00 iters/s
+
+running (4m34.2s), 692/693 VUs, 10537 complete and 0 interrupted iterations
+browse   [  83% ] 400/400 VUs  4m32.9s/5m30s  150.00 iters/s
+detect   [  61% ] 292/293 VUs  4m32.9s/7m30s  16.00 iters/s
+time="2026-10-31T10:24:53Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (4m35.2s), 698/698 VUs, 10538 complete and 0 interrupted iterations
+browse   [  83% ] 400/400 VUs  4m33.9s/5m30s  150.00 iters/s
+detect   [  61% ] 298/299 VUs  4m33.9s/7m30s  16.00 iters/s
+time="2026-10-31T10:24:54Z" level=warning msg="Insufficient VUs, reached 300 active VUs and cannot initialize more" executor=ramping-arrival-rate scenario=detect
+
+running (4m37.2s), 700/700 VUs, 10538 complete and 0 interrupted iterations
+browse   [  83% ] 400/400 VUs  4m34.9s/5m30s  150.00 iters/s
+detect   [  61% ] 300/300 VUs  4m35.0s/7m30s  16.00 iters/s
+
+running (4m38.2s), 700/700 VUs, 10538 complete and 0 interrupted iterations
+browse   [  84% ] 400/400 VUs  4m36.0s/5m30s  150.00 iters/s
+detect   [  61% ] 300/300 VUs  4m36.0s/7m30s  16.00 iters/s
+
+running (4m39.2s), 692/700 VUs, 10559 complete and 0 interrupted iterations
+browse   [  84% ] 391/400 VUs  4m36.9s/5m30s  150.00 iters/s
+detect   [  62% ] 300/300 VUs  4m36.9s/7m30s  16.00 iters/s
+
+running (4m40.2s), 632/700 VUs, 10694 complete and 0 interrupted iterations
+browse   [  84% ] 331/400 VUs  4m38.0s/5m30s  150.00 iters/s
+detect   [  62% ] 300/300 VUs  4m38.0s/7m30s  16.00 iters/s
+
+running (4m41.2s), 541/700 VUs, 10933 complete and 0 interrupted iterations
+browse   [  85% ] 243/400 VUs  4m38.9s/5m30s  150.00 iters/s
+detect   [  62% ] 300/300 VUs  4m38.9s/7m30s  16.00 iters/s
+
+running (4m42.2s), 668/700 VUs, 10938 complete and 0 interrupted iterations
+browse   [  85% ] 368/400 VUs  4m40.0s/5m30s  150.00 iters/s
+detect   [  62% ] 300/300 VUs  4m40.0s/7m30s  16.00 iters/s
+
+running (4m43.2s), 697/700 VUs, 10958 complete and 0 interrupted iterations
+browse   [  85% ] 398/400 VUs  4m40.9s/5m30s  150.00 iters/s
+detect   [  62% ] 300/300 VUs  4m40.9s/7m30s  16.00 iters/s
+
+running (4m44.2s), 692/700 VUs, 11026 complete and 0 interrupted iterations
+browse   [  85% ] 392/400 VUs  4m42.0s/5m30s  150.00 iters/s
+detect   [  63% ] 300/300 VUs  4m42.0s/7m30s  16.00 iters/s
+
+running (4m45.2s), 700/700 VUs, 11040 complete and 0 interrupted iterations
+browse   [  86% ] 400/400 VUs  4m42.9s/5m30s  150.00 iters/s
+detect   [  63% ] 300/300 VUs  4m43.0s/7m30s  16.00 iters/s
+
+running (4m46.2s), 700/700 VUs, 11045 complete and 0 interrupted iterations
+browse   [  86% ] 400/400 VUs  4m44.0s/5m30s  150.00 iters/s
+detect   [  63% ] 300/300 VUs  4m44.0s/7m30s  16.00 iters/s
+
+running (4m47.2s), 700/700 VUs, 11114 complete and 0 interrupted iterations
+browse   [  86% ] 400/400 VUs  4m44.9s/5m30s  150.00 iters/s
+detect   [  63% ] 300/300 VUs  4m44.9s/7m30s  16.00 iters/s
+
+running (4m48.2s), 654/700 VUs, 11193 complete and 0 interrupted iterations
+browse   [  87% ] 354/400 VUs  4m46.0s/5m30s  150.00 iters/s
+detect   [  64% ] 300/300 VUs  4m46.0s/7m30s  16.00 iters/s
+
+running (4m49.2s), 700/700 VUs, 11230 complete and 0 interrupted iterations
+browse   [  87% ] 399/400 VUs  4m46.9s/5m30s  150.00 iters/s
+detect   [  64% ] 300/300 VUs  4m47.0s/7m30s  16.00 iters/s
+
+running (4m50.2s), 700/700 VUs, 11246 complete and 0 interrupted iterations
+browse   [  87% ] 400/400 VUs  4m48.0s/5m30s  150.00 iters/s
+detect   [  64% ] 300/300 VUs  4m48.0s/7m30s  16.00 iters/s
+
+running (4m51.2s), 670/700 VUs, 11405 complete and 0 interrupted iterations
+browse   [  88% ] 370/400 VUs  4m48.9s/5m30s  150.00 iters/s
+detect   [  64% ] 300/300 VUs  4m49.0s/7m30s  16.00 iters/s
+
+running (4m52.2s), 630/700 VUs, 11555 complete and 0 interrupted iterations
+browse   [  88% ] 329/400 VUs  4m50.0s/5m30s  150.00 iters/s
+detect   [  64% ] 300/300 VUs  4m50.0s/7m30s  16.00 iters/s
+
+running (4m53.2s), 567/700 VUs, 11720 complete and 0 interrupted iterations
+browse   [  88% ] 262/400 VUs  4m51.0s/5m30s  150.00 iters/s
+detect   [  65% ] 299/300 VUs  4m51.0s/7m30s  16.00 iters/s
+
+running (5m00.3s), 696/700 VUs, 11785 complete and 0 interrupted iterations
+browse   [  90% ] 396/400 VUs  4m58.1s/5m30s  150.00 iters/s
+detect   [  66% ] 300/300 VUs  4m58.1s/7m30s  16.00 iters/s
+
+running (5m01.2s), 700/700 VUs, 11785 complete and 0 interrupted iterations
+browse   [  91% ] 400/400 VUs  4m58.9s/5m30s  150.00 iters/s
+detect   [  66% ] 300/300 VUs  4m59.0s/7m30s  16.00 iters/s
+
+running (5m02.2s), 699/700 VUs, 11786 complete and 0 interrupted iterations
+browse   [  91% ] 399/400 VUs  4m59.9s/5m30s  150.00 iters/s
+detect   [  67% ] 300/300 VUs  5m00.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:21Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m03.2s), 699/700 VUs, 11796 complete and 0 interrupted iterations
+browse   [  91% ] 398/400 VUs  5m01.0s/5m30s  150.00 iters/s
+detect   [  67% ] 300/300 VUs  5m01.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:22Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:22Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:23Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m04.2s), 700/700 VUs, 11806 complete and 0 interrupted iterations
+browse   [  92% ] 400/400 VUs  5m02.0s/5m30s  150.00 iters/s
+detect   [  67% ] 300/300 VUs  5m02.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:23Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:23Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:23Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:23Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:24Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:24Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:24Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:24Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:24Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m05.4s), 697/700 VUs, 11828 complete and 0 interrupted iterations
+browse   [  92% ] 397/400 VUs  5m03.2s/5m30s  150.00 iters/s
+detect   [  67% ] 300/300 VUs  5m03.2s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:25Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:26Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:26Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:27Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:28Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m09.5s), 688/700 VUs, 12015 complete and 0 interrupted iterations
+browse   [  93% ] 389/400 VUs  5m07.3s/5m30s  150.00 iters/s
+detect   [  68% ] 299/300 VUs  5m07.3s/7m30s  16.00 iters/s
+
+running (5m10.2s), 678/700 VUs, 12025 complete and 0 interrupted iterations
+browse   [  93% ] 383/400 VUs  5m08.0s/5m30s  150.00 iters/s
+detect   [  68% ] 295/300 VUs  5m08.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:28Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:29Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m11.4s), 694/700 VUs, 12038 complete and 0 interrupted iterations
+browse   [  94% ] 398/400 VUs  5m09.1s/5m30s  150.00 iters/s
+detect   [  69% ] 296/300 VUs  5m09.1s/7m30s  16.00 iters/s
+
+running (5m12.2s), 692/700 VUs, 12085 complete and 0 interrupted iterations
+browse   [  94% ] 394/400 VUs  5m10.0s/5m30s  150.00 iters/s
+detect   [  69% ] 298/300 VUs  5m10.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:30Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m13.2s), 582/700 VUs, 12272 complete and 0 interrupted iterations
+browse   [  94% ] 343/400 VUs  5m11.0s/5m30s  150.00 iters/s
+detect   [  69% ] 242/300 VUs  5m11.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:31Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m14.3s), 637/700 VUs, 12337 complete and 0 interrupted iterations
+browse   [  95% ] 385/400 VUs  5m12.2s/5m30s  150.00 iters/s
+detect   [  69% ] 258/300 VUs  5m12.3s/7m30s  16.00 iters/s
+
+running (5m15.3s), 680/700 VUs, 12398 complete and 0 interrupted iterations
+browse   [  95% ] 395/400 VUs  5m13.0s/5m30s  126.00 iters/s
+detect   [  70% ] 285/300 VUs  5m13.0s/7m30s  16.00 iters/s
+
+running (5m16.2s), 544/700 VUs, 12623 complete and 0 interrupted iterations
+browse   [  95% ] 359/400 VUs  5m14.0s/5m30s  123.15 iters/s
+detect   [  70% ] 182/300 VUs  5m14.0s/7m30s  16.00 iters/s
+
+running (5m17.4s), 292/700 VUs, 13072 complete and 0 interrupted iterations
+browse   [  95% ] 248/400 VUs  5m15.0s/5m30s  115.61 iters/s
+detect   [  70% ] 044/300 VUs  5m15.0s/7m30s  16.00 iters/s
+
+running (5m18.4s), 134/700 VUs, 13590 complete and 0 interrupted iterations
+browse   [  96% ] 093/400 VUs  5m16.0s/5m30s  099.42 iters/s
+detect   [  70% ] 041/300 VUs  5m16.0s/7m30s  16.00 iters/s
+
+running (5m19.4s), 040/700 VUs, 14278 complete and 0 interrupted iterations
+browse   [  96% ] 001/400 VUs  5m16.9s/5m30s  065.31 iters/s
+detect   [  70% ] 038/300 VUs  5m16.9s/7m30s  16.00 iters/s
+
+running (5m20.4s), 051/700 VUs, 14344 complete and 0 interrupted iterations
+browse   [  96% ] 012/400 VUs  5m17.9s/5m30s  060.37 iters/s
+detect   [  71% ] 039/300 VUs  5m17.9s/7m30s  16.00 iters/s
+
+running (5m21.4s), 107/700 VUs, 14362 complete and 0 interrupted iterations
+browse   [  97% ] 053/400 VUs  5m18.9s/5m30s  055.36 iters/s
+detect   [  71% ] 055/300 VUs  5m18.9s/7m30s  16.00 iters/s
+
+running (5m22.4s), 155/700 VUs, 14383 complete and 0 interrupted iterations
+browse   [  97% ] 085/400 VUs  5m19.9s/5m30s  050.35 iters/s
+detect   [  71% ] 070/300 VUs  5m19.9s/7m30s  16.00 iters/s
+
+running (5m24.7s), 115/700 VUs, 14564 complete and 0 interrupted iterations
+browse   [  98% ] 032/400 VUs  5m22.3s/5m30s  038.79 iters/s
+detect   [  72% ] 082/300 VUs  5m22.3s/7m30s  16.00 iters/s
+
+running (5m25.4s), 081/700 VUs, 14633 complete and 0 interrupted iterations
+browse   [  98% ] 000/400 VUs  5m22.9s/5m30s  035.43 iters/s
+detect   [  72% ] 081/300 VUs  5m22.9s/7m30s  16.00 iters/s
+
+running (5m26.4s), 081/700 VUs, 14682 complete and 0 interrupted iterations
+browse   [  98% ] 000/400 VUs  5m23.9s/5m30s  030.41 iters/s
+detect   [  72% ] 081/300 VUs  5m23.9s/7m30s  16.00 iters/s
+
+running (5m27.4s), 081/700 VUs, 14726 complete and 0 interrupted iterations
+browse   [  98% ] 000/400 VUs  5m24.9s/5m30s  025.40 iters/s
+detect   [  72% ] 081/300 VUs  5m24.9s/7m30s  16.00 iters/s
+
+running (5m28.4s), 081/700 VUs, 14765 complete and 0 interrupted iterations
+browse   [  99% ] 000/400 VUs  5m25.9s/5m30s  020.37 iters/s
+detect   [  72% ] 081/300 VUs  5m25.9s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:48Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m29.4s), 081/700 VUs, 14799 complete and 0 interrupted iterations
+browse   [  99% ] 001/400 VUs  5m26.9s/5m30s  015.33 iters/s
+detect   [  73% ] 080/300 VUs  5m26.9s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:48Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:48Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:49Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:49Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m30.4s), 078/700 VUs, 14831 complete and 0 interrupted iterations
+browse   [  99% ] 001/400 VUs  5m27.9s/5m30s  010.24 iters/s
+detect   [  73% ] 077/300 VUs  5m27.9s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:49Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:49Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:50Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m31.4s), 077/700 VUs, 14856 complete and 0 interrupted iterations
+browse   [ 100% ] 003/400 VUs  5m29.0s/5m30s  004.97 iters/s
+detect   [  73% ] 075/300 VUs  5m29.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:50Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:51Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m32.4s), 068/700 VUs, 14883 complete and 0 interrupted iterations
+browse   [ 100% ] 001/400 VUs  5m29.9s/5m30s  001.58 iters/s
+detect   [  73% ] 068/300 VUs  5m29.9s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:52Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:52Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m33.4s), 076/700 VUs, 14893 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  74% ] 076/300 VUs  5m31.0s/7m30s  16.00 iters/s
+
+running (5m34.4s), 091/700 VUs, 14893 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  74% ] 092/300 VUs  5m32.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:54Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m35.4s), 108/700 VUs, 14893 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  74% ] 108/300 VUs  5m33.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:55Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:25:55Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m36.6s), 114/700 VUs, 14907 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  74% ] 117/300 VUs  5m34.4s/7m30s  16.00 iters/s
+time="2026-10-31T10:25:55Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m37.4s), 124/700 VUs, 14908 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  74% ] 125/300 VUs  5m35.0s/7m30s  16.00 iters/s
+
+running (5m38.4s), 141/700 VUs, 14908 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  75% ] 141/300 VUs  5m36.0s/7m30s  16.00 iters/s
+
+running (5m39.4s), 157/700 VUs, 14908 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  75% ] 157/300 VUs  5m37.0s/7m30s  16.00 iters/s
+
+running (5m40.4s), 173/700 VUs, 14908 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  75% ] 173/300 VUs  5m38.0s/7m30s  16.00 iters/s
+
+running (5m41.4s), 189/700 VUs, 14908 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  75% ] 189/300 VUs  5m39.0s/7m30s  16.00 iters/s
+
+running (5m42.4s), 205/700 VUs, 14908 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  76% ] 205/300 VUs  5m40.0s/7m30s  16.00 iters/s
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m43.4s), 211/700 VUs, 14918 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  76% ] 211/300 VUs  5m40.9s/7m30s  16.00 iters/s
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+time="2026-10-31T10:26:02Z" level=warning msg="Request Failed" error="Post \"http://claimlens-control-plane:30080/api/detect\": request timeout"
+
+running (5m44.4s), 213/700 VUs, 14932 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  76% ] 213/300 VUs  5m41.9s/7m30s  16.00 iters/s
+
+running (5m45.4s), 212/700 VUs, 14948 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  76% ] 213/300 VUs  5m43.0s/7m30s  16.00 iters/s
+
+running (5m46.4s), 203/700 VUs, 14973 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  76% ] 204/300 VUs  5m43.9s/7m30s  16.00 iters/s
+
+running (5m47.4s), 217/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  77% ] 217/300 VUs  5m45.0s/7m30s  16.00 iters/s
+
+running (5m48.4s), 232/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  77% ] 233/300 VUs  5m46.0s/7m30s  16.00 iters/s
+
+running (5m49.4s), 249/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  77% ] 249/300 VUs  5m47.0s/7m30s  16.00 iters/s
+
+running (5m49.5s), 265/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  77% ] 265/300 VUs  5m48.0s/7m30s  16.00 iters/s
+
+running (5m50.5s), 280/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  78% ] 281/300 VUs  5m49.0s/7m30s  16.00 iters/s
+
+running (5m51.5s), 297/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  78% ] 297/300 VUs  5m50.0s/7m30s  16.00 iters/s
+
+running (5m52.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  78% ] 300/300 VUs  5m51.0s/7m30s  16.00 iters/s
+
+running (5m53.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  78% ] 300/300 VUs  5m51.9s/7m30s  16.00 iters/s
+
+running (5m54.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  78% ] 300/300 VUs  5m53.0s/7m30s  16.00 iters/s
+
+running (5m55.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  79% ] 300/300 VUs  5m54.0s/7m30s  16.00 iters/s
+
+running (5m56.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  79% ] 300/300 VUs  5m54.9s/7m30s  16.00 iters/s
+
+running (5m57.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  79% ] 300/300 VUs  5m55.9s/7m30s  16.00 iters/s
+
+running (5m58.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  79% ] 300/300 VUs  5m56.9s/7m30s  16.00 iters/s
+
+running (5m59.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  80% ] 300/300 VUs  5m57.9s/7m30s  16.00 iters/s
+
+running (6m00.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  80% ] 300/300 VUs  5m58.9s/7m30s  16.00 iters/s
+
+running (6m01.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  80% ] 300/300 VUs  5m59.9s/7m30s  16.00 iters/s
+
+running (6m02.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  80% ] 300/300 VUs  6m00.9s/7m30s  16.00 iters/s
+
+running (6m03.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  80% ] 300/300 VUs  6m01.9s/7m30s  16.00 iters/s
+
+running (6m04.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  81% ] 300/300 VUs  6m02.9s/7m30s  16.00 iters/s
+
+running (6m05.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  81% ] 300/300 VUs  6m04.0s/7m30s  16.00 iters/s
+
+running (6m06.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  81% ] 300/300 VUs  6m05.0s/7m30s  16.00 iters/s
+
+running (6m07.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  81% ] 300/300 VUs  6m06.0s/7m30s  16.00 iters/s
+
+running (6m08.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  82% ] 300/300 VUs  6m07.0s/7m30s  16.00 iters/s
+
+running (6m09.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  82% ] 300/300 VUs  6m07.9s/7m30s  16.00 iters/s
+
+running (6m10.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  82% ] 300/300 VUs  6m08.9s/7m30s  16.00 iters/s
+
+running (6m11.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  82% ] 300/300 VUs  6m09.9s/7m30s  16.00 iters/s
+
+running (6m12.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  82% ] 300/300 VUs  6m11.0s/7m30s  16.00 iters/s
+
+running (6m13.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  83% ] 300/300 VUs  6m12.0s/7m30s  16.00 iters/s
+
+running (6m14.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  83% ] 300/300 VUs  6m12.9s/7m30s  16.00 iters/s
+
+running (6m15.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  83% ] 300/300 VUs  6m13.9s/7m30s  16.00 iters/s
+
+running (6m16.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  83% ] 300/300 VUs  6m14.9s/7m30s  16.00 iters/s
+
+running (6m17.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  84% ] 300/300 VUs  6m15.9s/7m30s  16.00 iters/s
+
+running (6m18.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  84% ] 300/300 VUs  6m17.0s/7m30s  16.00 iters/s
+
+running (6m19.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  84% ] 300/300 VUs  6m18.0s/7m30s  16.00 iters/s
+
+running (6m20.5s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  84% ] 300/300 VUs  6m18.9s/7m30s  16.00 iters/s
+
+running (6m20.6s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  84% ] 300/300 VUs  6m19.9s/7m30s  16.00 iters/s
+
+running (6m21.6s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  85% ] 300/300 VUs  6m21.0s/7m30s  16.00 iters/s
+
+running (6m22.6s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  85% ] 300/300 VUs  6m21.9s/7m30s  16.00 iters/s
+
+running (6m23.6s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  85% ] 300/300 VUs  6m22.9s/7m30s  16.00 iters/s
+
+running (6m25.1s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  85% ] 300/300 VUs  6m24.5s/7m30s  16.00 iters/s
+
+running (6m25.6s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  86% ] 300/300 VUs  6m24.9s/7m30s  16.00 iters/s
+
+running (6m26.7s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  86% ] 300/300 VUs  6m26.1s/7m30s  16.00 iters/s
+
+running (6m27.6s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  86% ] 300/300 VUs  6m27.0s/7m30s  16.00 iters/s
+
+running (6m28.6s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  86% ] 300/300 VUs  6m28.0s/7m30s  16.00 iters/s
+
+running (6m29.6s), 300/700 VUs, 14976 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  86% ] 300/300 VUs  6m28.9s/7m30s  16.00 iters/s
+
+running (6m30.8s), 282/700 VUs, 14999 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  87% ] 279/300 VUs  6m30.2s/7m30s  15.96 iters/s
+
+running (6m31.6s), 286/700 VUs, 15007 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  87% ] 286/300 VUs  6m30.9s/7m30s  15.76 iters/s
+
+running (6m32.6s), 299/700 VUs, 15010 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  87% ] 299/300 VUs  6m32.0s/7m30s  15.48 iters/s
+
+running (6m33.6s), 300/700 VUs, 15010 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  87% ] 297/300 VUs  6m33.0s/7m30s  15.21 iters/s
+
+running (6m34.6s), 274/700 VUs, 15051 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  88% ] 275/300 VUs  6m34.0s/7m30s  14.94 iters/s
+
+running (6m35.6s), 289/700 VUs, 15051 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  88% ] 289/300 VUs  6m34.9s/7m30s  14.69 iters/s
+
+running (6m36.6s), 300/700 VUs, 15051 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  88% ] 300/300 VUs  6m36.0s/7m30s  14.41 iters/s
+
+running (6m37.6s), 300/700 VUs, 15051 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  88% ] 300/300 VUs  6m37.0s/7m30s  14.13 iters/s
+
+running (6m38.6s), 300/700 VUs, 15051 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  88% ] 300/300 VUs  6m38.0s/7m30s  13.89 iters/s
+
+running (6m39.6s), 300/700 VUs, 15051 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  89% ] 300/300 VUs  6m38.9s/7m30s  13.61 iters/s
+
+running (6m40.6s), 300/700 VUs, 15051 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  89% ] 300/300 VUs  6m39.9s/7m30s  13.36 iters/s
+
+running (6m41.6s), 288/700 VUs, 15076 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  89% ] 288/300 VUs  6m41.0s/7m30s  13.07 iters/s
+
+running (6m42.6s), 300/700 VUs, 15076 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  89% ] 300/300 VUs  6m41.9s/7m30s  12.81 iters/s
+
+running (6m43.6s), 300/700 VUs, 15076 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  90% ] 299/300 VUs  6m43.0s/7m30s  12.53 iters/s
+
+running (6m44.6s), 300/700 VUs, 15084 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  90% ] 300/300 VUs  6m44.0s/7m30s  12.27 iters/s
+
+running (6m45.6s), 289/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  90% ] 289/300 VUs  6m44.9s/7m30s  12.01 iters/s
+
+running (6m46.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  90% ] 300/300 VUs  6m45.9s/7m30s  11.74 iters/s
+
+running (6m47.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  90% ] 300/300 VUs  6m46.9s/7m30s  11.49 iters/s
+
+running (6m48.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  91% ] 300/300 VUs  6m47.9s/7m30s  11.21 iters/s
+
+running (6m49.7s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  91% ] 300/300 VUs  6m49.0s/7m30s  10.94 iters/s
+
+running (6m50.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  91% ] 300/300 VUs  6m49.9s/7m30s  10.70 iters/s
+
+running (6m51.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  91% ] 300/300 VUs  6m51.0s/7m30s  10.42 iters/s
+
+running (6m52.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  92% ] 300/300 VUs  6m51.9s/7m30s  10.16 iters/s
+
+running (6m53.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  92% ] 300/300 VUs  6m52.9s/7m30s  09.89 iters/s
+
+running (6m54.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  92% ] 300/300 VUs  6m54.0s/7m30s  09.62 iters/s
+
+running (6m55.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  92% ] 300/300 VUs  6m54.9s/7m30s  09.34 iters/s
+
+running (6m56.7s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  92% ] 300/300 VUs  6m56.0s/7m30s  09.08 iters/s
+
+running (6m57.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  93% ] 300/300 VUs  6m57.0s/7m30s  08.81 iters/s
+
+running (6m58.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  93% ] 300/300 VUs  6m58.0s/7m30s  08.53 iters/s
+
+running (6m59.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  93% ] 300/300 VUs  6m59.0s/7m30s  08.28 iters/s
+
+running (7m00.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  93% ] 300/300 VUs  6m59.9s/7m30s  08.02 iters/s
+
+running (7m01.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  94% ] 300/300 VUs  7m00.9s/7m30s  07.75 iters/s
+
+running (7m02.7s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  94% ] 300/300 VUs  7m02.0s/7m30s  07.47 iters/s
+
+running (7m03.6s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  94% ] 300/300 VUs  7m02.9s/7m30s  07.21 iters/s
+
+running (7m04.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  94% ] 300/300 VUs  7m03.9s/7m30s  06.95 iters/s
+
+running (7m05.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  94% ] 300/300 VUs  7m05.0s/7m30s  06.67 iters/s
+
+running (7m06.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  95% ] 300/300 VUs  7m05.9s/7m30s  06.43 iters/s
+
+running (7m07.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  95% ] 300/300 VUs  7m06.9s/7m30s  06.13 iters/s
+
+running (7m08.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  95% ] 300/300 VUs  7m07.9s/7m30s  05.87 iters/s
+
+running (7m09.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  95% ] 300/300 VUs  7m08.9s/7m30s  05.63 iters/s
+
+running (7m10.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  96% ] 300/300 VUs  7m10.0s/7m30s  05.34 iters/s
+
+running (7m11.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  96% ] 300/300 VUs  7m10.9s/7m30s  05.09 iters/s
+
+running (7m12.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  96% ] 300/300 VUs  7m11.9s/7m30s  04.82 iters/s
+
+running (7m13.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  96% ] 300/300 VUs  7m12.9s/7m30s  04.53 iters/s
+
+running (7m14.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  96% ] 300/300 VUs  7m14.0s/7m30s  04.29 iters/s
+
+running (7m15.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  97% ] 300/300 VUs  7m15.0s/7m30s  04.03 iters/s
+
+running (7m16.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  97% ] 300/300 VUs  7m15.9s/7m30s  03.76 iters/s
+
+running (7m17.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  97% ] 300/300 VUs  7m17.0s/7m30s  03.46 iters/s
+
+running (7m18.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  97% ] 300/300 VUs  7m18.0s/7m30s  03.22 iters/s
+
+running (7m19.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  98% ] 300/300 VUs  7m18.9s/7m30s  02.97 iters/s
+
+running (7m20.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  98% ] 300/300 VUs  7m20.0s/7m30s  02.68 iters/s
+
+running (7m21.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  98% ] 300/300 VUs  7m20.9s/7m30s  02.37 iters/s
+
+running (7m22.3s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  98% ] 300/300 VUs  7m21.9s/7m30s  02.13 iters/s
+
+running (7m23.4s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  98% ] 300/300 VUs  7m23.0s/7m30s  01.86 iters/s
+
+running (7m24.7s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  99% ] 300/300 VUs  7m24.8s/7m30s  01.36 iters/s
+
+running (7m25.5s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  99% ] 300/300 VUs  7m25.2s/7m30s  01.36 iters/s
+
+running (7m26.4s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  99% ] 300/300 VUs  7m26.1s/7m30s  01.15 iters/s
+
+running (7m27.4s), 300/700 VUs, 15105 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [  99% ] 300/300 VUs  7m27.1s/7m30s  00.88 iters/s
+
+running (7m28.3s), 288/700 VUs, 15117 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [ 100% ] 288/300 VUs  7m28.0s/7m30s  00.37 iters/s
+
+running (7m29.3s), 222/700 VUs, 15183 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [ 100% ] 211/300 VUs  7m29.0s/7m30s  00.37 iters/s
+
+running (7m30.3s), 120/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s          001.58 iters/s
+detect   [ 100% ] 120/300 VUs  7m29.9s/7m30s  00.37 iters/s
+
+running (7m31.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m32.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m33.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m34.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m35.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m36.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m37.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m38.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m39.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m40.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m41.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m42.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m43.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m44.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m45.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m46.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m47.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m48.3s), 121/700 VUs, 15285 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m49.3s), 120/700 VUs, 15286 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m50.3s), 120/700 VUs, 15286 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m51.3s), 120/700 VUs, 15286 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m52.3s), 118/700 VUs, 15288 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m53.3s), 116/700 VUs, 15290 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m54.3s), 116/700 VUs, 15290 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m55.3s), 115/700 VUs, 15291 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m56.3s), 115/700 VUs, 15291 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m57.3s), 113/700 VUs, 15293 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m58.3s), 113/700 VUs, 15293 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (7m59.3s), 113/700 VUs, 15293 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (8m00.3s), 111/700 VUs, 15295 complete and 0 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ↓ [ 100% ] 121/300 VUs  7m30s  00.37 iters/s
+
+running (8m01.3s), 000/700 VUs, 15295 complete and 111 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ✓ [ 100% ] 111/300 VUs  7m30s  00.37 iters/s
+
+running (8m01.3s), 000/700 VUs, 15295 complete and 111 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ✓ [ 100% ] 111/300 VUs  7m30s  00.37 iters/s
+
+running (8m01.3s), 000/700 VUs, 15295 complete and 111 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ✓ [ 100% ] 111/300 VUs  7m30s  00.37 iters/s
+
+running (8m01.3s), 000/700 VUs, 15295 complete and 111 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ✓ [ 100% ] 111/300 VUs  7m30s  00.37 iters/s
+
+running (8m01.3s), 000/700 VUs, 15295 complete and 111 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ✓ [ 100% ] 111/300 VUs  7m30s  00.37 iters/s
+
+
+  █ THRESHOLDS 
+
+    detect_total_ms
+    ✗ 'p(95)<10000' p(95)=28.59s
+
+    http_req_duration{scenario:browse}
+    ✗ 'p(95)<500' p(95)=13.05s
+
+    http_req_failed{scenario:browse}
+    ✗ 'rate<0.01' rate=32.00%
+
+    http_req_failed{scenario:claims}
+    ✓ 'rate<0.02' rate=0.00%
+
+    http_req_failed{scenario:detect}
+    ✗ 'rate<0.01' rate=13.46%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 41815  86.882414/s
+    checks_succeeded...: 65.61% 27439 out of 41815
+    checks_failed......: 34.38% 14376 out of 41815
+
+    ✓ login 200
+    ✗ browse 200
+      ↳  67% — ✓ 27027 / ✗ 12723
+    ✗ detect 200
+      ↳  19% — ✓ 392 / ✗ 1653
+
+    CUSTOM
+    detect_returned_pending........: 746    1.550025/s
+    detect_total_ms................: avg=9.01s min=371ms        med=2.68s    p(90)=20.03s p(95)=28.59s p(99)=1m25s  max=1m38s 
+
+    HTTP
+    http_req_duration..............: avg=2.97s min=-780487774ns med=313.78ms p(90)=9.93s  p(95)=14.53s p(99)=37.79s max=1m1s  
+      { expected_response:true }...: avg=3.47s min=-780487774ns med=607.01ms p(90)=11.03s p(95)=16.7s  p(99)=37.37s max=1m1s  
+      { scenario:browse }..........: avg=2.39s min=-284033239ns med=143.16ms p(90)=9.88s  p(95)=13.05s p(99)=30.24s max=38.53s
+    http_req_failed................: 27.63% 14366 out of 51994
+      { scenario:browse }..........: 32.00% 12723 out of 39750
+      { scenario:claims }..........: 0.00%  0 out of 0
+      { scenario:detect }..........: 13.46% 1643 out of 12204
+    http_reqs......................: 51994  108.032148/s
+
+    EXECUTION
+    dropped_iterations.............: 15704  32.629474/s
+    iteration_duration.............: avg=8.12s min=1.26ms       med=642.95ms p(90)=24.37s p(95)=44.27s p(99)=1m28s  max=2m47s 
+    iterations.....................: 15314  31.819139/s
+    vus............................: 111    min=0              max=700
+    vus_max........................: 700    min=90             max=700
+
+    NETWORK
+    data_received..................: 21 MB  44 kB/s
+    data_sent......................: 19 MB  40 kB/s
+
+
+
+
+running (8m01.3s), 000/700 VUs, 15295 complete and 111 interrupted iterations
+browse ✓ [ 100% ] 000/400 VUs  5m30s  001.58 iters/s
+detect ✓ [ 100% ] 111/300 VUs  7m30s  00.37 iters/s
+time="2026-10-31T10:28:24Z" level=error msg="thresholds on metrics 'detect_total_ms, http_req_duration{scenario:browse}, http_req_failed{scenario:browse}, http_req_failed{scenario:detect}' have been crossed"

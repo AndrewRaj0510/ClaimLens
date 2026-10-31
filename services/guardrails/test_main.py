@@ -1,10 +1,12 @@
 import base64
 import io
 
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
+import forensics
 import main
 import photos
 from test_images import exif_with, jpeg, text_image
@@ -123,6 +125,28 @@ def test_inspect_scans_text_and_counts_redactions():
     }
 
 
+def test_inspect_returns_the_real_detectors_numpy_scores_as_json():
+    # The trained detector computes with numpy; FakeAi returns a Python float,
+    # which hid a 500 (numpy.bool in the response) until the real model ran.
+    class Encoder:
+        def run(self, outputs, feeds):
+            return [np.ones((1, 4), dtype=np.float32)]
+
+    det = forensics.AiDetector.__new__(forensics.AiDetector)
+    det.session, det.input, det.output = Encoder(), "pixel_values", None
+    det.l2, det.size = True, 224
+    det.weights = np.full(4, 2.0, dtype=np.float32)
+    det.bias, det.threshold, det.name = 0.0, 0.9, "clip-probe"
+    with client_with(ai=det) as c:
+        r = inspect(c, jpeg(Image.new("RGB", (64, 64))))
+    assert r.status_code == 200
+    assert r.json()["ai_generated"] == {
+        "score": 0.982,  # sigmoid(4 * 0.5 * 2.0)
+        "flagged": True,
+        "model": "clip-probe",
+    }
+
+
 def test_inspect_uses_the_incident_date_for_metadata():
     data = jpeg(Image.new("RGB", (64, 64)), exif=exif_with(taken="2025:01:01 09:00:00"))
     with client_with() as c:
@@ -159,3 +183,9 @@ def test_real_ocr_flags_a_visual_injection_and_redacts_it():
         r for r in photos.Ocr().read(redacted) if r["score"] >= photos.OCR_MIN_SCORE
     ]
     assert not any("ignore" in r["text"].lower() for r in again), again
+
+
+def test_metrics_are_exposed():
+    c = client_with()
+    c.get("/health")
+    assert 'route="/health"' in c.get("/metrics").text

@@ -96,6 +96,19 @@ def test_threshold_keeps_false_positives_under_the_target():
     assert (real >= t - 0.01).mean() > 0.005  # and not needlessly high
 
 
+def test_out_of_fold_scores_come_from_probes_that_didnt_see_the_image():
+    pytest.importorskip("sklearn")
+    rng = np.random.default_rng(0)
+    X = rng.normal(size=(200, 8))
+    y = (X[:, 0] > 0).astype(int)
+    X[0] = [5, 0, 0, 0, 0, 0, 0, 0]  # an outlier labelled against the trend
+    y[0] = 0
+    oof = ad.out_of_fold_scores(X, y, C=10.0)
+    assert oof.shape == (200,) and ((oof >= 0) & (oof <= 1)).all()
+    assert oof[0] > 0.9  # in-sample it would be pulled towards its own label
+    assert ((oof > 0.5) == y)[1:].mean() > 0.9
+
+
 def test_probe_trained_here_scores_the_same_in_the_service():
     pytest.importorskip("sklearn")
     rng = np.random.default_rng(0)

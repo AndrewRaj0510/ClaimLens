@@ -1,0 +1,55 @@
+# Gateway: the public API behind the frontend. Stateless (sessions and rate
+# limits are in Redis), so it scales on CPU.
+
+image:
+  name: gateway
+
+replicas: 2
+port: 8000
+healthPath: /health
+startupSeconds: 60
+
+service:
+  enabled: true
+
+metrics:
+  enabled: true
+
+secretEnv:
+  DB_PASSWORD: DB_PASSWORD_GATEWAY
+  REDIS_PASSWORD: REDIS_PASSWORD
+  S3_ACCESS_KEY: S3_ACCESS_KEY
+  S3_SECRET_KEY: S3_SECRET_KEY
+
+env:
+  # Its own database role: reads logins, policies and vehicles, nothing else (db/roles.sql).
+  DATABASE_URL: postgresql://claimlens_gateway:$(DB_PASSWORD)@postgres:5432/claimlens
+  REDIS_URL: redis://:$(REDIS_PASSWORD)@redis:6379/0
+  AGENT_URL: http://agent:8000
+  S3_ENDPOINT: http://seaweedfs:8333
+  S3_BUCKET: claimlens
+  MAX_UPLOAD_MB: "10"
+  # Secure cookies need HTTPS. values-kind.yaml turns this off for plain HTTP.
+  COOKIE_SECURE: "true"
+
+resources:
+  requests: {cpu: 100m, memory: 160Mi}
+  limits: {cpu: "1", memory: 384Mi}
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPU: 70
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+persistence:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  # Only the frontend's /api proxy, which allowlists paths and headers.
+  from: [frontend]

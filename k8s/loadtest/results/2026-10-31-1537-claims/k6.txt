@@ -1,0 +1,56 @@
+
+
+  █ THRESHOLDS 
+
+    detect_total_ms
+    ✓ 'p(95)<10000' p(95)=0s
+
+    http_req_duration{scenario:browse}
+    ✓ 'p(95)<500' p(95)=0s
+
+    http_req_failed{scenario:browse}
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_req_failed{scenario:claims}
+    ✓ 'rate<0.02' rate=0.00%
+
+    http_req_failed{scenario:detect}
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 262     1.066237/s
+    checks_succeeded...: 100.00% 262 out of 262
+    checks_failed......: 0.00%   0 out of 262
+
+    ✓ login 200
+    ✓ claim 202
+    ✓ claim reached a decision point
+
+    CUSTOM
+    claim_to_decision_ms...........: avg=1.21s   min=1.04s  med=1.05s  p(90)=1.06s   p(95)=1.06s    p(99)=6.75s    max=8.48s   
+    detect_total_ms................: avg=0s      min=0s     med=0s     p(90)=0s      p(95)=0s       p(99)=0s       max=0s      
+
+    HTTP
+    http_req_duration..............: avg=38.87ms min=5.91ms med=18.4ms p(90)=47.56ms p(95)=212.42ms p(99)=230.82ms max=379.94ms
+      { expected_response:true }...: avg=38.87ms min=5.91ms med=18.4ms p(90)=47.56ms p(95)=212.42ms p(99)=230.82ms max=379.94ms
+      { scenario:browse }..........: avg=0s      min=0s     med=0s     p(90)=0s      p(95)=0s       p(99)=0s       max=0s      
+    http_req_failed................: 0.00%  0 out of 301
+      { scenario:browse }..........: 0.00%  0 out of 0
+      { scenario:claims }..........: 0.00%  0 out of 261
+      { scenario:detect }..........: 0.00%  0 out of 0
+    http_reqs......................: 301    1.224951/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.21s   min=1.04s  med=1.05s  p(90)=1.06s   p(95)=1.06s    p(99)=6.75s    max=8.48s   
+    iterations.....................: 121    0.492422/s
+    vus............................: 1      min=0        max=5 
+    vus_max........................: 20     min=20       max=20
+
+    NETWORK
+    data_received..................: 179 kB 729 B/s
+    data_sent......................: 676 kB 2.8 kB/s
+
+
+

@@ -1,5 +1,5 @@
 {
- "_comment": "Eval gates (gate.py): measured value minus a stated tolerance. Raising or lowering one is a reviewed change, like changing a test. Measured 2026-10-29; see docs/metrics.md.",
+ "_comment": "Eval gates (gate.py): measured value minus a stated tolerance. Raising or lowering one is a reviewed change, like changing a test. Measured 2026-10-29 (detection: the first CarDD run, 2026-10-29 in Colab); see docs/metrics.md.",
  "redteam": {
   "dev.catch_rate_excluding_known_limits": {"min": 0.98, "why": "measured 0.984 (254/258 in scope); the rules were fixed on this set, so it's a regression test: allows 1 case of drift"},
   "dev.false_positive_rate": {"max": 0.0, "why": "0/50 benign controls flagged; any flagged control is a regression"},
@@ -25,9 +25,15 @@
   "by_planted_error.wrong_date.grounding": {"min": 1.0, "why": "code check: a date not in the facts is always caught"}
  },
  "detection": {
-  "mask.map50": {"min": 0.7, "why": "PROVISIONAL until the first eval_cardd.ipynb run: Ultralytics measured 0.766 on the CarDD test split (Phase 1); our COCO-style AP differs slightly. Re-baseline from the first result"},
-  "box.map50": {"min": 0.7, "why": "PROVISIONAL, as above (Ultralytics: 0.762)"},
-  "mask.map50_95": {"min": 0.5, "why": "PROVISIONAL, as above (Ultralytics: 0.565)"},
-  "images": {"min": 374, "why": "the whole CarDD test split, so the numbers compare with Phase 1"}
+  "images": {"min": 374, "why": "the whole CarDD test split, so the numbers compare with Phase 1"},
+  "mask.map50": {"min": 0.74, "why": "measured 0.764 (Ultralytics, Phase 1: 0.766). The run is deterministic for a given model, so a drop means a new model or changed post-processing; allows a retrained model 0.02 of noise"},
+  "box.map50": {"min": 0.74, "why": "measured 0.758 (Ultralytics: 0.762); as above"},
+  "mask.map50_95": {"min": 0.54, "why": "measured 0.561 (Ultralytics: 0.565); as above"},
+  "box.map50_95": {"min": 0.58, "why": "measured 0.605 (Ultralytics: 0.605); as above"},
+  "cost.photos": {"min": 374, "why": "every test photo priced"},
+  "cost.within_20pct": {"min": 0.68, "why": "measured 0.717: the share of photos whose estimate is within 20% of the cost from the true masks; allows about 14 photos of drift"},
+  "cost.true_cost_in_quoted_range": {"min": 0.68, "why": "measured 0.711: the range shown to the adjuster contains the true cost; as above"},
+  "cost.damage_list_exact": {"min": 0.65, "why": "measured 0.682: the same damage types and severities as the true masks, so the same price"},
+  "cost.mae": {"max": 300, "why": "measured $261 on a mean true cost of $1,477 (vehicle: midsize, ME); mostly missed scratches, dents and broken lamps"}
  }
 }

@@ -1,0 +1,12 @@
+# Local training of the AI-image detector (training/train_ai_detector_local.py).
+# CPU torch is enough: CLIP is frozen. On Windows/Linux CPU-only:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch
+transformers
+scikit-learn
+onnx
+onnxruntime
+pyarrow
+huggingface_hub
+numpy
+pillow

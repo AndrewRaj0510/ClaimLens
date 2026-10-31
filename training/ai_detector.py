@@ -88,32 +88,50 @@ def export_tiny_genimage(parquet_files, root):
     import pyarrow.parquet as pq
 
     root = Path(root)
-    rows = {"train": {"fake": [], "real": []}, "val": {"fake": [], "real": []}}
+    by_split = {"train": [], "val": []}
     for path in parquet_files:
-        split = "val" if "validation" in Path(path).name else "train"
-        table = pq.read_table(path, columns=["image", "label", "generator"])
-        for r in table.to_pylist():
-            kind = "real" if r["label"] == 0 else "fake"
-            rows[split][kind].append((TINY_GENERATORS[r["generator"]], r["image"]))
+        by_split["val" if "validation" in Path(path).name else "train"].append(path)
     counts = {}
-    for split, by_kind in rows.items():
-        gens = sorted({g for g, _ in by_kind["fake"]})
+    for split, files in by_split.items():
+        # First pass reads only the small columns, to know the generators
+        # before the reals are dealt out. The second streams one row group at
+        # a time, so a 480 MB shard is never held in memory whole.
+        gens = set()
+        for path in files:
+            t = pq.read_table(path, columns=["label", "generator"])
+            gens |= {
+                TINY_GENERATORS[g]
+                for g, label in zip(
+                    t.column("generator").to_pylist(),
+                    t.column("label").to_pylist(),
+                    strict=True,
+                )
+                if label == 1
+            }
+        gens = sorted(gens)
         if not gens:
             continue
         counts[split] = {g: {"ai": 0, "nature": 0} for g in gens}
-        reals = [
-            (gens[i % len(gens)], image) for i, (_, image) in enumerate(by_kind["real"])
-        ]
-        for label, items in (("ai", by_kind["fake"]), ("nature", reals)):
-            for g, image in items:
-                folder = root / g.lower() / g.lower() / split / label
-                folder.mkdir(parents=True, exist_ok=True)
-                n = counts[split][g][label]
-                suffix = Path(image.get("path") or "").suffix.lower() or (
-                    ".png" if image["bytes"][:4] == b"\x89PNG" else ".jpg"
-                )
-                (folder / f"{n:05d}{suffix}").write_bytes(image["bytes"])
-                counts[split][g][label] = n + 1
+        reals_seen = 0
+        for path in files:
+            pf = pq.ParquetFile(path)
+            for i in range(pf.num_row_groups):
+                rows = pf.read_row_group(i, columns=["image", "label", "generator"])
+                for r in rows.to_pylist():
+                    if r["label"] == 1:
+                        g, label = TINY_GENERATORS[r["generator"]], "ai"
+                    else:
+                        g, label = gens[reals_seen % len(gens)], "nature"
+                        reals_seen += 1
+                    image = r["image"]
+                    folder = root / g.lower() / g.lower() / split / label
+                    folder.mkdir(parents=True, exist_ok=True)
+                    n = counts[split][g][label]
+                    suffix = Path(image.get("path") or "").suffix.lower() or (
+                        ".png" if image["bytes"][:4] == b"\x89PNG" else ".jpg"
+                    )
+                    (folder / f"{n:05d}{suffix}").write_bytes(image["bytes"])
+                    counts[split][g][label] = n + 1
     return counts
 
 
@@ -185,6 +203,24 @@ def fit_probe(X, y, seed=0):
     return LogisticRegressionCV(
         Cs=[0.1, 0.3, 1, 3, 10, 30], cv=5, max_iter=5000, random_state=seed
     ).fit(X, y)
+
+
+def out_of_fold_scores(X, y, C, seed=0, folds=5):
+    """A score for every training image from a probe that didn't train on it
+    (k-fold), to set the threshold on. A 10% holdout of 1,000 reals leaves
+    100, so "1% false positives" rests on a single photo: that threshold let
+    5.8% of the validation reals through, this one 2.7% (Tiny-GenImage SD v1.5,
+    2026-10-30)."""
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import StratifiedKFold
+
+    scores = np.zeros(len(X))
+    for fit, held in StratifiedKFold(folds, shuffle=True, random_state=seed).split(
+        X, y
+    ):
+        clf = LogisticRegression(C=C, max_iter=5000).fit(X[fit], y[fit])
+        scores[held] = clf.predict_proba(X[held])[:, 1]
+    return scores
 
 
 def probe_scores(X, weights, bias):

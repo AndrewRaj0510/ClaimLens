@@ -8,3 +8,4 @@ pillow
 # OCR: PaddleOCR's models on ONNX Runtime; the models ship inside the wheel.
 # Brings opencv-python-headless, which also runs the YuNet face detector.
 rapidocr
+prometheus-client

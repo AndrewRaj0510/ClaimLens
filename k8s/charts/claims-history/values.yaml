@@ -1,0 +1,44 @@
+# claims-history MCP server: Past claims and the perceptual-hash duplicate check; stateless.
+
+image:
+  name: claims-history
+
+replicas: 1
+port: 8000
+healthPath: /health
+startupSeconds: 60
+
+service:
+  enabled: true
+
+metrics:
+  enabled: false
+
+secretEnv:
+  DB_PASSWORD: DB_PASSWORD_CLAIMS_HISTORY
+
+env:
+  DATABASE_URL: postgresql://claimlens_claims_history:$(DB_PASSWORD)@postgres:5432/claimlens
+  # DNS-rebinding allowlist: the Host header must be the service's own name.
+  MCP_ALLOWED_HOSTS: claims-history:*,localhost:*
+
+resources:
+  requests: {cpu: 50m, memory: 96Mi}
+  limits: {cpu: 500m, memory: 256Mi}
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPU: 70
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+persistence:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  from: [agent]

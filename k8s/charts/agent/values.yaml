@@ -1,0 +1,72 @@
+# Agent: the LangGraph claim workflow. Claim state is in the Postgres
+# checkpointer and run state in Redis (services/agent/runstate.py), so any
+# replica can serve any claim.
+
+image:
+  name: agent
+
+replicas: 2
+port: 8000
+healthPath: /health
+startupSeconds: 60
+
+service:
+  enabled: true
+
+metrics:
+  enabled: true
+
+# A scale-down or rollout lets running claims finish: the app drains for
+# DRAIN_S, so the pod must be given longer than that before SIGKILL.
+terminationGracePeriodSeconds: 120
+
+secretEnv:
+  DB_PASSWORD: DB_PASSWORD_AGENT
+  REDIS_PASSWORD: REDIS_PASSWORD
+  S3_ACCESS_KEY: S3_ACCESS_KEY
+  S3_SECRET_KEY: S3_SECRET_KEY
+  # Optional: without a key every LLM step falls back (services/agent/graph.py),
+  # and without Langfuse keys tracing is off.
+  OLLAMA_API_KEY: {key: OLLAMA_API_KEY, optional: true}
+  LANGFUSE_PUBLIC_KEY: {key: LANGFUSE_PUBLIC_KEY, optional: true}
+  LANGFUSE_SECRET_KEY: {key: LANGFUSE_SECRET_KEY, optional: true}
+
+env:
+  DATABASE_URL: postgresql://claimlens_agent:$(DB_PASSWORD)@postgres:5432/claimlens
+  REDIS_URL: redis://:$(REDIS_PASSWORD)@redis:6379/0
+  GUARDRAILS_URL: http://guardrails:8000
+  S3_ENDPOINT: http://seaweedfs:8333
+  S3_BUCKET: claimlens
+  MAX_UPLOAD_MB: "10"
+  OLLAMA_HOST: https://ollama.com
+  OLLAMA_MODEL: gpt-oss:120b
+  VLM_MODEL: gemma4:31b
+  LANGFUSE_BASE_URL: https://cloud.langfuse.com
+  OTEL_SERVICE_NAME: agent
+  DRAIN_S: "90"
+
+resources:
+  requests: {cpu: 100m, memory: 256Mi}
+  limits: {cpu: "1", memory: 768Mi}
+
+# Mostly waits on I/O (LLM, guardrails, vision), so CPU climbs late; the
+# scale-down window is long so runs aren't drained for a short dip.
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPU: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+persistence:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  from: [gateway]

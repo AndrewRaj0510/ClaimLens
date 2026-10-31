@@ -1,0 +1,58 @@
+time="2026-10-31T11:02:47Z" level=warning msg="Insufficient VUs, reached 250 active VUs and cannot initialize more" executor=ramping-arrival-rate scenario=browse
+
+
+  █ THRESHOLDS 
+
+    detect_total_ms
+    ✓ 'p(95)<10000' p(95)=0s
+
+    http_req_duration{scenario:browse}
+    ✓ 'p(95)<500' p(95)=385.85ms
+
+    http_req_failed{scenario:browse}
+    ✗ 'rate<0.01' rate=13.13%
+
+    http_req_failed{scenario:claims}
+    ✓ 'rate<0.02' rate=0.00%
+
+    http_req_failed{scenario:detect}
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 124682 438.960386/s
+    checks_succeeded...: 86.87% 108312 out of 124682
+    checks_failed......: 13.12% 16370 out of 124682
+
+    ✓ login 200
+    ✗ browse 200
+      ↳  86% — ✓ 108292 / ✗ 16370
+
+    CUSTOM
+    detect_total_ms................: avg=0s       min=0s       med=0s      p(90)=0s       p(95)=0s       p(99)=0s    max=0s    
+
+    HTTP
+    http_req_duration..............: avg=191.27ms min=72.3µs   med=7.87ms  p(90)=301.44ms p(95)=385.82ms p(99)=6.34s max=17.68s
+      { expected_response:true }...: avg=220.13ms min=2.08ms   med=10.39ms p(90)=316.95ms p(95)=407.57ms p(99)=6.75s max=17.68s
+      { scenario:browse }..........: avg=191.31ms min=72.3µs   med=7.87ms  p(90)=301.5ms  p(95)=385.85ms p(99)=6.34s max=17.68s
+    http_req_failed................: 13.12% 16370 out of 124702
+      { scenario:browse }..........: 13.13% 16370 out of 124662
+      { scenario:claims }..........: 0.00%  0 out of 0
+      { scenario:detect }..........: 0.00%  0 out of 0
+    http_reqs......................: 124702 439.030799/s
+
+    EXECUTION
+    dropped_iterations.............: 7200   25.348605/s
+    iteration_duration.............: avg=294.11ms min=274.07µs med=11.09ms p(90)=365.04ms p(95)=540.55ms p(99)=7.01s max=17.69s
+    iterations.....................: 41554  146.296658/s
+    vus............................: 17     min=0               max=250
+    vus_max........................: 250    min=30              max=250
+
+    NETWORK
+    data_received..................: 55 MB  193 kB/s
+    data_sent......................: 21 MB  75 kB/s
+
+
+
+time="2026-10-31T11:03:47Z" level=error msg="thresholds on metrics 'http_req_failed{scenario:browse}' have been crossed"

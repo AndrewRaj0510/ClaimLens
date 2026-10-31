@@ -208,10 +208,16 @@ class AiDetector:
     def __init__(self, model_dir=AI_DETECTOR_DIR):
         import onnxruntime as ort
 
+        from text_scan import ORT_THREADS
+
         model_dir = Path(model_dir)
         cfg = json.loads((model_dir / "probe.json").read_text())
+        options = ort.SessionOptions()
+        options.intra_op_num_threads = ORT_THREADS
         self.session = ort.InferenceSession(
-            str(model_dir / "clip_visual.onnx"), providers=["CPUExecutionProvider"]
+            str(model_dir / "clip_visual.onnx"),
+            options,
+            providers=["CPUExecutionProvider"],
         )
         self.input = self.session.get_inputs()[0].name
         self.output = cfg.get("output")
@@ -235,7 +241,9 @@ class AiDetector:
     def score(self, rgb):
         """Probability the image is AI-generated, by the probe."""
         z = float(self.features(rgb) @ self.weights + self.bias)
-        return 1.0 / (1.0 + np.exp(-z))
+        # A Python float: np.exp gives numpy.float64, and comparing that gives
+        # numpy.bool, which the JSON response can't encode.
+        return float(1.0 / (1.0 + np.exp(-z)))
 
 
 def parse_incident_date(value):

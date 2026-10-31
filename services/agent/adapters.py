@@ -47,16 +47,34 @@ class VisionResults:
     runs while the agent is still doing intake; usually the result is already
     there when damage_analysis asks for it."""
 
-    def __init__(self, redis):
+    # A BLPOP holds a Redis connection while it waits, and the pool (100) is
+    # shared with run leases. Past this many waiting photos, poll the result
+    # key instead (the same limit as the gateway's, services/gateway/vision_jobs.py).
+    MAX_WAITERS = int(os.getenv("VISION_WAITERS", "50"))
+    POLL_S = 0.5
+
+    def __init__(self, redis, max_waiters=MAX_WAITERS):
         self.redis = redis  # redis.asyncio.Redis, decode_responses=True
+        self.waiters = asyncio.Semaphore(max_waiters)
 
     async def result(self, job_id, timeout_s):
         stored = await self.redis.get(f"vision:result:{job_id}")
         if stored:
             return json.loads(stored)
-        item = await self.redis.blpop(f"vision:done:{job_id}", timeout=timeout_s)
-        if item:
-            return json.loads(item[1])
+        if not self.waiters.locked():
+            async with self.waiters:
+                item = await self.redis.blpop(
+                    f"vision:done:{job_id}", timeout=timeout_s
+                )
+            if item:
+                return json.loads(item[1])
+        else:
+            deadline = asyncio.get_running_loop().time() + timeout_s
+            while asyncio.get_running_loop().time() < deadline:
+                await asyncio.sleep(self.POLL_S)
+                stored = await self.redis.get(f"vision:result:{job_id}")
+                if stored:
+                    return json.loads(stored)
         # The notification may have been taken by another waiter; the result key is authoritative.
         stored = await self.redis.get(f"vision:result:{job_id}")
         return json.loads(stored) if stored else None

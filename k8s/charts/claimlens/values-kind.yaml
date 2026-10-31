@@ -1,0 +1,37 @@
+# kind on a laptop: one node, images loaded with `kind load`, models from a
+# host folder, plain HTTP on http://localhost:8080. Everything starts at one
+# replica so it fits in Docker Desktop's memory; autoscaling still works.
+
+global:
+  image:
+    # `kind load docker-image` puts them on the node; never try a registry.
+    pullPolicy: Never
+  # data/models on the host -> /models on the kind node (k8s/kind/cluster.yaml).
+  modelsVolume:
+    hostPath:
+      path: /models
+      type: Directory
+
+frontend:
+  autoscaling: {minReplicas: 1, maxReplicas: 3}
+gateway:
+  env:
+    # http://localhost: browsers drop Secure cookies on plain HTTP.
+    COOKIE_SECURE: "false"
+  autoscaling: {minReplicas: 1, maxReplicas: 4}
+agent:
+  autoscaling: {minReplicas: 1, maxReplicas: 3}
+guardrails:
+  # 1.5-1.8 GB each (measured). A second one took the 8 GB node to 90%
+  # memory before any load, so on kind it stays at one. Give Docker Desktop
+  # more memory to raise this.
+  autoscaling: {minReplicas: 1, maxReplicas: 1}
+vision-worker:
+  # Three 512 MiB workers is what's left once everything else is running.
+  keda: {minReplicas: 1, maxReplicas: 3}
+policy:
+  autoscaling: {minReplicas: 1, maxReplicas: 2}
+pricing:
+  autoscaling: {minReplicas: 1, maxReplicas: 2}
+claims-history:
+  autoscaling: {minReplicas: 1, maxReplicas: 2}

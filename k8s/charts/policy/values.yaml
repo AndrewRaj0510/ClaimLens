@@ -1,0 +1,46 @@
+# Policy MCP server: lookup, coverage rules and pgvector clause search.
+# Stateless streamable HTTP (stateless_http=True), so any replica answers.
+
+image:
+  name: policy
+
+replicas: 1
+port: 8000
+healthPath: /health
+startupSeconds: 60
+
+service:
+  enabled: true
+
+metrics:
+  enabled: false
+
+secretEnv:
+  DB_PASSWORD: DB_PASSWORD_POLICY
+
+env:
+  DATABASE_URL: postgresql://claimlens_policy:$(DB_PASSWORD)@postgres:5432/claimlens
+  # DNS-rebinding allowlist: the Host header must be the service's own name.
+  MCP_ALLOWED_HOSTS: policy:*,localhost:*
+
+resources:
+  requests: {cpu: 100m, memory: 256Mi}
+  limits: {cpu: "1", memory: 768Mi}
+
+# Embeds each search query (bge-small on CPU), so it does real CPU work.
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPU: 70
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+persistence:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  from: [agent]

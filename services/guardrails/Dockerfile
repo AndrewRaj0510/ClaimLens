@@ -11,7 +11,7 @@ ADD --checksum=sha256:8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2
     https://github.com/opencv/opencv_zoo/raw/f12e12798e8314f7c074a6656816c048dcc95b7a/models/face_detection_yunet/face_detection_yunet_2023mar.onnx \
     /app/models/face_detection_yunet_2023mar.onnx
 
-COPY main.py text_scan.py photos.py forensics.py ./
+COPY main.py text_scan.py photos.py forensics.py http_metrics.py ./
 
 # The injection classifier (738 MB) and the AI-image detector are mounted at
 # /models, like vision's weights (scripts/download_models.py fetches them).

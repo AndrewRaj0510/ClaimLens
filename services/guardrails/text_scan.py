@@ -40,6 +40,11 @@ from pathlib import Path
 import numpy as np
 
 THRESHOLD = float(os.getenv("INJECTION_THRESHOLD", "0.5"))
+# Threads per ONNX Runtime session; 0 = ORT's default, one per core of the
+# *machine*. In a container with a CPU limit, set it to the limit (the Helm
+# charts do): on a 20-core node, a pod limited to 2 CPUs would otherwise run
+# 20 threads and spend most of each period throttled.
+ORT_THREADS = int(os.getenv("ORT_THREADS", "0"))
 PROFILES = ("untrusted", "document")
 INFO_RULES = {"hidden_characters", "mixed_script"}
 MAX_TOKENS = 512  # the model's limit, including [CLS] and [SEP]
@@ -258,8 +263,10 @@ class Classifier:
         from tokenizers import Tokenizer
 
         model_dir = Path(model_dir)
+        options = ort.SessionOptions()
+        options.intra_op_num_threads = ORT_THREADS
         self.session = ort.InferenceSession(
-            str(model_dir / "model.onnx"), providers=["CPUExecutionProvider"]
+            str(model_dir / "model.onnx"), options, providers=["CPUExecutionProvider"]
         )
         self.tokenizer = Tokenizer.from_file(str(model_dir / "tokenizer.json"))
         self.tokenizer.no_truncation()

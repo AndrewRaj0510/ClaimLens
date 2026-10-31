@@ -1,0 +1,67 @@
+# Redis: sessions, rate limits, the vision job queue (Streams) and the
+# agent's run leases. AOF on, so queued jobs survive a restart.
+
+image:
+  repository: redis
+  tag: 7.4-alpine
+  # From the registry, also on kind (k8s/kind/up.sh explains why).
+  pullPolicy: IfNotPresent
+
+port: 6379
+portName: redis
+
+# $(REDIS_PASSWORD) is expanded by Kubernetes from the env below, as
+# docker-compose.yml does with ${REDIS_PASSWORD}.
+command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)", "--appendonly", "yes", "--dir", "/data"]
+
+service:
+  enabled: true
+
+metrics:
+  enabled: false
+
+probes:
+  readiness:
+    exec: {command: ["redis-cli", "ping"]}
+    periodSeconds: 5
+    timeoutSeconds: 5
+  liveness:
+    exec: {command: ["redis-cli", "ping"]}
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# The image's redis user.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile: {type: RuntimeDefault}
+
+secretEnv:
+  REDIS_PASSWORD: REDIS_PASSWORD
+  REDISCLI_AUTH: REDIS_PASSWORD
+
+persistence:
+  enabled: true
+  mountPath: /data
+  size: 1Gi
+  storageClass: ""
+
+resources:
+  requests: {cpu: 50m, memory: 64Mi}
+  limits: {cpu: 500m, memory: 256Mi}
+
+autoscaling:
+  enabled: false
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+  from: [gateway, agent, vision-worker]
+  # KEDA's operator reads the stream's lag to scale the vision workers.
+  fromNamespaces: [keda]

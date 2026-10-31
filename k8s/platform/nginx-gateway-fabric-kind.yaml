@@ -1,0 +1,22 @@
+# NGINX Gateway Fabric on kind. The NGINX data plane it runs for our Gateway
+# gets a NodePort instead of a cloud load balancer; kind maps that port to
+# localhost:8080 (k8s/kind/cluster.yaml). On a cloud cluster leave the
+# defaults (type LoadBalancer).
+nginx:
+  service:
+    type: NodePort
+    nodePorts:
+      - port: 30080
+        listenerPort: 80
+  # Request and connection metrics from NGINX itself, for Grafana.
+  serviceMonitor:
+    enable: true
+  container:
+    resources:
+      requests: {cpu: 50m, memory: 64Mi}
+      limits: {cpu: "1", memory: 256Mi}
+
+nginxGateway:
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 500m, memory: 256Mi}

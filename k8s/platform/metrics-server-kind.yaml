@@ -1,0 +1,8 @@
+# metrics-server: CPU and memory per pod, which the HPAs scale on. kind's
+# kubelet serves a self-signed certificate, hence the insecure TLS flag; on
+# a cloud cluster the provider runs metrics-server already.
+args:
+  - --kubelet-insecure-tls
+resources:
+  requests: {cpu: 50m, memory: 64Mi}
+  limits: {cpu: 500m, memory: 192Mi}

@@ -1,0 +1,81 @@
+# Vision worker: consumes the vision:jobs Redis stream. Scaled by KEDA on the
+# consumer group's lag (templates/scaledobject.yaml), not on CPU: a backlog
+# says more about wait times than CPU does, and it's visible before the
+# workers are saturated.
+
+image:
+  name: vision
+
+command: ["python", "worker.py"]
+# No HTTP API in this deployment; Prometheus metrics only.
+port: 0
+
+service:
+  enabled: true
+
+metrics:
+  enabled: true
+  port: 9100
+
+probes:
+  # The worker touches this file every loop and after every job; stale means stuck.
+  liveness:
+    exec:
+      command: ["python", "-c", "import os, sys, time; sys.exit(time.time() - os.path.getmtime('/tmp/worker-heartbeat') > 30)"]
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# Finishes its current job (well under a second) on SIGTERM, then exits.
+terminationGracePeriodSeconds: 30
+
+mountModels: true
+cpuThreads: 1
+
+secretEnv:
+  REDIS_PASSWORD: REDIS_PASSWORD
+  S3_ACCESS_KEY: S3_ACCESS_KEY
+  S3_SECRET_KEY: S3_SECRET_KEY
+
+env:
+  MODEL_PATH: /models/best.onnx
+  REDIS_URL: redis://:$(REDIS_PASSWORD)@redis:6379/0
+  S3_ENDPOINT: http://seaweedfs:8333
+  S3_BUCKET: claimlens
+  MAX_UPLOAD_MB: "10"
+
+resources:
+  # Measured: about 340 MiB idle. A request below real use let KEDA put five
+  # workers on a node that had room for two: it swapped, and every pod on it
+  # slowed down together (docs/findings.md, Phase 6 load test).
+  requests: {cpu: 500m, memory: 512Mi}
+  limits: {cpu: "1", memory: 768Mi}
+
+# KEDA owns the replica count (it creates an HPA for this Deployment).
+externalScaler: true
+keda:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 6
+  # Target backlog per worker: entries in the stream not yet delivered to
+  # any worker. At about 0.2 s per job, 5 queued is about a second's wait.
+  lagPerReplica: 5
+  pollingInterval: 5
+  cooldownPeriod: 60
+  # Redis as KEDA's operator sees it: a different namespace, so the FQDN.
+  # Empty = redis.<release namespace>.svc.cluster.local:6379.
+  redisAddress: ""
+
+autoscaling:
+  enabled: false
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+persistence:
+  enabled: false
+
+networkPolicy:
+  enabled: true

@@ -6,3 +6,4 @@ redis
 boto3
 psycopg[binary]
 psycopg-pool
+prometheus-client

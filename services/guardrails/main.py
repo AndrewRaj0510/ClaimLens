@@ -25,6 +25,7 @@ from fastapi import FastAPI, Form, HTTPException, Request, UploadFile
 from pydantic import BaseModel, Field
 
 import forensics
+import http_metrics
 import photos
 from text_scan import Classifier, Scanner
 
@@ -57,6 +58,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ClaimLens Guardrails", version="0.1.0", lifespan=lifespan)
+http_metrics.instrument(app)
 
 
 @app.get("/health")

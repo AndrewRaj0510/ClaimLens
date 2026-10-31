@@ -1,0 +1,23 @@
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS       IMAGES                                           SELECTOR
+deployment.apps/agent             1/1     1            1           85m   agent            claimlens/agent:dev                              app.kubernetes.io/instance=claimlens,app.kubernetes.io/name=agent
+deployment.apps/claimlens-nginx   1/1     1            1           85m   nginx            ghcr.io/nginx/nginx-gateway-fabric/nginx:2.8.0   app.kubernetes.io/instance=ngf,app.kubernetes.io/managed-by=ngf-nginx,app.kubernetes.io/name=claimlens-nginx,gateway.networking.k8s.io/gateway-name=claimlens
+deployment.apps/claims-history    1/1     1            1           85m   claims-history   claimlens/claims-history:dev                     app.kubernetes.io/instance=claimlens,app.kubernetes.io/name=claims-history
+deployment.apps/frontend          1/1     1            1           85m   frontend         claimlens/frontend:dev                           app.kubernetes.io/instance=claimlens,app.kubernetes.io/name=frontend
+deployment.apps/gateway           1/1     1            1           85m   gateway          claimlens/gateway:dev                            app.kubernetes.io/instance=claimlens,app.kubernetes.io/name=gateway
+deployment.apps/guardrails        1/1     1            1           85m   guardrails       claimlens/guardrails:dev                         app.kubernetes.io/instance=claimlens,app.kubernetes.io/name=guardrails
+deployment.apps/policy            1/1     1            1           85m   policy           claimlens/policy:dev                             app.kubernetes.io/instance=claimlens,app.kubernetes.io/name=policy
+deployment.apps/pricing           1/1     1            1           85m   pricing          claimlens/pricing:dev                            app.kubernetes.io/instance=claimlens,app.kubernetes.io/name=pricing
+deployment.apps/vision-worker     1/1     1            1           85m   vision-worker    claimlens/vision:dev                             app.kubernetes.io/instance=claimlens,app.kubernetes.io/name=vision-worker
+
+NAME                                                         REFERENCE                   TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/agent                    Deployment/agent            cpu: 3%/70%   1         3         1          85m
+horizontalpodautoscaler.autoscaling/claims-history           Deployment/claims-history   cpu: 6%/70%   1         2         1          85m
+horizontalpodautoscaler.autoscaling/frontend                 Deployment/frontend         cpu: 1%/70%   1         3         1          85m
+horizontalpodautoscaler.autoscaling/gateway                  Deployment/gateway          cpu: 4%/70%   1         4         1          85m
+horizontalpodautoscaler.autoscaling/guardrails               Deployment/guardrails       cpu: 0%/70%   1         1         1          85m
+horizontalpodautoscaler.autoscaling/keda-hpa-vision-worker   Deployment/vision-worker    0/5 (avg)     1         3         1          85m
+horizontalpodautoscaler.autoscaling/policy                   Deployment/policy           cpu: 3%/70%   1         2         1          85m
+horizontalpodautoscaler.autoscaling/pricing                  Deployment/pricing          cpu: 8%/70%   1         2         1          85m
+
+NAME                                 SCALETARGETKIND      SCALETARGETNAME   MIN   MAX   READY   ACTIVE   FALLBACK   PAUSED   TRIGGERS        AUTHENTICATIONS       AGE
+scaledobject.keda.sh/vision-worker   apps/v1.Deployment   vision-worker     1     3     True    False    False      False    redis-streams   vision-worker-redis   85m

@@ -1,0 +1,227 @@
+{
+ "suite": "detection",
+ "ran_at": "2026-10-29T13:13:36+00:00",
+ "commit": "db37b50011a167ce11db5854c5918f3046056c5a",
+ "result": {
+  "images": 374,
+  "eval_side": 640,
+  "operating_confidence": 0.35,
+  "box": {
+   "map50": 0.758,
+   "map50_95": 0.6049,
+   "per_class": {
+    "dent": {
+     "n_gt": 236,
+     "ap50": 0.6247,
+     "ap50_95": 0.3705,
+     "mean_iou_matched": 0.7743,
+     "precision": 0.6623,
+     "recall": 0.6398
+    },
+    "scratch": {
+     "n_gt": 307,
+     "ap50": 0.6199,
+     "ap50_95": 0.3498,
+     "mean_iou_matched": 0.7626,
+     "precision": 0.6216,
+     "recall": 0.5993
+    },
+    "crack": {
+     "n_gt": 70,
+     "ap50": 0.5448,
+     "ap50_95": 0.3526,
+     "mean_iou_matched": 0.7835,
+     "precision": 0.6182,
+     "recall": 0.4857
+    },
+    "glass shatter": {
+     "n_gt": 71,
+     "ap50": 0.9927,
+     "ap50_95": 0.9565,
+     "mean_iou_matched": 0.9611,
+     "precision": 0.9189,
+     "recall": 0.9577
+    },
+    "lamp broken": {
+     "n_gt": 69,
+     "ap50": 0.8862,
+     "ap50_95": 0.7458,
+     "mean_iou_matched": 0.9013,
+     "precision": 0.9298,
+     "recall": 0.7681
+    },
+    "tire flat": {
+     "n_gt": 32,
+     "ap50": 0.8794,
+     "ap50_95": 0.8543,
+     "mean_iou_matched": 0.9637,
+     "precision": 0.963,
+     "recall": 0.8125
+    }
+   },
+   "mean_iou_matched": 0.8578
+  },
+  "mask": {
+   "map50": 0.7638,
+   "map50_95": 0.5609,
+   "per_class": {
+    "dent": {
+     "n_gt": 236,
+     "ap50": 0.6611,
+     "ap50_95": 0.3473,
+     "mean_iou_matched": 0.7535,
+     "precision": 0.6842,
+     "recall": 0.661
+    },
+    "scratch": {
+     "n_gt": 307,
+     "ap50": 0.6258,
+     "ap50_95": 0.2931,
+     "mean_iou_matched": 0.7201,
+     "precision": 0.6351,
+     "recall": 0.6124
+    },
+    "crack": {
+     "n_gt": 70,
+     "ap50": 0.5555,
+     "ap50_95": 0.2093,
+     "mean_iou_matched": 0.6612,
+     "precision": 0.6364,
+     "recall": 0.5
+    },
+    "glass shatter": {
+     "n_gt": 71,
+     "ap50": 0.9927,
+     "ap50_95": 0.9466,
+     "mean_iou_matched": 0.9519,
+     "precision": 0.9189,
+     "recall": 0.9577
+    },
+    "lamp broken": {
+     "n_gt": 69,
+     "ap50": 0.8682,
+     "ap50_95": 0.7294,
+     "mean_iou_matched": 0.9,
+     "precision": 0.9123,
+     "recall": 0.7536
+    },
+    "tire flat": {
+     "n_gt": 32,
+     "ap50": 0.8794,
+     "ap50_95": 0.8396,
+     "mean_iou_matched": 0.957,
+     "precision": 0.963,
+     "recall": 0.8125
+    }
+   },
+   "mean_iou_matched": 0.8239
+  },
+  "cost": {
+   "photos": 374,
+   "vehicle": "midsize, ME",
+   "mean_true_cost": 1477.45,
+   "mae": 261.45,
+   "bias": -58.01,
+   "median_ape": 0.0,
+   "within_20pct": 0.717,
+   "true_cost_in_quoted_range": 0.711,
+   "damage_list_exact": 0.682,
+   "per_class": {
+    "dent": {
+     "photos_with_it": 157,
+     "correct": 131,
+     "severity_off": 13,
+     "missed": 13,
+     "spurious": 15,
+     "missed_rate": 0.083,
+     "severity_agreement": 0.91,
+     "mean_abs_error": 216.13,
+     "total_abs_error": 37174.0,
+     "share_of_error": 0.32
+    },
+    "scratch": {
+     "photos_with_it": 183,
+     "correct": 144,
+     "severity_off": 15,
+     "missed": 24,
+     "spurious": 16,
+     "missed_rate": 0.131,
+     "severity_agreement": 0.906,
+     "mean_abs_error": 179.02,
+     "total_abs_error": 35625.0,
+     "share_of_error": 0.307
+    },
+    "crack": {
+     "photos_with_it": 48,
+     "correct": 29,
+     "severity_off": 2,
+     "missed": 17,
+     "spurious": 6,
+     "missed_rate": 0.354,
+     "severity_agreement": 0.935,
+     "mean_abs_error": 240.48,
+     "total_abs_error": 12985.75,
+     "share_of_error": 0.112
+    },
+    "glass shatter": {
+     "photos_with_it": 71,
+     "correct": 68,
+     "severity_off": 0,
+     "missed": 3,
+     "spurious": 3,
+     "missed_rate": 0.042,
+     "severity_agreement": 1.0,
+     "mean_abs_error": 69.64,
+     "total_abs_error": 5153.0,
+     "share_of_error": 0.044
+    },
+    "lamp broken": {
+     "photos_with_it": 65,
+     "correct": 51,
+     "severity_off": 1,
+     "missed": 13,
+     "spurious": 2,
+     "missed_rate": 0.2,
+     "severity_agreement": 0.981,
+     "mean_abs_error": 328.43,
+     "total_abs_error": 22005.0,
+     "share_of_error": 0.19
+    },
+    "tire flat": {
+     "photos_with_it": 31,
+     "correct": 26,
+     "severity_off": 0,
+     "missed": 5,
+     "spurious": 1,
+     "missed_rate": 0.161,
+     "severity_agreement": 1.0,
+     "mean_abs_error": 95.5,
+     "total_abs_error": 3055.85,
+     "share_of_error": 0.026
+    }
+   },
+   "severity_confusion": {
+    "minor": {
+     "minor": 26,
+     "moderate": 0,
+     "severe": 1,
+     "missed": 19
+    },
+    "moderate": {
+     "minor": 1,
+     "moderate": 47,
+     "severe": 20,
+     "missed": 12
+    },
+    "severe": {
+     "minor": 1,
+     "moderate": 8,
+     "severe": 376,
+     "missed": 44
+    }
+   }
+  },
+  "split": "test",
+  "model_sha256": "b534cffa3d02feaf7c801aad6488ed599c7bdcfe3a5b2cf9bc2b0d249fab50ac"
+ }
+}

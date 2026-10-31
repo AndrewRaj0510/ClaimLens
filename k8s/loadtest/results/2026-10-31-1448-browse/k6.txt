@@ -1,0 +1,54 @@
+
+
+  █ THRESHOLDS 
+
+    detect_total_ms
+    ✓ 'p(95)<10000' p(95)=0s
+
+    http_req_duration{scenario:browse}
+    ✓ 'p(95)<500' p(95)=12.75ms
+
+    http_req_failed{scenario:browse}
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_req_failed{scenario:claims}
+    ✓ 'rate<0.02' rate=0.00%
+
+    http_req_failed{scenario:detect}
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 37382   132.023242/s
+    checks_succeeded...: 100.00% 37382 out of 37382
+    checks_failed......: 0.00%   0 out of 37382
+
+    ✓ login 200
+    ✓ browse 200
+
+    CUSTOM
+    detect_total_ms................: avg=0s     min=0s     med=0s     p(90)=0s      p(95)=0s      p(99)=0s      max=0s      
+
+    HTTP
+    http_req_duration..............: avg=6.75ms min=2.32ms med=5.89ms p(90)=10.62ms p(95)=12.79ms p(99)=19.31ms max=252.15ms
+      { expected_response:true }...: avg=6.75ms min=2.32ms med=5.89ms p(90)=10.62ms p(95)=12.79ms p(99)=19.31ms max=252.15ms
+      { scenario:browse }..........: avg=6.67ms min=2.32ms med=5.88ms p(90)=10.61ms p(95)=12.75ms p(99)=19.06ms max=143.91ms
+    http_req_failed................: 0.00%  0 out of 37402
+      { scenario:browse }..........: 0.00%  0 out of 37362
+      { scenario:claims }..........: 0.00%  0 out of 0
+      { scenario:detect }..........: 0.00%  0 out of 0
+    http_reqs......................: 37402  132.093876/s
+
+    EXECUTION
+    iteration_duration.............: avg=8.79ms min=4.94ms med=7.39ms p(90)=12.88ms p(95)=15.23ms p(99)=25.79ms max=144.98ms
+    iterations.....................: 12454  43.984202/s
+    vus............................: 0      min=0          max=3 
+    vus_max........................: 30     min=30         max=30
+
+    NETWORK
+    data_received..................: 17 MB  61 kB/s
+    data_sent......................: 6.4 MB 23 kB/s
+
+
+

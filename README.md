@@ -2,7 +2,7 @@
 
 A multimodal insurance-claims copilot. A customer uploads photos of a damaged car and describes what happened. A vision model finds and measures the damage. A LangGraph agent checks the policy, prices the repair and looks for fraud signals through MCP tools. Then it stops: **only a human adjuster can approve, edit or reject the claim.**
 
-It's built like a production system rather than a notebook demo: FastAPI microservices, a job queue with autoscaling in mind, Docker, and (coming) Kubernetes, CI with evaluation gates, and security treated as a feature.
+It's built like a production system rather than a notebook demo: FastAPI microservices, a job queue that autoscales on its backlog, Docker, Kubernetes (Helm, NGINX Gateway Fabric, KEDA, Prometheus and Grafana), CI with evaluation gates, and security treated as a feature.
 
 ## Status
 
@@ -12,15 +12,11 @@ It's built like a production system rather than a notebook demo: FastAPI microse
 | 1 | Vision: YOLO11-seg trained on CarDD, ONNX inference service | ✅ done: mask mAP@0.5 0.77 on the test split |
 | 2 | Agent and tools: synthetic data, pgvector RAG, 3 MCP servers, LangGraph workflow, Redis job queue | ✅ done |
 | 3 | Next.js customer pages and adjuster dashboard, logins with customer/adjuster roles | ✅ done |
-| 4 | Guardrails: OCR + injection scanning, PII redaction, vision-LLM photo review, image forensics, per-service DB roles, red-team set | ✅ built; AI-image detector training on GenImage still to run |
-| 5 | Evaluation service and CI eval gates, Langfuse tracing | ✅ built: held-out red-team catch rate 78.8%, report judge 216/216 on planted errors, CI with eval gates, one trace per claim; the detection eval on CarDD still to run in Colab |
-| 6 | Helm, NGINX Ingress, KEDA autoscaling, Prometheus/Grafana, load test, cloud deploy | planned |
+| 4 | Guardrails: OCR + injection scanning, PII redaction, vision-LLM photo review, image forensics, per-service DB roles, red-team set | ✅ done: AI-image detector AUC 0.96–0.97 on unseen latent-diffusion generators |
+| 5 | Evaluation service and CI eval gates, Langfuse tracing | ✅ done: held-out red-team catch rate 78.8%, report judge 216/216 on planted errors, cost error $261 mean on CarDD, CI with eval gates, one trace per claim |
+| 6 | Helm, NGINX (Gateway API), HPA + KEDA autoscaling, Prometheus/Grafana, load test, cloud deploy | ✅ on kind: 600 API requests/s at p95 29 ms, vision workers scaled 1→3 by KEDA on queue lag; cloud deploy prepared, not done |
 
-**Still to run:**
-- the AI-image detector, which hasn't been trained on GenImage yet
-- the detection and cost eval on the CarDD test split (`training/eval_cardd.ipynb`)
-
-Both are Colab steps. The damage detector is trained, and the LLM steps run on Ollama Cloud: `gpt-oss:120b`, plus `gemma4:31b` for the redacted photos. Without a key the system still works end to end: every LLM step falls back to a deterministic version, and claims go to human review.
+The damage detector is trained, and the LLM steps run on Ollama Cloud: `gpt-oss:120b`, plus `gemma4:31b` for the redacted photos. Without a key the system still works end to end: every LLM step falls back to a deterministic version, and claims go to human review.
 
 ## Architecture
 
@@ -63,6 +59,41 @@ intake → image_quality ⟲ retake → damage_analysis → photo_review → pol
 | **Human** | the decision | approve / edit the amount / reject |
 
 The graph's state is checkpointed in Postgres after every step. A claim can wait days for photos or an adjuster and survives restarts.
+
+## On Kubernetes
+
+```mermaid
+flowchart LR
+    U[Browser] -->|HTTPS| NG
+    subgraph cluster[Kubernetes: namespace claimlens]
+        NG[NGINX Gateway Fabric<br/>Gateway API: rate limit, body limit, TLS]
+        NG --> FE[frontend<br/>HPA]
+        FE --> GW[gateway<br/>HPA]
+        GW --> AG[agent<br/>HPA, run leases in Redis]
+        AG --> GR[guardrails<br/>HPA]
+        AG --> MCP[policy / pricing /<br/>claims-history, HPA]
+        GW --> RS[(Redis<br/>stream vision:jobs)]
+        RS --> VW[vision workers<br/>KEDA: scaled on stream lag]
+        PG[(Postgres + pgvector)]
+        S3[(SeaweedFS)]
+    end
+    KEDA[KEDA] -.->|reads lag| RS
+    PROM[Prometheus + Grafana] -.->|ServiceMonitors| cluster
+```
+
+- **Helm:** a chart per service on a shared library chart, plus an umbrella chart that adds the Gateway, a default-deny NetworkPolicy and the Grafana dashboard (`k8s/charts/`).
+- **Edge:** NGINX Gateway Fabric (Gateway API), because the community ingress-nginx controller was retired in March 2026. Per-IP rate limit on `/api`, a body limit sized for 10 photos.
+- **Autoscaling:** CPU HPAs for the stateless services; KEDA for the vision workers on the Redis stream's lag. The agent can run several replicas because its run state is in Redis (a lease per running claim).
+- **Security:** each service accepts connections only from the callers its chart names; pods run non-root with no capabilities and no service account token; each pod gets only the secret keys it uses.
+- **Monitoring:** request rate, errors and latency per route, the queue, autoscaler decisions and resources per pod, in one Grafana dashboard.
+
+```bash
+k8s/kind/up.sh      # kind cluster, platform (NGINX Gateway Fabric, KEDA, Prometheus/Grafana), images, ClaimLens
+k8s/kind/seed.sh    # data and logins
+open http://localhost:8080
+```
+
+Details, and the cloud plan, in [k8s/README.md](k8s/README.md).
 
 ## What's in the repo
 
@@ -108,7 +139,7 @@ The graph's state is checkpointed in Postgres after every step. A claim can wait
 - MCP servers only accept their own service name as Host (DNS-rebinding protection). Storage and Redis require credentials. Containers run as non-root.
 - **Guardrails before any LLM** (`services/guardrails`). Descriptions, every policy clause (including the LLM's own search results) and the text in every photo (OCR) are scanned for prompt injection: regex rules plus ProtectAI's DeBERTa classifier on ONNX Runtime. Text is normalised first (look-alike and invisible characters), and hidden payloads (Unicode tag characters, base64) are decoded. Flagged or unscanned input never reaches an LLM: that step falls back to code, and the claim goes to a human.
 - **Photos reach the vision LLM only redacted.** Faces and every text region are pixelated, and EXIF (GPS) is removed. A photo with injected text isn't sent at all.
-- **Image forensics:** metadata checks (AI-generator markers, editing software, a photo dated before the incident) and a CLIP-based AI-image detector (training notebook included). Duplicate detection also checks mirrored copies.
+- **Image forensics:** metadata checks (AI-generator markers, editing software, a photo dated before the incident) and a CLIP-based AI-image detector (trained on Tiny-GenImage; notebook and a CPU script included). Duplicate detection also checks mirrored copies.
 - **Tools must be read-only by the MCP server's own annotation**, and every workflow step declares its tools. **Each service has its own database role** with only the tables it needs.
 - **Red-team sets:** 296 generated attacks mapped to OWASP Top 10 for LLM apps (2025), plus 50 benign controls, and a held-out set of 197 attacks and 34 controls the guardrails were never tuned on. Both run in CI and gate the build.
 
@@ -116,7 +147,7 @@ The graph's state is checkpointed in Postgres after every step. A claim can wait
 
 | Check | Result |
 |---|---|
-| Tests | 431 Python tests across 10 folders (with Postgres and Redis) and 49 frontend tests, ruff and tsc clean |
+| Tests | 452 Python tests across 10 folders (with Postgres and Redis) and 49 frontend tests, ruff and tsc clean; Helm charts linted and rendered in CI |
 | End to end through the frontend | 26 checks with two customers and an adjuster: each role's permissions, other customers' claims → 404, customer view without internals, decision recorded under the session's name; login lockout → 429 |
 | Post-processing parity with Ultralytics | same detection counts; box IoU 0.87–0.999, mask IoU 0.89–0.99 |
 | Policy retrieval (33 question/wording pairs) | vector hit@3: 0.92 natural questions, 1.00 term-style (hybrid 0.88 / 1.00) |
@@ -128,8 +159,14 @@ The graph's state is checkpointed in Postgres after every step. A claim can wait
 | Detection AP code vs pycocotools | equal to 4 decimals on 10 random box and mask scenes |
 | Tracing (self-hosted Langfuse v4) | one trace per claim across runs days apart: a span per run and per node, each LLM call nested in its node with model and token counts, photos never logged |
 | Phase 4 end to end | injected description and photo flagged and kept from every LLM, the claim routed to a human, nothing visible to the customer: 15/15 checks |
+| AI-image detector (Tiny-GenImage, trained on SD v1.5, JPEG-aligned) | AUC 0.968 SD v1.5, 0.957 Midjourney, 0.963 Wukong; near chance on older generators (ADM, BigGAN, VQDM); 2.5% of real photos flagged at the 1%-target threshold |
 | Damage detector on CarDD (test split, 374 images) | mask mAP@0.5 0.766, mask mAP@0.5:0.95 0.565 (box: 0.762 / 0.605); per class below |
+| Detector through the service's own code (`services/eval`, CarDD test split) | mask mAP@0.5 0.764, box 0.758: within 0.005 of Ultralytics' own validation, so the deployed ONNX post-processing loses nothing |
+| **Cost error** (each test photo priced as a claim, against the same rules applied to the labelled masks) | **mean $261 on a mean of $1,477; 72% of photos within 20%; 68% priced exactly.** Dents, scratches and cracks cause 74% of the dollar error, broken lamps 19% (missed 1 in 5, and expensive) |
 | Detector in the stack | about 114 ms per image on a laptop CPU; upload → queue → worker → result in 0.46 s |
+| **Load test on Kubernetes** (kind, one laptop node; k6 through the public edge) | **reads: 600 API requests/s at p95 29 ms**, limit the Next.js `/api` proxy's CPU (HPAs scaled gateway 1→4, frontend 1→3, agent 1→3); **uploads: 3/s at p95 4.5 s**, KEDA scaled vision workers 1→3 on queue lag, 0 errors past saturation (requests wait and poll instead); **claims: 121 at 30/min, all reached the adjuster** (LLM steps off for the test). Details in [k8s/README.md](k8s/README.md#load-test) |
+| Found by the load test | a vision backlog exhausted the gateway's Redis pool (500s, and logins would have failed too): waits are now capped; a Postgres restart left dead connections in every pool: pools now check them; memory requests below real use overcommitted the node: requests now measured |
+| Kubernetes end to end (kind) | login, detection, a full claim with the LLM → adjuster approval → completed (16.3 s to the adjuster); per-IP rate limit 83 of 400 let through at 177 req/s; a 2.3 MB upload passes the edge; `/metrics` not reachable from outside; NetworkPolicies checked pod to pod |
 
 ### Damage detector
 
@@ -204,7 +241,7 @@ docker compose run --rm eval python run.py faithfulness   # needs OLLAMA_API_KEY
 docker compose run --rm eval python run.py gate           # results vs services/eval/baseline.json
 ```
 
-The detection and cost suite needs the CarDD test split: run `training/eval_cardd.ipynb` in Colab, then save its output as `services/eval/results/detection.json`. Results are committed, and CI gates them.
+The detection and cost suite needs the CarDD test split, so it runs in Colab (`training/eval_cardd.ipynb`), and its output is committed as `services/eval/results/detection.json`. Results are committed, and CI gates them.
 
 ### Tracing
 
@@ -232,5 +269,6 @@ CI (`.github/workflows/ci.yml`) runs all of it on every push, with Postgres and 
 - **CarDD** (car damage photos) is for research and education only. It isn't in this repo, and neither are weights trained on it.
 - **Policy wordings** are public forms published by the Maine Bureau of Insurance. They're downloaded at ingest time and not redistributed.
 - **Customers, policies, claims, prices and fraud labels** are synthetic, generated from a seed. Emails use `example.com` and phone numbers the reserved `555-01xx` range.
+- **Tiny-GenImage** (AI-image detector training) is CC BY-NC-SA. It isn't in this repo, and neither are the detector files trained on it.
 - **Ultralytics (YOLO11)** is AGPL-3.0, used only for training.
 - **The embedding model** (BAAI/bge-small-en-v1.5) is MIT-licensed.

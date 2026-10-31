@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 
 import auth
 import claims
+import http_metrics
 from auth import CurrentUser
 from common import read_upload, vision_jobs
 from vision_jobs import VisionJobs
@@ -21,10 +22,20 @@ VISION_TIMEOUT_S = float(os.getenv("VISION_TIMEOUT_S", "30"))
 JobId = Annotated[str, Path(pattern=r"^[0-9a-f]{32}$")]
 
 
+def db_pool(url):
+    from psycopg_pool import ConnectionPool
+
+    # check: test each connection before handing it out. After a Postgres
+    # restart every pooled connection is dead, and without it each one failed
+    # a request before the pool dropped it (found in the Phase 6 load test).
+    return ConnectionPool(
+        url, min_size=1, max_size=4, open=False, check=ConnectionPool.check_connection
+    )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import redis.asyncio as redis
-    from psycopg_pool import ConnectionPool
 
     from storage import S3Store
 
@@ -43,7 +54,7 @@ async def lifespan(app: FastAPI):
     app.state.sessions = auth.Sessions(client)
     app.state.limiter = auth.RateLimiter(client)
     # Connections open in the background, so a slow database doesn't block startup.
-    pool = ConnectionPool(DATABASE_URL, min_size=1, max_size=4, open=False)
+    pool = db_pool(DATABASE_URL)
     pool.open(wait=False)
     app.state.users = auth.UserStore(pool)
     # One pooled client for the agent service, as the vision client was in Phase 1.
@@ -55,6 +66,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ClaimLens Gateway", version="0.3.0", lifespan=lifespan)
+http_metrics.instrument(app)
 app.include_router(auth.router)
 app.include_router(claims.router)
 

@@ -1,0 +1,39 @@
+{{- if .Values.defaultDenyIngress }}
+# Nothing reaches a pod in this namespace unless its own NetworkPolicy allows
+# it (each chart's networkPolicy.from). Policies only add up, so this is the
+# baseline the others open holes in.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  labels:
+    app.kubernetes.io/part-of: claimlens
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+{{- if .Values.edge.enabled }}
+---
+# The NGINX data plane is the one pod the outside world may reach.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: edge-nginx
+  labels:
+    app.kubernetes.io/part-of: claimlens
+spec:
+  podSelector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: claimlens
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - {port: 80}
+        - {port: 443}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.global.monitoringNamespace }}
+      ports:
+        - {port: 9113}
+{{- end }}
+{{- end }}

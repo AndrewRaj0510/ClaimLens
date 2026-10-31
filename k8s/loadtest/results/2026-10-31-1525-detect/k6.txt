@@ -1,0 +1,58 @@
+time="2026-10-31T11:30:21Z" level=warning msg="Insufficient VUs, reached 120 active VUs and cannot initialize more" executor=ramping-arrival-rate scenario=detect
+
+
+  █ THRESHOLDS 
+
+    detect_total_ms
+    ✗ 'p(95)<10000' p(95)=31.04s
+
+    http_req_duration{scenario:browse}
+    ✓ 'p(95)<500' p(95)=0s
+
+    http_req_failed{scenario:browse}
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_req_failed{scenario:claims}
+    ✓ 'rate<0.02' rate=0.00%
+
+    http_req_failed{scenario:detect}
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 1346    3.108595/s
+    checks_succeeded...: 100.00% 1346 out of 1346
+    checks_failed......: 0.00%   0 out of 1346
+
+    ✓ login 200
+    ✓ detect 200
+
+    CUSTOM
+    detect_returned_pending........: 369    0.852208/s
+    detect_total_ms................: avg=14.71s min=324ms   med=13.93s p(90)=29.32s   p(95)=31.04s p(99)=32.05s max=32.1s 
+
+    HTTP
+    http_req_duration..............: avg=1.23s  min=3.64ms  med=9.72ms p(90)=412.73ms p(95)=9.27s  p(99)=28.64s max=30.1s 
+      { expected_response:true }...: avg=1.23s  min=3.64ms  med=9.72ms p(90)=412.73ms p(95)=9.27s  p(99)=28.64s max=30.1s 
+      { scenario:browse }..........: avg=0s     min=0s      med=0s     p(90)=0s       p(95)=0s     p(99)=0s     max=0s    
+    http_req_failed................: 0.00%  0 out of 9435
+      { scenario:browse }..........: 0.00%  0 out of 0
+      { scenario:claims }..........: 0.00%  0 out of 0
+      { scenario:detect }..........: 0.00%  0 out of 9395
+    http_reqs......................: 9435   21.790191/s
+
+    EXECUTION
+    dropped_iterations.............: 623    1.438822/s
+    iteration_duration.............: avg=14.71s min=323.5ms med=13.93s p(90)=29.33s   p(95)=31.04s p(99)=32.05s max=32.11s
+    iterations.....................: 1326   3.062405/s
+    vus............................: 6      min=0         max=120
+    vus_max........................: 120    min=20        max=120
+
+    NETWORK
+    data_received..................: 4.3 MB 10 kB/s
+    data_sent......................: 8.0 MB 19 kB/s
+
+
+
+time="2026-10-31T11:32:21Z" level=error msg="thresholds on metrics 'detect_total_ms' have been crossed"

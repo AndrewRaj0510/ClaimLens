@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from langgraph.checkpoint.memory import InMemorySaver
 
 import fakes
+import runstate
 from graph import build_graph
 from main import create_app
 
@@ -13,9 +14,8 @@ CLAIM = "b" * 32
 KEY, JOB = f"claims/{CLAIM}/0", "3" * 32
 
 
-@pytest.fixture
-def client():
-    d = fakes.deps(
+def make_deps():
+    return fakes.deps(
         photos={KEY: fakes.photo_bytes(0), f"claims/{CLAIM}/1": fakes.photo_bytes(1)},
         vision={
             JOB: fakes.vision_result(("dent", 2.0)),
@@ -23,13 +23,26 @@ def client():
         },
     )
 
+
+def replica(d, saver, index, rs, **kwargs):
+    """An app wired like one pod. Pass the same saver/index/rs to two of
+    them and they share Postgres and Redis, like two replicas."""
+
     @asynccontextmanager
     async def lifespan(app):
-        app.state.graph = build_graph(d, InMemorySaver())
-        app.state.index = fakes.FakeIndex()
+        app.state.graph = build_graph(d, saver)
+        app.state.index = index
+        app.state.runstate = rs
         yield
 
-    with TestClient(create_app(lifespan=lifespan)) as c:
+    return create_app(lifespan=lifespan, **kwargs)
+
+
+@pytest.fixture
+def client():
+    d = make_deps()
+    app = replica(d, InMemorySaver(), fakes.FakeIndex(), fakes.FakeRunState())
+    with TestClient(app) as c:
         c.deps = d
         yield c
 
@@ -213,7 +226,8 @@ def test_claim_is_visible_before_its_first_checkpoint(client):
     wait_for(client, "awaiting_approval")
 
 
-def test_run_cut_off_by_a_restart_shows_interrupted_and_can_be_retried(client):
+def block_vision(client):
+    """Holds the run in damage_analysis until the returned gate opens."""
     gate = Gate()
     vision = client.deps.vision
     real = vision.result
@@ -223,15 +237,35 @@ def test_run_cut_off_by_a_restart_shows_interrupted_and_can_be_retried(client):
         return await real(job_id, timeout_s)
 
     vision.result = blocked
-    client.post("/claims", json=new_claim())
+    return gate
+
+
+def wait_until_in_damage_analysis(client):
     deadline = time.time() + 5
     while not client.get(f"/claims/{CLAIM}").json()["state"].get("quality"):
         assert time.time() < deadline
-        time.sleep(0.02)  # wait until it's stuck in damage_analysis
+        time.sleep(0.02)
 
-    # "Restart": the in-memory run is lost; only the checkpoint survives.
-    task = client.app.state.runs.pop(CLAIM)
-    client.portal.call(task.cancel)
+
+def test_run_cut_off_by_a_dead_pod_shows_interrupted_and_can_be_retried(client):
+    gate = block_vision(client)
+    client.post("/claims", json=new_claim())
+    wait_until_in_damage_analysis(client)
+
+    # The pod is killed (no shutdown, so no release): only the checkpoint and
+    # the lease survive, and the lease still says "processing"...
+    rs = client.app.state.runstate
+
+    async def no_release(claim_id, token):
+        pass
+
+    rs.release = no_release
+    client.portal.call(client.app.state.runs[CLAIM].cancel)
+    time.sleep(0.1)
+    assert client.get(f"/claims/{CLAIM}").json()["status"] == "processing"
+    # ...until its TTL runs out.
+    rs.expire(CLAIM)
+    del rs.release  # the next pod releases normally
     body = wait_for(client, "interrupted")
     assert "POST /retry" in body["error"]
 
@@ -271,9 +305,8 @@ def test_claims_are_listed_with_status_and_summary(client):
 def test_a_stale_processing_row_is_answered_from_the_checkpoint(client):
     client.post("/claims", json=new_claim())
     wait_for(client, "awaiting_approval")
-    # As if the service restarted before the row was updated.
+    # As if the pod died before the row was updated.
     client.app.state.index.rows[CLAIM]["status"] = "processing"
-    client.app.state.runs.pop(CLAIM)
     rows = client.get("/claims").json()["claims"]
     assert rows[0]["status"] == "awaiting_approval"
 
@@ -289,3 +322,104 @@ def test_claim_on_another_customers_policy_is_not_found(client):
 
 def test_customer_id_is_validated(client):
     assert client.post("/claims", json=new_claim(customer_id="x")).status_code == 422
+
+
+def test_any_replica_answers_for_a_run_on_another():
+    d, saver, index, rs = (
+        make_deps(),
+        InMemorySaver(),
+        fakes.FakeIndex(),
+        fakes.FakeRunState(),
+    )
+    with (
+        TestClient(replica(d, saver, index, rs)) as a,
+        TestClient(replica(d, saver, index, rs)) as b,
+    ):
+        a.deps = d
+        gate = block_vision(a)
+        a.post("/claims", json=new_claim(customer_id="C00001"))
+        # Seen from the other pod: running, owned by C00001, and it can't be
+        # started again there.
+        body = b.get(f"/claims/{CLAIM}").json()
+        assert (body["status"], body["customer_id"]) == ("processing", "C00001")
+        assert b.post(f"/claims/{CLAIM}/retry").status_code == 409
+        assert b.get("/claims").json()["claims"][0]["status"] == "processing"
+        wait_until_in_damage_analysis(b)
+        assert b.post(f"/claims/{CLAIM}/retry").status_code == 409
+
+        gate.open = True
+        wait_for(b, "awaiting_approval")
+        # The decision lands on B, which resumes the run A paused.
+        r = b.post(
+            f"/claims/{CLAIM}/decision", json={"action": "approve", "adjuster": "sam"}
+        )
+        assert r.status_code == 202
+        wait_for(a, "completed")
+
+
+def test_a_failure_on_one_replica_is_seen_on_the_other():
+    d, saver, index, rs = (
+        make_deps(),
+        InMemorySaver(),
+        fakes.FakeIndex(),
+        fakes.FakeRunState(),
+    )
+
+    async def broken(node, server, tool, args):
+        raise RuntimeError("pricing server down")
+
+    d.tools.call = broken
+    with (
+        TestClient(replica(d, saver, index, rs)) as a,
+        TestClient(replica(d, saver, index, rs)) as b,
+    ):
+        a.post("/claims", json=new_claim())
+        body = wait_for(b, "failed")
+        assert "pricing server down" in body["error"]
+
+
+def test_shutdown_drains_runs_then_cancels_the_rest():
+    d, saver, index, rs = (
+        make_deps(),
+        InMemorySaver(),
+        fakes.FakeIndex(),
+        fakes.FakeRunState(),
+    )
+    with TestClient(replica(d, saver, index, rs, drain_s=0.2)) as a:
+        a.deps = d
+        block_vision(a)  # never opened: outlasts the drain
+        a.post("/claims", json=new_claim())
+        wait_until_in_damage_analysis(a)
+    # The pod has shut down: the run was cancelled and released its lease, so
+    # another replica says "interrupted" at once, without waiting for the TTL.
+    assert rs.leases == {}
+    with TestClient(replica(make_deps(), saver, index, rs)) as b:
+        assert b.get(f"/claims/{CLAIM}").json()["status"] == "interrupted"
+        assert b.post(f"/claims/{CLAIM}/retry").status_code == 202
+        wait_for(b, "awaiting_approval")
+
+
+def test_a_run_that_lost_its_lease_stops(client, monkeypatch):
+    monkeypatch.setattr(runstate, "LEASE_S", 0.06)  # renew every 20 ms
+    block_vision(client)
+    client.post("/claims", json=new_claim())
+    wait_until_in_damage_analysis(client)
+    task = client.app.state.runs[CLAIM]
+    # The lease expired and another replica took the claim over.
+    client.app.state.runstate.leases[CLAIM] = "another replica"
+    deadline = time.time() + 5
+    while not task.done():
+        assert time.time() < deadline
+        time.sleep(0.02)
+    assert task.cancelled()
+    # Its lease isn't touched: it belongs to the other replica.
+    assert client.app.state.runstate.leases[CLAIM] == "another replica"
+
+
+def test_metrics_are_exposed(client):
+    client.get(f"/claims/{'d' * 32}")
+    text = client.get("/metrics").text
+    assert (
+        'http_requests_total{method="GET",route="/claims/{claim_id}",status="404"}'
+        in text
+    )

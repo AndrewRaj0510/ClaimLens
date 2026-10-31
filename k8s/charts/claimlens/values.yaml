@@ -1,0 +1,85 @@
+# ClaimLens umbrella chart: defaults for a real cluster. values-kind.yaml
+# overrides them for a laptop; values-cloud.yaml is the starting point for a
+# cloud cluster. Each service's own settings are in ../<name>/values.yaml and
+# can be overridden here under its name (e.g. gateway.autoscaling.maxReplicas).
+
+global:
+  image:
+    # Images are <registry>/<name>:<tag>, e.g. claimlens/gateway:dev (kind,
+    # loaded with `kind load`) or ghcr.io/<owner>/claimlens/gateway:<git sha>.
+    registry: claimlens
+    tag: dev
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  # Created from .env by k8s/kind/up.sh (k8s/scripts/create-secret.sh); each
+  # pod reads only the keys its chart names.
+  secretName: claimlens-env
+  monitoringNamespace: monitoring
+  # ServiceMonitors need the Prometheus Operator's CRDs (kube-prometheus-stack).
+  serviceMonitors: true
+  # Where the model weights come from, mounted read-only at /models by
+  # guardrails and the vision workers: a volume source, set per cluster.
+  # kind: a host folder (values-kind.yaml); cloud: a PVC (values-cloud.yaml).
+  # Empty by default because Helm merges maps: a default PVC here would end
+  # up next to kind's hostPath in one invalid volume.
+  modelsVolume: {}
+
+# The edge: NGINX Gateway Fabric implements this Gateway. All traffic goes to
+# the frontend; its /api proxy is the only way to the gateway service.
+edge:
+  enabled: true
+  gatewayClassName: nginx
+  # Empty = any host name. Set it for a real domain.
+  hostname: ""
+  tls:
+    enabled: false
+    # A kubernetes.io/tls Secret in this namespace (e.g. from cert-manager).
+    secretName: claimlens-tls
+  # 10 photos of up to 10 MB each, plus the form (services/gateway/claims.py).
+  # NGINX's default is 1 MB.
+  maxBodySize: 105m
+  # Per client IP, on /api only: the gateway's own limits are per account
+  # (logins, submissions); per-IP limits need the real client address, which
+  # only the edge sees (services/gateway/auth.py).
+  rateLimit:
+    enabled: true
+    rate: 20r/s
+    burst: 40
+    dryRun: false
+
+# Deny all ingress to every pod in the namespace unless a NetworkPolicy
+# allows it; each chart allows exactly its callers (networkPolicy.from).
+defaultDenyIngress: true
+
+# Grafana dashboards (dashboards/*.json), picked up by Grafana's sidecar.
+dashboards:
+  enabled: true
+
+frontend:
+  enabled: true
+  networkPolicy:
+    # The NGINX data plane pods NGINX Gateway Fabric runs for the Gateway.
+    fromPodLabels:
+      - gateway.networking.k8s.io/gateway-name: claimlens
+gateway:
+  enabled: true
+agent:
+  enabled: true
+guardrails:
+  enabled: true
+vision-worker:
+  enabled: true
+eval:
+  enabled: false
+policy:
+  enabled: true
+pricing:
+  enabled: true
+claims-history:
+  enabled: true
+postgres:
+  enabled: true
+redis:
+  enabled: true
+seaweedfs:
+  enabled: true

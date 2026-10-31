@@ -1,0 +1,15 @@
+{{- if .Values.dashboards.enabled }}
+# Grafana's sidecar (kube-prometheus-stack) loads every ConfigMap labelled
+# grafana_dashboard=1, in any namespace (k8s/platform/kube-prometheus-stack.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: claimlens-dashboards
+  labels:
+    app.kubernetes.io/part-of: claimlens
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: ClaimLens
+data:
+{{ (.Files.Glob "dashboards/*.json").AsConfig | indent 2 }}
+{{- end }}

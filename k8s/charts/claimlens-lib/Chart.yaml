@@ -1,0 +1,5 @@
+apiVersion: v2
+name: claimlens-lib
+description: "Shared templates for the ClaimLens service charts (Deployment, Service, HPA, PDB, ServiceMonitor, NetworkPolicy)"
+type: library
+version: 0.1.0

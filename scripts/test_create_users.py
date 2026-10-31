@@ -22,6 +22,13 @@ def test_demo_customers_and_adjusters():
         conn.execute("TRUNCATE auth.users")
 
         demo = create_demo_customers(conn, 3)
+        # The next ones along, as the load test's logins: no overlap.
+        more = create_demo_customers(conn, 2, "same-password-1", offset=3)
+        assert not {c for *_, c in more} & {c for *_, c in demo}
+        conn.execute(
+            "DELETE FROM auth.users WHERE customer_id = ANY(%s)",
+            ([c for *_, c in more],),
+        )
         upsert(conn, " Sam ", "first-password-123", "adjuster", "Sam")
         upsert(conn, "sam", "second-password-456", "adjuster", "Sam")  # updates
         rows = conn.execute(

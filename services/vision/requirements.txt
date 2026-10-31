@@ -6,3 +6,4 @@ numpy
 pillow
 redis
 boto3
+prometheus-client

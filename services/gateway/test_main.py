@@ -173,3 +173,52 @@ async def test_vision_jobs_round_trip():
 @pytest.fixture
 def anyio_backend():
     return "asyncio"
+
+
+def test_metrics_count_requests_by_route_template(jobs):
+    jobs(FakeJobs(status={"status": "pending"}))
+    client.get("/health")
+    client.get(f"/jobs/{JOB_ID}")
+    client.get("/no-such-page")
+    text = client.get("/metrics").text
+    assert 'http_requests_total{method="GET",route="/health",status="200"}' in text
+    # The template, never the ID: one series per route, however many jobs.
+    assert 'route="/jobs/{job_id}"' in text and JOB_ID not in text
+    assert 'route="unmatched",status="404"' in text
+    assert 'route="/metrics"' not in text  # scrapes aren't counted
+    assert "http_request_duration_seconds_bucket" in text
+
+
+class BlockingRedis:
+    """BLPOP that holds until released, counting the waiters (connections)."""
+
+    def __init__(self):
+        import asyncio
+
+        self.release = asyncio.Event()
+        self.waiting = 0
+
+    async def blpop(self, key, timeout):
+        self.waiting += 1
+        await self.release.wait()
+        return key, json.dumps({"status": "done", "result": RESULT})
+
+
+def test_waiters_are_capped_so_redis_connections_are_left_for_logins():
+    # Found in the load test: 100+ uploads waiting in BLPOP took every
+    # connection in the pool, and logins failed with them.
+    import asyncio
+
+    async def scenario():
+        r = BlockingRedis()
+        jobs = VisionJobs(r, store=None, max_waiters=2)
+        waiting = [asyncio.create_task(jobs.wait(f"job{i}", 30)) for i in range(2)]
+        while r.waiting < 2:
+            await asyncio.sleep(0)
+        # The third gets no connection: None at once, i.e. 202 + job ID to poll.
+        assert await asyncio.wait_for(jobs.wait("job3", 30), timeout=1) is None
+        assert r.waiting == 2
+        r.release.set()
+        assert [(await t)["status"] for t in waiting] == ["done", "done"]
+
+    asyncio.run(scenario())

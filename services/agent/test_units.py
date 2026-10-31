@@ -311,3 +311,27 @@ def test_json_object_refuses_replies_without_one():
 
     with pytest.raises(ValueError):
         json_object("The image shows a car.")
+
+
+def test_vision_results_poll_instead_of_blocking_past_the_waiter_limit():
+    import asyncio
+    import json
+
+    from adapters import VisionResults
+
+    class PollOnly:
+        def __init__(self):
+            self.gets = 0
+
+        async def get(self, key):
+            self.gets += 1
+            return json.dumps({"status": "done"}) if self.gets >= 3 else None
+
+        async def blpop(self, key, timeout):
+            raise AssertionError("over the limit, no connection may be held")
+
+    redis = PollOnly()
+    results = VisionResults(redis, max_waiters=0)
+    results.POLL_S = 0.01
+    assert asyncio.run(results.result("j", 5)) == {"status": "done"}
+    assert redis.gets == 3

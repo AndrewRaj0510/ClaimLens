@@ -82,6 +82,56 @@ def test_unexpected_errors_raise_so_the_job_is_retried():
         worker.run_job({"image_key": "uploads/ok"}, CrashingDetector(), STORE)
 
 
+class PipelineOnly:
+    """Just enough Redis for handle(): publish's pipeline and the ACK."""
+
+    def __init__(self):
+        self.acked = []
+
+    def pipeline(self):
+        return self
+
+    def set(self, *args, **kwargs):
+        pass
+
+    def rpush(self, *args):
+        pass
+
+    def expire(self, *args):
+        pass
+
+    def execute(self):
+        pass
+
+    def xack(self, stream, group, entry_id):
+        self.acked.append(entry_id)
+
+
+def test_jobs_are_counted_by_outcome_and_timed():
+    from prometheus_client import REGISTRY
+
+    def count(outcome):
+        return REGISTRY.get_sample_value("vision_jobs_total", {"outcome": outcome}) or 0
+
+    def timed():
+        return REGISTRY.get_sample_value("vision_job_seconds_count") or 0
+
+    before = count("done"), count("400"), timed()
+    r = PipelineOnly()
+    worker.handle(
+        r, "1-0", {"job_id": "a", "image_key": "uploads/ok"}, FakeDetector(), STORE
+    )
+    worker.handle(
+        r, "2-0", {"job_id": "b", "image_key": "uploads/junk"}, FakeDetector(), STORE
+    )
+    assert (count("done"), count("400"), timed()) == (
+        before[0] + 1,
+        before[1] + 1,
+        before[2] + 2,
+    )
+    assert r.acked == ["1-0", "2-0"]
+
+
 # ---- against a real Redis ----
 # Uses database 15 and flushes it: point TEST_REDIS_URL at a Redis you don't mind
 # emptying, e.g. redis://:<pw>@127.0.0.1:6380/15

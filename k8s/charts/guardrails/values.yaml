@@ -1,0 +1,55 @@
+# Guardrails: injection scan (rules + DeBERTa), OCR, face/text redaction and
+# image forensics (CLIP). The CPU-heaviest service per claim; stateless.
+
+image:
+  name: guardrails
+
+replicas: 1
+port: 8000
+healthPath: /health
+# Loading the classifier, OCR and the 345 MB CLIP encoder took 46 s on a
+# laptop under compose; this is the most it may take.
+startupSeconds: 240
+
+service:
+  enabled: true
+
+metrics:
+  enabled: true
+
+# The models directory (classifier, AI-image detector, face detector) is
+# mounted from global.modelsVolume at /models.
+mountModels: true
+
+# ONNX Runtime and OpenCV threads = the CPU limit (see the comment on
+# ORT_THREADS in services/guardrails/text_scan.py).
+cpuThreads: 2
+
+env:
+  MAX_UPLOAD_MB: "10"
+
+resources:
+  # Requests = measured use (1.45-1.8 GiB after real photos), so the
+  # scheduler never places a replica the node can't actually hold.
+  requests: {cpu: 500m, memory: 1792Mi}
+  limits: {cpu: "2", memory: 2560Mi}
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPU: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 180
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+persistence:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  from: [agent, eval]

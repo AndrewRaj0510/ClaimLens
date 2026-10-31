@@ -1,0 +1,66 @@
+# SeaweedFS: S3-compatible photo storage (docs/decisions.md 9), the same
+# image and flags as docker-compose.yml. The S3 credentials are required:
+# without them its S3 gateway allows anonymous access.
+
+image:
+  repository: chrislusf/seaweedfs
+  tag: "4.48"
+  # From the registry, also on kind (k8s/kind/up.sh explains why).
+  pullPolicy: IfNotPresent
+
+port: 8333
+portName: s3
+
+args: ["server", "-dir=/data", "-s3", "-s3.port=8333"]
+
+service:
+  enabled: true
+
+metrics:
+  enabled: false
+
+probes:
+  startup:
+    httpGet: {path: /healthz, port: s3}
+    periodSeconds: 5
+    failureThreshold: 24
+  readiness:
+    httpGet: {path: /healthz, port: s3}
+    periodSeconds: 10
+  liveness:
+    httpGet: {path: /healthz, port: s3}
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile: {type: RuntimeDefault}
+
+secretEnv:
+  AWS_ACCESS_KEY_ID: S3_ACCESS_KEY
+  AWS_SECRET_ACCESS_KEY: S3_SECRET_KEY
+
+persistence:
+  enabled: true
+  mountPath: /data
+  size: 5Gi
+  storageClass: ""
+
+resources:
+  requests: {cpu: 50m, memory: 128Mi}
+  limits: {cpu: "1", memory: 512Mi}
+
+autoscaling:
+  enabled: false
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+  from: [gateway, agent, vision-worker]

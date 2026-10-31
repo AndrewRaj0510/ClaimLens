@@ -18,7 +18,11 @@ the model) go to the dead-letter stream with an error result instead of looping
 forever. Running the same job twice is harmless: the result is the same.
 
 Scaling: run N copies (one consumer each). In Kubernetes, KEDA's redis-streams
-scaler adds workers when the group's backlog grows (Phase 6).
+scaler adds workers when the group's backlog grows (k8s/charts/vision-worker).
+
+Metrics for Prometheus on METRICS_PORT (9100): jobs by outcome, time per job,
+retries and dead letters. The backlog itself is KEDA's metric, so it's
+measured once, not by every worker.
 """
 
 import json
@@ -28,6 +32,8 @@ import signal
 import socket
 import time
 from pathlib import Path
+
+from prometheus_client import Counter, Histogram, start_http_server
 
 from analysis import ImageTooLarge, InvalidImage, analyse, max_bytes
 
@@ -43,8 +49,19 @@ BLOCK_MS = 5000
 # forever; forget ones that have been idle this long with nothing pending.
 STALE_CONSUMER_MS = 3600 * 1000
 HEARTBEAT = Path(os.getenv("HEARTBEAT_FILE", "/tmp/worker-heartbeat"))
+METRICS_PORT = int(os.getenv("METRICS_PORT", "9100"))
 
 log = logging.getLogger("vision.worker")
+
+# outcome: "done", or the error result's code ("400", "503", ...)
+JOBS = Counter("vision_jobs_total", "Jobs finished, by outcome", ["outcome"])
+JOB_SECONDS = Histogram(
+    "vision_job_seconds",
+    "Time per job: fetching the image and running the model",
+    buckets=(0.05, 0.1, 0.2, 0.3, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10),
+)
+RETRIES = Counter("vision_job_failures_total", "Jobs that raised and will be retried")
+DEAD_LETTERS = Counter("vision_dead_letters_total", "Jobs dead-lettered")
 
 
 def error(code, detail):
@@ -81,9 +98,11 @@ def publish(r, job_id, result):
 
 
 def handle(r, entry_id, fields, detector, store):
-    result = run_job(fields, detector, store)
+    with JOB_SECONDS.time():
+        result = run_job(fields, detector, store)
     publish(r, fields["job_id"], result)
     r.xack(STREAM, GROUP, entry_id)
+    JOBS.labels("done" if result["status"] == "done" else str(result["code"])).inc()
     log.info("job %s -> %s", fields["job_id"], result["status"])
 
 
@@ -121,6 +140,7 @@ def reclaim(r, consumer, detector, store):
                 DEAD, {**fields, "entry_id": entry_id}, maxlen=10000, approximate=True
             )
             r.xack(STREAM, GROUP, entry_id)
+            DEAD_LETTERS.inc()
             continue
         safe_handle(r, entry_id, fields, detector, store)
     forget_stale_consumers(r, consumer)
@@ -142,6 +162,7 @@ def safe_handle(r, entry_id, fields, detector, store):
     except Exception:
         # Leave it pending: reclaim() retries it, and dead-letters it after MAX_DELIVERIES.
         log.exception("job %s failed; will be retried", fields.get("job_id"))
+        RETRIES.inc()
     # Beat after every job, not only once per loop: a reclaim pass can run dozens
     # of jobs back to back, and a stale heartbeat gets the worker killed mid-way.
     HEARTBEAT.touch()
@@ -206,6 +227,7 @@ def main():
 
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
+    start_http_server(METRICS_PORT)
     r = connect(os.environ["REDIS_URL"])
     consumer = os.getenv("CONSUMER_NAME", socket.gethostname())
     log.info("worker %s listening on %s", consumer, STREAM)

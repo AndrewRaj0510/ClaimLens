@@ -1,0 +1,52 @@
+{{- if .Values.keda.enabled }}
+{{- $name := include "claimlens.name" . }}
+# KEDA's redis-streams scaler reads XINFO GROUPS for the consumer group's
+# lag: entries added to the stream but not yet delivered to any worker. KEDA
+# turns lag / lagPerReplica into a replica count and drives an HPA with it.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "claimlens.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ $name }}
+  minReplicaCount: {{ .Values.keda.minReplicas }}
+  maxReplicaCount: {{ .Values.keda.maxReplicas }}
+  pollingInterval: {{ .Values.keda.pollingInterval }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          # A burst of uploads should get workers at once, not 1 per minute.
+          stabilizationWindowSeconds: 0
+          policies:
+            - {type: Pods, value: 4, periodSeconds: 15}
+        scaleDown:
+          stabilizationWindowSeconds: 60
+          policies:
+            - {type: Pods, value: 1, periodSeconds: 30}
+  triggers:
+    - type: redis-streams
+      metadata:
+        address: {{ .Values.keda.redisAddress | default (printf "redis.%s.svc.cluster.local:6379" .Release.Namespace) | quote }}
+        stream: "vision:jobs"
+        consumerGroup: "vision-workers"
+        lagCount: {{ .Values.keda.lagPerReplica | quote }}
+      authenticationRef:
+        name: {{ $name }}-redis
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ $name }}-redis
+  labels:
+    {{- include "claimlens.labels" . | nindent 4 }}
+spec:
+  secretTargetRef:
+    - parameter: password
+      name: {{ include "claimlens.secretName" . }}
+      key: REDIS_PASSWORD
+{{- end }}

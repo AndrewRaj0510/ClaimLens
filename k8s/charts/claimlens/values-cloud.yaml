@@ -1,0 +1,59 @@
+# Starting point for a managed cluster (GKE, AKS, DigitalOcean, ...): the
+# provider isn't chosen yet, so this has no provider-specific settings.
+# Copy it, fill in the <...>, and deploy the commit CI pushed:
+#
+#   helm upgrade --install claimlens k8s/charts/claimlens -n claimlens \
+#     -f values-cloud.yaml --set global.image.tag=$(git rev-parse HEAD)
+#
+# Before the first install (see k8s/README.md, "Cloud"):
+#   - the platform: NGINX Gateway Fabric (its default LoadBalancer Service),
+#     KEDA, kube-prometheus-stack; the provider runs metrics-server
+#   - cert-manager or the provider's certificates for the TLS Secret
+#   - the claimlens-env Secret (k8s/scripts/create-secret.sh, or a secret manager)
+#   - the postgres-initdb ConfigMap (as in k8s/kind/up.sh)
+#   - the models on a volume every guardrails/vision pod can mount read-only
+
+global:
+  image:
+    # Pushed by CI on every commit to main (.github/workflows/ci.yml).
+    registry: ghcr.io/<owner>/claimlens
+    tag: ""   # --set global.image.tag=<commit sha>
+    pullPolicy: IfNotPresent
+  # Only if the GHCR packages are private: a docker-registry Secret.
+  imagePullSecrets: []
+  # Read-only by several pods on several nodes, so a ReadOnlyMany/ReadWriteMany
+  # volume (e.g. Filestore, Azure Files, an NFS share), filled once with
+  # data/models.
+  modelsVolume:
+    persistentVolumeClaim:
+      claimName: claimlens-models
+      readOnly: true
+
+edge:
+  hostname: claimlens.example.com
+  tls:
+    enabled: true
+    secretName: claimlens-tls
+
+# Two of everything on the request path, kept apart by the charts'
+# topologySpreadConstraints, and a PodDisruptionBudget so a node drain never
+# takes both at once.
+frontend:
+  pdb: {enabled: true}
+gateway:
+  pdb: {enabled: true}
+agent:
+  pdb: {enabled: true}
+guardrails:
+  autoscaling: {minReplicas: 2}
+  pdb: {enabled: true}
+policy:
+  autoscaling: {minReplicas: 2}
+  pdb: {enabled: true}
+vision-worker:
+  keda: {minReplicas: 2, maxReplicas: 10}
+
+postgres:
+  persistence: {size: 10Gi}
+seaweedfs:
+  persistence: {size: 20Gi}

@@ -1,0 +1,64 @@
+# Prometheus + Grafana (+ the operator, kube-state-metrics, node-exporter),
+# trimmed for a laptop. Prometheus picks up every ServiceMonitor in the
+# cluster, not just the ones this release made, so each chart's own
+# ServiceMonitor is enough to get a service scraped.
+
+alertmanager:
+  enabled: false
+
+# kind runs these control-plane parts bound to localhost, where Prometheus
+# can't reach them; they'd only show up as "down" targets.
+kubeEtcd: {enabled: false}
+kubeControllerManager: {enabled: false}
+kubeScheduler: {enabled: false}
+kubeProxy: {enabled: false}
+
+defaultRules:
+  rules:
+    etcd: false
+    kubeControllerManager: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+    kubeProxy: false
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    scrapeInterval: 15s
+    retention: 3d
+    resources:
+      requests: {cpu: 100m, memory: 512Mi}
+      limits: {cpu: "1", memory: 1536Mi}
+
+grafana:
+  # Created by k8s/kind/up.sh with a random password:
+  #   kubectl -n monitoring get secret grafana-admin -o jsonpath='{.data.admin-password}' | base64 -d
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      # The ClaimLens dashboards live in the claimlens namespace (umbrella chart).
+      searchNamespace: ALL
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 384Mi}
+
+prometheusOperator:
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 500m, memory: 256Mi}
+
+kube-state-metrics:
+  resources:
+    requests: {cpu: 20m, memory: 48Mi}
+    limits: {cpu: 200m, memory: 128Mi}

@@ -139,7 +139,14 @@ class ClaimsStore:
 async def lifespan(server):
     from psycopg_pool import ConnectionPool
 
-    pool = ConnectionPool(DATABASE_URL, min_size=1, max_size=4, open=True)
+    # check: see services/gateway/main.py (dead connections after a DB restart).
+    pool = ConnectionPool(
+        DATABASE_URL,
+        min_size=1,
+        max_size=4,
+        open=True,
+        check=ConnectionPool.check_connection,
+    )
     try:
         yield ClaimsStore(pool)
     finally:

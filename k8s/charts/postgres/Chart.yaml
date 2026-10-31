@@ -1,0 +1,10 @@
+apiVersion: v2
+name: postgres
+description: "Postgres 17 + pgvector: synthetic data, policy embeddings, LangGraph checkpoints"
+type: application
+version: 0.1.0
+appVersion: "0.6.0"
+dependencies:
+  - name: claimlens-lib
+    version: 0.1.0
+    repository: file://../claimlens-lib

@@ -76,11 +76,14 @@ class Ocr:
     def __init__(self):
         from rapidocr import RapidOCR
 
+        from text_scan import ORT_THREADS
+
+        params = {"Global.log_level": "error", "Global.text_score": 0.0}
+        if ORT_THREADS:  # RapidOCR's "unset" is -1, not 0
+            params["EngineConfig.onnxruntime.intra_op_num_threads"] = ORT_THREADS
         # text_score 0 keeps every detected region: low-confidence regions are
         # still redacted, they're just not trusted as readable text.
-        self.engine = RapidOCR(
-            params={"Global.log_level": "error", "Global.text_score": 0.0}
-        )
+        self.engine = RapidOCR(params=params)
         self.lock = threading.Lock()
 
     def read(self, rgb):
@@ -110,6 +113,10 @@ class FaceDetector:
     def __init__(self, model_path):
         import cv2
 
+        from text_scan import ORT_THREADS
+
+        if ORT_THREADS:  # OpenCV sizes its pool from the machine's cores too
+            cv2.setNumThreads(ORT_THREADS)
         self.cv2 = cv2
         self.detector = cv2.FaceDetectorYN.create(
             model_path, "", (320, 320), FACE_MIN_SCORE, 0.3, 50

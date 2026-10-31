@@ -217,3 +217,26 @@ def test_user_store_sql():
         asyncio.run(scenario())
     finally:
         pool.close()
+
+
+@pytest.mark.skipif(not TEST_DB, reason="set TEST_DATABASE_URL to run")
+def test_pool_survives_a_database_restart():
+    """Every pooled connection dies when Postgres restarts. The pool must
+    replace them, not hand them out (each one failed a login on kind)."""
+    import psycopg
+
+    from main import db_pool
+
+    pool = db_pool(TEST_DB)
+    pool.open(wait=True)
+    try:
+        with pool.connection() as conn:
+            pid = conn.info.backend_pid
+        # What a restart does to it: the server ends the connection.
+        with psycopg.connect(TEST_DB, autocommit=True) as admin:
+            admin.execute("SELECT pg_terminate_backend(%s)", (pid,))
+        with pool.connection() as conn:
+            assert conn.execute("SELECT 1").fetchone() == (1,)
+            assert conn.info.backend_pid != pid
+    finally:
+        pool.close()

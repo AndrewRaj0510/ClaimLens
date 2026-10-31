@@ -14,12 +14,18 @@ Model outputs for a seg model with `nc` classes at imgsz 640:
 """
 
 import ast
+import os
 from dataclasses import dataclass
 
 import numpy as np
 from PIL import Image
 
 PAD_VALUE = 114  # grey padding, same as Ultralytics training
+# Threads per ONNX Runtime session; 0 = ORT's default, one per core of the
+# *machine*. In a container with a CPU limit, set it to the limit (the Helm
+# charts do): on a 20-core node, a pod limited to 2 CPUs would otherwise run
+# 20 threads and spend most of each period throttled.
+ORT_THREADS = int(os.getenv("ORT_THREADS", "0"))
 
 
 @dataclass
@@ -159,8 +165,10 @@ class Detector:
     def __init__(self, model_path: str, providers: list[str] | None = None):
         import onnxruntime as ort  # imported here so tests of the pure functions don't need it
 
+        options = ort.SessionOptions()
+        options.intra_op_num_threads = ORT_THREADS
         self.session = ort.InferenceSession(
-            model_path, providers=providers or ["CPUExecutionProvider"]
+            model_path, options, providers=providers or ["CPUExecutionProvider"]
         )
         meta = self.session.get_modelmeta().custom_metadata_map
         # Ultralytics writes names as a Python dict literal, e.g. "{0: 'dent', 1: 'scratch'}".

@@ -1,0 +1,19 @@
+apiVersion: v2
+name: claimlens
+description: "ClaimLens, all services in one release. Each service is its own chart (../<name>); this chart adds the edge (Gateway API), namespace-wide policies and Grafana dashboards."
+type: application
+version: 0.1.0
+appVersion: "0.6.0"
+dependencies:
+  - {name: frontend, version: 0.1.0, repository: file://../frontend, condition: frontend.enabled}
+  - {name: gateway, version: 0.1.0, repository: file://../gateway, condition: gateway.enabled}
+  - {name: agent, version: 0.1.0, repository: file://../agent, condition: agent.enabled}
+  - {name: guardrails, version: 0.1.0, repository: file://../guardrails, condition: guardrails.enabled}
+  - {name: vision-worker, version: 0.1.0, repository: file://../vision-worker, condition: vision-worker.enabled}
+  - {name: eval, version: 0.1.0, repository: file://../eval, condition: eval.enabled}
+  - {name: policy, version: 0.1.0, repository: file://../policy, condition: policy.enabled}
+  - {name: pricing, version: 0.1.0, repository: file://../pricing, condition: pricing.enabled}
+  - {name: claims-history, version: 0.1.0, repository: file://../claims-history, condition: claims-history.enabled}
+  - {name: postgres, version: 0.1.0, repository: file://../postgres, condition: postgres.enabled}
+  - {name: redis, version: 0.1.0, repository: file://../redis, condition: redis.enabled}
+  - {name: seaweedfs, version: 0.1.0, repository: file://../seaweedfs, condition: seaweedfs.enabled}

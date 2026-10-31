@@ -1,0 +1,24 @@
+# KEDA: scales the vision workers on the Redis stream's backlog
+# (k8s/charts/vision-worker/templates/scaledobject.yaml). Its operator
+# exports the scaler's current value (keda_scaler_metrics_value), which is
+# how Grafana shows the queue backlog without a separate Redis exporter.
+prometheus:
+  operator:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  metricServer:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+resources:
+  operator:
+    requests: {cpu: 50m, memory: 100Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+  metricServer:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 500m, memory: 256Mi}
+  webhooks:
+    requests: {cpu: 20m, memory: 32Mi}
+    limits: {cpu: 200m, memory: 128Mi}

@@ -1,0 +1,20 @@
+# kind cluster for ClaimLens: one node (a Docker container) on Docker Desktop.
+# k8s/kind/up.sh fills in MODELS_DIR (data/models, absolute) and creates it.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: claimlens
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # NGINX Gateway Fabric's NodePort (k8s/platform/nginx-gateway-fabric-kind.yaml)
+      # -> http://localhost:8080 on this machine only.
+      - containerPort: 30080
+        hostPort: 8080
+        listenAddress: 127.0.0.1
+        protocol: TCP
+    extraMounts:
+      # Model weights stay on the host (git-ignored, never in an image);
+      # pods mount /models from the node with a hostPath volume.
+      - hostPath: "${MODELS_DIR}"
+        containerPath: /models
+        readOnly: true

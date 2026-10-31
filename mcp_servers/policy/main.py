@@ -48,8 +48,14 @@ async def lifespan(server):
 
     from embeddings import Embedder
 
+    # check: see services/gateway/main.py (dead connections after a DB restart).
     pool = ConnectionPool(
-        DATABASE_URL, min_size=1, max_size=4, configure=register_vector, open=True
+        DATABASE_URL,
+        min_size=1,
+        max_size=4,
+        configure=register_vector,
+        open=True,
+        check=ConnectionPool.check_connection,
     )
     try:
         yield PolicyStore(pool, Embedder())

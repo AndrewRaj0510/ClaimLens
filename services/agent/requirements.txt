@@ -13,3 +13,4 @@ pillow
 httpx
 # Tracing (optional, off without keys). Pinned to a major: the v5 API is used directly.
 langfuse>=5,<6
+prometheus-client

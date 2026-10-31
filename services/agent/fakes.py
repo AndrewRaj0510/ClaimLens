@@ -3,6 +3,7 @@ real per-node allowlist, so tests exercise it."""
 
 import base64
 import io
+import uuid
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -265,6 +266,52 @@ class FakeIndex:
             if customer_id in (None, r["customer_id"]) and status in (None, r["status"])
         ]
         return sorted(rows, key=lambda r: r["updated_at"], reverse=True)[:limit]
+
+
+class FakeRunState:
+    """In-memory RunState (runstate.py) with the same lease semantics. Share
+    one between two apps to act as two replicas. expire() plays a pod that
+    died holding the lease: its TTL ran out."""
+
+    def __init__(self):
+        self.leases, self.failures, self.owners = {}, {}, {}
+
+    async def acquire(self, claim_id):
+        if claim_id in self.leases:
+            return None
+        self.leases[claim_id] = token = uuid.uuid4().hex
+        return token
+
+    async def renew(self, claim_id, token):
+        return self.leases.setdefault(claim_id, token) == token
+
+    async def release(self, claim_id, token):
+        if self.leases.get(claim_id) == token:
+            del self.leases[claim_id]
+
+    def expire(self, claim_id):
+        self.leases.pop(claim_id, None)
+
+    async def running(self, claim_ids):
+        return {c for c in claim_ids if c in self.leases}
+
+    async def set_failure(self, claim_id, message):
+        self.failures[claim_id] = message
+
+    async def failure(self, claim_id):
+        return self.failures.get(claim_id)
+
+    async def clear_failure(self, claim_id):
+        self.failures.pop(claim_id, None)
+
+    async def set_owner(self, claim_id, customer_id):
+        self.owners[claim_id] = customer_id
+
+    async def owner(self, claim_id):
+        return self.owners.get(claim_id)
+
+    async def clear_owner(self, claim_id):
+        self.owners.pop(claim_id, None)
 
 
 class FakeGuardrails:

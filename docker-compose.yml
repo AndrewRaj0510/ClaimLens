@@ -129,12 +129,15 @@ services:
       - ${MODELS_DIR:-./data/models}:/models:ro
     environment:
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
+    # Loading the models (classifier, OCR, the 345 MB CLIP encoder of the
+    # AI-image detector) took 46 s on a laptop; start_period only delays when
+    # failures count, so it's healthy as soon as it answers.
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 3s
       retries: 3
-      start_period: 30s
+      start_period: 120s
 
   # Offline evaluation: detection mAP and cost error, report faithfulness
   # (LLM-as-judge), the red-team suites, and the gates CI enforces. Internal

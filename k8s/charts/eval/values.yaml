@@ -1,0 +1,48 @@
+# Eval: offline metrics, the LLM judge and the red-team suites. Internal and
+# off by default in the umbrella chart (eval.enabled): CI runs the suites,
+# and the cluster only needs it to look at results or run a suite by hand.
+
+image:
+  name: eval
+
+replicas: 1
+port: 8000
+healthPath: /health
+startupSeconds: 30
+
+service:
+  enabled: true
+
+metrics:
+  enabled: false
+
+secretEnv:
+  OLLAMA_API_KEY: {key: OLLAMA_API_KEY, optional: true}
+
+env:
+  GUARDRAILS_URL: http://guardrails:8000
+  OLLAMA_HOST: https://ollama.com
+  OLLAMA_MODEL: gpt-oss:120b
+  # Another model family than the report writer (docs/decisions.md 28).
+  JUDGE_MODEL: gemma4:31b
+  EVAL_COMMIT: ""
+
+resources:
+  requests: {cpu: 50m, memory: 256Mi}
+  limits: {cpu: "1", memory: 1Gi}
+
+autoscaling:
+  enabled: false
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+persistence:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  # Nothing may call it: /judge spends LLM quota. Use kubectl port-forward,
+  # which isn't subject to NetworkPolicy, or kubectl exec for a suite.
+  from: []

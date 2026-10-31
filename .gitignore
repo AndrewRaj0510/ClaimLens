@@ -320,3 +320,9 @@ yarn-error.log*
 Thumbs.db
 desktop.ini
 .claude/settings.local.json
+
+# Helm: packaged chart dependencies, rebuilt by k8s/scripts/build-charts.sh
+k8s/charts/*/charts/
+k8s/charts/*/Chart.lock
+# k6 per-request CSVs (several MB per run); steps.md, summary.json and timeline.csv are kept
+k8s/loadtest/results/*/requests.csv.gz

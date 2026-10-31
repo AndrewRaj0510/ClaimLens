@@ -7,6 +7,8 @@ Usage:
 
 Non-interactive: ADJUSTER_PASSWORD sets the adjuster password, DEMO_PASSWORD
 gives every demo customer the same password instead of a generated one.
+--demo-offset skips the first eligible customers, so a second set of logins
+(the load test's, k8s/loadtest/make-users.sh) doesn't reset the first.
 
 Re-running updates passwords (upsert). Applies db/schema.sql first, which is
 idempotent, so the auth table also appears on a database created before it.
@@ -38,7 +40,7 @@ WHERE EXISTS (
       AND p.status = 'active' AND p.collision AND p.comprehensive
 )
 ORDER BY c.customer_id
-LIMIT %s
+LIMIT %s OFFSET %s
 """
 
 UPSERT_SQL = """
@@ -68,10 +70,11 @@ def adjuster_password():
     return password
 
 
-def create_demo_customers(conn, n, password=None):
+def create_demo_customers(conn, n, password=None, offset=0):
     """Returns [(username, password, customer_id)]."""
     created = []
-    for customer_id, email, name in conn.execute(DEMO_CUSTOMERS_SQL, (n,)).fetchall():
+    rows = conn.execute(DEMO_CUSTOMERS_SQL, (n, offset)).fetchall()
+    for customer_id, email, name in rows:
         pw = password or secrets.token_urlsafe(9)
         upsert(conn, email, pw, "customer", name, customer_id)
         created.append((email, pw, customer_id))
@@ -82,6 +85,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--adjuster", action="append", default=[], metavar="USERNAME")
     parser.add_argument("--demo-customers", type=int, default=0, metavar="N")
+    parser.add_argument("--demo-offset", type=int, default=0, metavar="N")
     args = parser.parse_args()
     if not args.adjuster and not args.demo_customers:
         parser.error("nothing to do: give --adjuster and/or --demo-customers")
@@ -98,7 +102,7 @@ def main():
             upsert(conn, username, adjuster_password(), "adjuster", username)
             print(f"adjuster  {username}")
         demo = create_demo_customers(
-            conn, args.demo_customers, os.environ.get("DEMO_PASSWORD")
+            conn, args.demo_customers, os.environ.get("DEMO_PASSWORD"), args.demo_offset
         )
         for username, password, customer_id in demo:
             # Printed once; only the hash is stored.

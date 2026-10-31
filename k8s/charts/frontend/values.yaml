@@ -1,0 +1,45 @@
+# Next.js: the only service the edge (NGINX Gateway Fabric) routes to. Its
+# /api/* route proxies to the gateway, so the browser talks to one origin.
+
+image:
+  name: frontend
+
+replicas: 2
+port: 3000
+healthPath: /login
+startupSeconds: 30
+
+service:
+  enabled: true
+
+# Next.js has no Prometheus endpoint; its CPU and memory come from cAdvisor,
+# and its traffic shows up in the gateway's and NGINX's metrics.
+metrics:
+  enabled: false
+
+env:
+  GATEWAY_URL: http://gateway:8000
+
+resources:
+  # OOM-killed at 384 MiB proxying ~75 requests/s in the first load test.
+  requests: {cpu: 100m, memory: 192Mi}
+  limits: {cpu: "1", memory: 512Mi}
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPU: 70
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+persistence:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  # The NGINX data plane pods, which run in this namespace next to the
+  # Gateway object (set by the umbrella chart, which names the Gateway).
+  fromPodLabels: []

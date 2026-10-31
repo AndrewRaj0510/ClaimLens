@@ -1,0 +1,10 @@
+apiVersion: v2
+name: vision-worker
+description: "YOLO11-seg damage detection on the Redis Streams job queue, autoscaled by KEDA"
+type: application
+version: 0.1.0
+appVersion: "0.6.0"
+dependencies:
+  - name: claimlens-lib
+    version: 0.1.0
+    repository: file://../claimlens-lib

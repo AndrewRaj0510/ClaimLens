@@ -1,0 +1,140 @@
+{{- if .Values.edge.enabled }}
+{{- $e := .Values.edge }}
+# Gateway API (the successor to Ingress; the community ingress-nginx
+# controller was retired in March 2026). NGINX Gateway Fabric sees this
+# Gateway and runs an NGINX Deployment + Service for it in this namespace.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: claimlens
+  labels:
+    app.kubernetes.io/part-of: claimlens
+spec:
+  gatewayClassName: {{ $e.gatewayClassName }}
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      {{- with $e.hostname }}
+      hostname: {{ . | quote }}
+      {{- end }}
+      allowedRoutes:
+        namespaces: {from: Same}
+    {{- if $e.tls.enabled }}
+    - name: https
+      port: 443
+      protocol: HTTPS
+      {{- with $e.hostname }}
+      hostname: {{ . | quote }}
+      {{- end }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - {kind: Secret, name: {{ $e.tls.secretName }}}
+      allowedRoutes:
+        namespaces: {from: Same}
+    {{- end }}
+---
+# Pages and static assets.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web
+  labels:
+    app.kubernetes.io/part-of: claimlens
+spec:
+  parentRefs:
+    - name: claimlens
+      {{- if $e.tls.enabled }}
+      sectionName: https
+      {{- end }}
+  {{- with $e.hostname }}
+  hostnames: [{{ . | quote }}]
+  {{- end }}
+  rules:
+    - matches:
+        - path: {type: PathPrefix, value: /}
+      backendRefs:
+        - {name: frontend, port: 3000}
+---
+# The API, through the frontend's /api proxy. A route of its own so the rate
+# limit applies to API calls, not to every image and script on a page.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: api
+  labels:
+    app.kubernetes.io/part-of: claimlens
+spec:
+  parentRefs:
+    - name: claimlens
+      {{- if $e.tls.enabled }}
+      sectionName: https
+      {{- end }}
+  {{- with $e.hostname }}
+  hostnames: [{{ . | quote }}]
+  {{- end }}
+  rules:
+    - matches:
+        - path: {type: PathPrefix, value: /api}
+      backendRefs:
+        - {name: frontend, port: 3000}
+{{- if $e.tls.enabled }}
+---
+# Plain HTTP only redirects to HTTPS.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: https-redirect
+  labels:
+    app.kubernetes.io/part-of: claimlens
+spec:
+  parentRefs:
+    - {name: claimlens, sectionName: http}
+  {{- with $e.hostname }}
+  hostnames: [{{ . | quote }}]
+  {{- end }}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect: {scheme: https, statusCode: 301}
+{{- end }}
+---
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ClientSettingsPolicy
+metadata:
+  name: claimlens-body-size
+  labels:
+    app.kubernetes.io/part-of: claimlens
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: claimlens
+  body:
+    maxSize: {{ $e.maxBodySize }}
+{{- if $e.rateLimit.enabled }}
+---
+apiVersion: gateway.nginx.org/v1alpha1
+kind: RateLimitPolicy
+metadata:
+  name: api-per-ip
+  labels:
+    app.kubernetes.io/part-of: claimlens
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: api
+  rateLimit:
+    dryRun: {{ $e.rateLimit.dryRun }}
+    rejectCode: 429
+    local:
+      rules:
+        - key: $binary_remote_addr
+          rate: {{ $e.rateLimit.rate }}
+          burst: {{ $e.rateLimit.burst }}
+          noDelay: true
+          zoneSize: 10m
+{{- end }}
+{{- end }}

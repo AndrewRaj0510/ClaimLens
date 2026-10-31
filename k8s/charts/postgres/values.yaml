@@ -1,0 +1,93 @@
+# Postgres 17 + pgvector, same image as docker-compose.yml. One replica with
+# its own volume. On first start (empty volume) it runs db/schema.sql,
+# db/roles.sql and db/role-passwords.sh from the postgres-initdb ConfigMap,
+# which k8s/kind/up.sh creates from the db/ folder.
+#
+# In a cloud deployment a managed Postgres with pgvector is the better home
+# (backups, failover); point the services' DATABASE_URL at it and disable this.
+
+image:
+  repository: pgvector/pgvector
+  tag: 0.8.1-pg17
+  # From the registry, also on kind (k8s/kind/up.sh explains why).
+  pullPolicy: IfNotPresent
+
+port: 5432
+portName: postgres
+
+service:
+  enabled: true
+
+metrics:
+  enabled: false
+
+probes:
+  startup:
+    exec: {command: ["pg_isready", "-U", "claimlens", "-d", "claimlens"]}
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 60
+  readiness:
+    exec: {command: ["pg_isready", "-U", "claimlens", "-d", "claimlens"]}
+    periodSeconds: 10
+    timeoutSeconds: 5
+  # Liveness restarts the database, so it only fires on a minute of silence:
+  # with the default 1 s timeout it restarted a Postgres that was merely slow
+  # under load, which turned slowness into an outage.
+  liveness:
+    exec: {command: ["pg_isready", "-U", "claimlens", "-d", "claimlens"]}
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# The image's postgres user. Non-root from the start: the entrypoint skips
+# its root-only chown step and initdb runs as this user.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  runAsGroup: 999
+  fsGroup: 999
+  seccompProfile: {type: RuntimeDefault}
+
+secretEnv:
+  POSTGRES_PASSWORD: POSTGRES_PASSWORD
+  # Per-service role passwords, set by role-passwords.sh on a fresh volume.
+  DB_PASSWORD_GATEWAY: DB_PASSWORD_GATEWAY
+  DB_PASSWORD_AGENT: DB_PASSWORD_AGENT
+  DB_PASSWORD_POLICY: DB_PASSWORD_POLICY
+  DB_PASSWORD_PRICING: DB_PASSWORD_PRICING
+  DB_PASSWORD_CLAIMS_HISTORY: DB_PASSWORD_CLAIMS_HISTORY
+
+env:
+  POSTGRES_DB: claimlens
+  POSTGRES_USER: claimlens
+  # A subdirectory: the volume's root can hold lost+found, which initdb refuses.
+  PGDATA: /var/lib/postgresql/data/pgdata
+
+persistence:
+  enabled: true
+  mountPath: /var/lib/postgresql/data
+  size: 2Gi
+  storageClass: ""
+
+volumes:
+  - name: initdb
+    configMap:
+      name: postgres-initdb
+volumeMounts:
+  - {name: initdb, mountPath: /docker-entrypoint-initdb.d, readOnly: true}
+
+resources:
+  requests: {cpu: 100m, memory: 256Mi}
+  limits: {cpu: "1", memory: 1Gi}
+
+autoscaling:
+  enabled: false
+
+pdb:
+  enabled: false
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+  from: [gateway, agent, policy, pricing, claims-history]

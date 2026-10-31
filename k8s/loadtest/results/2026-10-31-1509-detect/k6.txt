@@ -1,0 +1,57 @@
+
+
+  █ THRESHOLDS 
+
+    detect_total_ms
+    ✗ 'p(95)<10000' p(95)=19.48s
+
+    http_req_duration{scenario:browse}
+    ✓ 'p(95)<500' p(95)=0s
+
+    http_req_failed{scenario:browse}
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_req_failed{scenario:claims}
+    ✓ 'rate<0.02' rate=0.00%
+
+    http_req_failed{scenario:detect}
+    ✗ 'rate<0.01' rate=20.17%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 1894   4.485851/s
+    checks_succeeded...: 80.04% 1516 out of 1894
+    checks_failed......: 19.95% 378 out of 1894
+
+    ✓ login 200
+    ✗ detect 200
+      ↳  79% — ✓ 1496 / ✗ 378
+
+    CUSTOM
+    detect_total_ms................: avg=9.74s min=325ms  med=8.43s p(90)=19.35s p(95)=19.48s p(99)=19.63s max=19.95s
+
+    HTTP
+    http_req_duration..............: avg=7.62s min=3.61ms med=6.25s p(90)=19.31s p(95)=19.43s p(99)=19.61s max=19.95s
+      { expected_response:true }...: avg=9.49s min=3.64ms med=8.13s p(90)=19.35s p(95)=19.48s p(99)=19.63s max=19.95s
+      { scenario:browse }..........: avg=0s    min=0s     med=0s    p(90)=0s     p(95)=0s     p(99)=0s     max=0s    
+    http_req_failed................: 19.74% 378 out of 1914
+      { scenario:browse }..........: 0.00%  0 out of 0
+      { scenario:claims }..........: 0.00%  0 out of 0
+      { scenario:detect }..........: 20.17% 378 out of 1874
+    http_reqs......................: 1914   4.53322/s
+
+    EXECUTION
+    dropped_iterations.............: 81     0.191845/s
+    iteration_duration.............: avg=7.78s min=3.82ms med=6.42s p(90)=19.32s p(95)=19.43s p(99)=19.61s max=19.95s
+    iterations.....................: 1874   4.438482/s
+    vus............................: 2      min=0           max=100
+    vus_max........................: 101    min=20          max=101
+
+    NETWORK
+    data_received..................: 1.3 MB 3.1 kB/s
+    data_sent......................: 9.1 MB 22 kB/s
+
+
+
+time="2026-10-31T11:16:27Z" level=error msg="thresholds on metrics 'detect_total_ms, http_req_failed{scenario:detect}' have been crossed"
