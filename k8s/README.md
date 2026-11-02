@@ -62,6 +62,10 @@ kubectl -n monitoring get secret grafana-admin -o jsonpath='{.data.admin-passwor
 # http://localhost:3001, user admin; dashboard "ClaimLens overview"
 ```
 
+The dashboard's rows: traffic, LLM (tokens per minute by model, estimated cost in
+the last hour, calls by outcome including `budget` and `rate_limited`, p95 per
+call type), the vision queue, autoscaling and resources.
+
 ## What's in the cluster
 
 | Namespace | What | Why |
@@ -99,6 +103,9 @@ drains running claims for up to 90 s before the pod stops.
   or the terminal.
 - **Edge:** per-IP rate limit on `/api` (20 r/s, burst 40), body limit, TLS
   and an HTTP->HTTPS redirect with `edge.tls.enabled` (values-cloud.yaml).
+- **LLM spend:** the agent's token budgets (per run, per day across replicas),
+  output cap and concurrency are in `charts/agent/values.yaml` (`LLM_*`).
+  The daily counter is in Redis, so it holds across replicas.
 
 ## Load test
 
@@ -128,7 +135,8 @@ probe, connection-pool and Redis-wait fixes listed under "Gotchas".
 
 ## Cloud
 
-Not deployed yet; the provider isn't chosen. What's ready:
+Not deployed: a cloud cluster was dropped for cost, so the project runs on
+kind. If someone deploys it, this is ready:
 
 - CI pushes every image to GHCR on each commit to main
   (`ghcr.io/<owner>/claimlens/<name>:<sha>`).

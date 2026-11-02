@@ -43,7 +43,17 @@ env:
   VLM_MODEL: gemma4:31b
   LANGFUSE_BASE_URL: https://cloud.langfuse.com
   OTEL_SERVICE_NAME: agent
+  # Share of claims traced (the trace ID comes from the claim ID, so a claim's
+  # runs are all kept or all dropped). Lower it under real load.
+  LANGFUSE_SAMPLE_RATE: "1.0"
   DRAIN_S: "90"
+  # LLM cost controls (services/agent/usage.py). A measured claim uses about
+  # 6-7k tokens over 5 calls, ~5.5k in its first run (2026-11-02, scripts/measure_llm_usage.py).
+  LLM_RUN_TOKEN_BUDGET: "20000"
+  # The cost circuit breaker for all replicas together; 0 = off.
+  LLM_DAILY_TOKEN_BUDGET: "2000000"
+  LLM_MAX_CONCURRENCY: "4"
+  LLM_MAX_OUTPUT_TOKENS: "4096"
 
 resources:
   requests: {cpu: 100m, memory: 256Mi}

@@ -423,3 +423,25 @@ def test_metrics_are_exposed(client):
         'http_requests_total{method="GET",route="/claims/{claim_id}",status="404"}'
         in text
     )
+
+
+def test_claim_shows_its_llm_usage():
+    d, ledger = make_deps(), fakes.FakeLedger()
+
+    @asynccontextmanager
+    async def lifespan(app):
+        app.state.graph = build_graph(d, InMemorySaver())
+        app.state.index = fakes.FakeIndex()
+        app.state.runstate = fakes.FakeRunState()
+        app.state.ledger = ledger
+        yield
+
+    with TestClient(create_app(lifespan=lifespan)) as c:
+        c.post("/claims", json=new_claim())
+        assert wait_for(c, "awaiting_approval")["llm_usage"] is None  # FakeLLM
+        import asyncio
+
+        asyncio.run(ledger.record(CLAIM, "gpt-oss:120b", 2_000, 100))
+        used = c.get(f"/claims/{CLAIM}").json()["llm_usage"]
+        assert (used["calls"], used["input_tokens"]) == (1, 2_000)
+        assert used["est_cost_usd"] > 0

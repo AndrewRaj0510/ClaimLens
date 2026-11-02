@@ -44,7 +44,11 @@ fi
 kubectl config use-context "kind-$CLUSTER" >/dev/null
 
 say "Gateway API CRDs (the version NGINX Gateway Fabric $NGF_VERSION supports)"
-kubectl kustomize "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v$NGF_VERSION" | kubectl apply -f - >/dev/null
+# Fetched from GitHub, so only when missing: a re-run then works offline (and
+# a GitHub timeout stopped one). To move to another NGF version, delete them first.
+if ! kubectl get crd gateways.gateway.networking.k8s.io >/dev/null 2>&1; then
+  kubectl kustomize "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v$NGF_VERSION" | kubectl apply -f - >/dev/null
+fi
 
 say "platform: metrics-server, Prometheus + Grafana, KEDA, NGINX Gateway Fabric"
 helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/ >/dev/null 2>&1 || true

@@ -262,6 +262,223 @@
   },
   {
    "type": "row",
+   "title": "LLM (agent): tokens, cost, limits (services/agent/usage.py)",
+   "id": 19,
+   "collapsed": false,
+   "panels": [],
+   "gridPos": {
+    "h": 1,
+    "w": 24,
+    "x": 0,
+    "y": 9
+   }
+  },
+  {
+   "type": "timeseries",
+   "title": "Tokens per minute",
+   "id": 20,
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "description": "Prompt (input) and generated (output, reasoning included) tokens, by model.",
+   "gridPos": {
+    "h": 8,
+    "w": 6,
+    "x": 0,
+    "y": 10
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short",
+     "min": 0,
+     "custom": {
+      "lineWidth": 2,
+      "fillOpacity": 10,
+      "stacking": {
+       "mode": "none"
+      }
+     }
+    },
+    "overrides": []
+   },
+   "options": {
+    "legend": {
+     "displayMode": "list",
+     "placement": "bottom"
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   },
+   "targets": [
+    {
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "sum by (model, direction) (rate(llm_tokens_total{namespace=\"$namespace\"}[5m])) * 60",
+     "legendFormat": "{{model}} {{direction}}",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "type": "timeseries",
+   "title": "Estimated cost, last hour (USD)",
+   "id": 21,
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "description": "Tokens x LLM_PRICES. Ollama Cloud bills by plan, so this is what the same tokens cost on a pay-per-token host.",
+   "gridPos": {
+    "h": 8,
+    "w": 6,
+    "x": 6,
+    "y": 10
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "currencyUSD",
+     "min": 0,
+     "custom": {
+      "lineWidth": 2,
+      "fillOpacity": 10,
+      "stacking": {
+       "mode": "none"
+      }
+     }
+    },
+    "overrides": []
+   },
+   "options": {
+    "legend": {
+     "displayMode": "list",
+     "placement": "bottom"
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   },
+   "targets": [
+    {
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "sum by (model) (increase(llm_estimated_cost_usd_total{namespace=\"$namespace\"}[1h]))",
+     "legendFormat": "{{model}}",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "type": "timeseries",
+   "title": "LLM calls per minute by outcome",
+   "id": 22,
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "description": "ok, error, rate_limited (429 after retries) and budget (refused by a token budget). Anything but ok means a node fell back to its code path.",
+   "gridPos": {
+    "h": 8,
+    "w": 6,
+    "x": 12,
+    "y": 10
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short",
+     "min": 0,
+     "custom": {
+      "lineWidth": 2,
+      "fillOpacity": 10,
+      "stacking": {
+       "mode": "none"
+      }
+     }
+    },
+    "overrides": []
+   },
+   "options": {
+    "legend": {
+     "displayMode": "list",
+     "placement": "bottom"
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   },
+   "targets": [
+    {
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "sum by (outcome) (rate(llm_calls_total{namespace=\"$namespace\"}[5m])) * 60",
+     "legendFormat": "{{outcome}}",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "type": "timeseries",
+   "title": "p95 LLM call time by call",
+   "id": 23,
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "description": "Per call type (Intake, PhotoReview, chat, Opinion, Report), retries included.",
+   "gridPos": {
+    "h": 8,
+    "w": 6,
+    "x": 18,
+    "y": 10
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s",
+     "min": 0,
+     "custom": {
+      "lineWidth": 2,
+      "fillOpacity": 10,
+      "stacking": {
+       "mode": "none"
+      }
+     }
+    },
+    "overrides": []
+   },
+   "options": {
+    "legend": {
+     "displayMode": "list",
+     "placement": "bottom"
+    },
+    "tooltip": {
+     "mode": "multi",
+     "sort": "desc"
+    }
+   },
+   "targets": [
+    {
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "histogram_quantile(0.95, sum by (le, call) (rate(llm_call_duration_seconds_bucket{namespace=\"$namespace\"}[5m])))",
+     "legendFormat": "{{call}}",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "type": "row",
    "title": "Vision queue (KEDA scales the workers on the backlog)",
    "id": 6,
    "collapsed": false,
@@ -269,7 +486,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 9
+    "y": 18
    },
    "panels": []
   },
@@ -286,7 +503,7 @@
     "h": 8,
     "w": 8,
     "x": 0,
-    "y": 10
+    "y": 19
    },
    "fieldConfig": {
     "defaults": {
@@ -337,7 +554,7 @@
     "h": 8,
     "w": 8,
     "x": 8,
-    "y": 10
+    "y": 19
    },
    "fieldConfig": {
     "defaults": {
@@ -388,7 +605,7 @@
     "h": 8,
     "w": 8,
     "x": 16,
-    "y": 10
+    "y": 19
    },
    "fieldConfig": {
     "defaults": {
@@ -444,7 +661,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 18
+    "y": 27
    },
    "panels": []
   },
@@ -461,7 +678,7 @@
     "h": 8,
     "w": 8,
     "x": 0,
-    "y": 19
+    "y": 28
    },
    "fieldConfig": {
     "defaults": {
@@ -512,7 +729,7 @@
     "h": 8,
     "w": 8,
     "x": 8,
-    "y": 19
+    "y": 28
    },
    "fieldConfig": {
     "defaults": {
@@ -572,7 +789,7 @@
     "h": 8,
     "w": 8,
     "x": 16,
-    "y": 19
+    "y": 28
    },
    "fieldConfig": {
     "defaults": {
@@ -619,7 +836,7 @@
     "h": 1,
     "w": 24,
     "x": 0,
-    "y": 27
+    "y": 36
    },
    "panels": []
   },
@@ -636,7 +853,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 28
+    "y": 37
    },
    "fieldConfig": {
     "defaults": {
@@ -687,7 +904,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 28
+    "y": 37
    },
    "fieldConfig": {
     "defaults": {
@@ -738,7 +955,7 @@
     "h": 8,
     "w": 12,
     "x": 0,
-    "y": 36
+    "y": 45
    },
    "fieldConfig": {
     "defaults": {
@@ -789,7 +1006,7 @@
     "h": 8,
     "w": 12,
     "x": 12,
-    "y": 36
+    "y": 45
    },
    "fieldConfig": {
     "defaults": {

@@ -189,3 +189,38 @@ def test_metrics_are_exposed():
     c = client_with()
     c.get("/health")
     assert 'route="/health"' in c.get("/metrics").text
+
+
+class SlowOcr(FakeOcr):
+    """Counts how many photos are being inspected at the same moment."""
+
+    def __init__(self):
+        super().__init__()
+        import threading
+
+        self.lock = threading.Lock()
+        self.now = self.most = 0
+
+    def read(self, rgb):
+        import time
+
+        with self.lock:
+            self.now += 1
+            self.most = max(self.most, self.now)
+        time.sleep(0.2)
+        with self.lock:
+            self.now -= 1
+        return []
+
+
+def test_inspections_are_capped_per_process():
+    # Two 24 MP photos at once got the pod OOM-killed on kind: the endpoint
+    # runs in a thread pool with no limit of its own.
+    from concurrent.futures import ThreadPoolExecutor
+
+    ocr = SlowOcr()
+    data = jpeg(Image.new("RGB", (64, 64), "grey"))
+    with client_with(ocr=ocr) as c, ThreadPoolExecutor(6) as pool:
+        codes = list(pool.map(lambda _: inspect(c, data).status_code, range(6)))
+    assert codes == [200] * 6
+    assert ocr.most == main.INSPECT_CONCURRENCY == 2

@@ -189,6 +189,9 @@ async def test_a_claim_is_one_trace_with_runs_nodes_and_generations(spans):
     usage = json.loads(photo_gen.attributes["langfuse.observation.usage_details"])
     assert usage == {"input": 120, "output": 30}
     assert photo_gen.attributes["langfuse.observation.model.name"] == "gemma4:31b"
+    # A cost, so Langfuse shows one without a price table of its own.
+    cost = json.loads(photo_gen.attributes["langfuse.observation.cost_details"])
+    assert cost["total"] > 0
 
 
 class BrokenSpan:

@@ -398,3 +398,30 @@ def deps(*, llm=None, tools=None, photos=None, vision=None, guardrails=None, vlm
         guardrails=guardrails or FakeGuardrails(),
         vlm=vlm or FakeVLM(),
     )
+
+
+class FakeLedger:
+    """usage.Ledger in memory: the same hash fields, so summarize() is shared."""
+
+    def __init__(self, today=0):
+        self.hashes = {}
+        self.day = today
+
+    async def record(self, claim_id, model, input_tokens, output_tokens):
+        h = self.hashes.setdefault(claim_id, {})
+        for prefix in ("", f"{model}|"):
+            for name, n in (
+                ("calls", 1),
+                ("input", input_tokens),
+                ("output", output_tokens),
+            ):
+                h[prefix + name] = h.get(prefix + name, 0) + n
+        self.day += input_tokens + output_tokens
+
+    async def today(self):
+        return self.day
+
+    async def claim(self, claim_id):
+        import usage
+
+        return usage.summarize(self.hashes.get(claim_id))

@@ -46,8 +46,10 @@ services:
   gateway:
     build: ./services/gateway
     restart: unless-stopped
+    # 127.0.0.1 only, for local scripts: on every interface, the LAN could
+    # reach /docs, /openapi.json and /metrics without the frontend's allowlist.
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       <<: *s3-env
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
@@ -94,7 +96,14 @@ services:
       LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
       LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
       LANGFUSE_BASE_URL: ${LANGFUSE_BASE_URL:-https://cloud.langfuse.com}
+      LANGFUSE_SAMPLE_RATE: ${LANGFUSE_SAMPLE_RATE:-1.0}
       OTEL_SERVICE_NAME: agent
+      # LLM cost controls (services/agent/usage.py): per-run and daily token
+      # budgets (0 = off), calls in flight, and the output cap per call.
+      LLM_RUN_TOKEN_BUDGET: ${LLM_RUN_TOKEN_BUDGET:-20000}
+      LLM_DAILY_TOKEN_BUDGET: ${LLM_DAILY_TOKEN_BUDGET:-2000000}
+      LLM_MAX_CONCURRENCY: ${LLM_MAX_CONCURRENCY:-4}
+      LLM_MAX_OUTPUT_TOKENS: ${LLM_MAX_OUTPUT_TOKENS:-4096}
     depends_on:
       postgres:
         condition: service_healthy

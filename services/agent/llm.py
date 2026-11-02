@@ -17,12 +17,23 @@ Temperature 0 so the same claim gives the same extraction where possible.
 
 Every call is a Langfuse generation when tracing is on (tracing.py): prompt,
 output, model and token counts; photos are replaced by a count.
+
+Every call is also metered (usage.py): token budgets per run and per day, a
+concurrency cap, Prometheus counts. Output is capped at LLM_MAX_OUTPUT_TOKENS
+(reasoning included): a model stuck in a loop stops there, and its truncated
+JSON fails validation, so the node falls back. A 429 or 5xx from the provider
+is retried twice with backoff; anything else (auth, timeout) is not, since a
+retry wouldn't help or would double a two-minute wait.
 """
 
+import asyncio
 import json
 import os
+import random
+import time
 
 import tracing
+import usage
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "https://ollama.com")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gpt-oss:120b")
@@ -35,10 +46,19 @@ OLLAMA_THINK = os.getenv("OLLAMA_THINK", "low")
 VLM_MODEL = os.getenv("VLM_MODEL", "gemma4:31b")
 VLM_THINK = os.getenv("VLM_THINK", "")
 LLM_TIMEOUT_S = float(os.getenv("LLM_TIMEOUT_S", "120"))
+MAX_OUTPUT_TOKENS = int(os.getenv("LLM_MAX_OUTPUT_TOKENS", "4096"))
+RETRY_STATUS = {429, 500, 502, 503, 504}
+RETRY_BACKOFF_S = (2.0, 6.0)  # one wait per retry, plus up to 1 s of jitter
 
 
 class LLMError(RuntimeError):
     pass
+
+
+def _status(error):
+    """The HTTP status of an Ollama error, or None (network, timeout, ...)."""
+    code = getattr(error, "status_code", None)
+    return code if isinstance(code, int) and code > 0 else None
 
 
 def field_list(schema):
@@ -104,21 +124,54 @@ class OllamaLLM:
         self.model = model
         self.think = think or None
 
-    async def _chat(self, name, messages, **kwargs):
-        params = {"temperature": 0, "think": self.think}
-        with tracing.generation(name, self.model, messages, params) as gen:
+    async def _call(self, messages, options, kwargs):
+        """The provider call, retried on 429 and 5xx only."""
+        for attempt in range(len(RETRY_BACKOFF_S) + 1):
             try:
-                response = await self.client.chat(
-                    model=self.model,
-                    messages=messages,
-                    think=self.think,
-                    options={"temperature": 0},
-                    **kwargs,
-                )
+                async with usage.slot():
+                    return await self.client.chat(
+                        model=self.model,
+                        messages=messages,
+                        think=self.think,
+                        options=options,
+                        **kwargs,
+                    )
+            except Exception as e:
+                if _status(e) not in RETRY_STATUS or attempt == len(RETRY_BACKOFF_S):
+                    raise
+                await asyncio.sleep(RETRY_BACKOFF_S[attempt] + random.random())
+
+    async def _chat(self, name, messages, **kwargs):
+        options = {"temperature": 0, "num_predict": MAX_OUTPUT_TOKENS}
+        params = {**options, "think": self.think}
+        meter = usage.current()
+        start = time.perf_counter()
+        with tracing.generation(name, self.model, messages, params) as gen:
+            refusal = await meter.refusal() if meter else None
+            if refusal:
+                gen.update(level="WARNING", status_message=refusal)
+                usage.observe(self.model, name, "budget", 0)
+                raise LLMError(f"LLM call refused: {refusal}")
+            try:
+                response = await self._call(messages, options, kwargs)
             except Exception as e:  # network, auth, rate limit: all mean "no answer"
+                outcome = "rate_limited" if _status(e) == 429 else "error"
+                usage.observe(self.model, name, outcome, time.perf_counter() - start)
                 gen.update(level="ERROR", status_message=type(e).__name__)
                 raise LLMError(f"LLM call failed: {type(e).__name__}") from e
             message = response.message
+            tokens_in = response.prompt_eval_count or 0
+            tokens_out = response.eval_count or 0
+            usage.observe(
+                self.model,
+                name,
+                "ok",
+                time.perf_counter() - start,
+                tokens_in,
+                tokens_out,
+            )
+            if meter:
+                await meter.add(self.model, tokens_in, tokens_out)
             gen.update(
                 output={
                     "content": message.content,
@@ -130,10 +183,13 @@ class OllamaLLM:
                         for c in message.tool_calls or []
                     ],
                 },
-                usage_details={
-                    "input": response.prompt_eval_count or 0,
-                    "output": response.eval_count or 0,
-                },
+                usage_details={"input": tokens_in, "output": tokens_out},
+                # So Langfuse shows a cost without a price table of its own.
+                **(
+                    {"cost_details": {"total": c}}
+                    if (c := usage.cost(self.model, tokens_in, tokens_out))
+                    else {}
+                ),
             )
         return message
 

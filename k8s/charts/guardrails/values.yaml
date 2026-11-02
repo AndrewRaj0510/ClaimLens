@@ -27,12 +27,16 @@ cpuThreads: 2
 
 env:
   MAX_UPLOAD_MB: "10"
+  # Photos inspected at once per pod (services/guardrails/main.py): each
+  # 24 MP photo needs about 225 MB of image buffers while it's inspected.
+  INSPECT_CONCURRENCY: "2"
 
 resources:
   # Requests = measured use (1.45-1.8 GiB after real photos), so the
-  # scheduler never places a replica the node can't actually hold.
+  # scheduler never places a replica the node can't actually hold. The limit
+  # leaves room for two big photos at once (two 24 MP photos OOM-killed it at 2.5 GiB).
   requests: {cpu: 500m, memory: 1792Mi}
-  limits: {cpu: "2", memory: 2560Mi}
+  limits: {cpu: "2", memory: 3Gi}
 
 autoscaling:
   enabled: true

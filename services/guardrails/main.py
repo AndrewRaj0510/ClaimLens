@@ -17,6 +17,7 @@ missing model is visible instead of silently passing everything.
 import base64
 import logging
 import os
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Literal
@@ -30,6 +31,13 @@ import photos
 from text_scan import Classifier, Scanner
 
 CLASSIFIER_DIR = os.getenv("CLASSIFIER_DIR", "/models/prompt-injection/onnx")
+# Photos inspected at once per process. A 24 MP photo needs about 300 MB of
+# image buffers on top of the models (1.5-1.8 GB). The endpoint runs in
+# FastAPI's thread pool with no limit of its own, so two big photos at once
+# got the pod OOM-killed (found on kind). The work is CPU-bound, so more in
+# parallel wouldn't be faster: capacity comes from more replicas (HPA).
+INSPECT_CONCURRENCY = int(os.getenv("INSPECT_CONCURRENCY", "2"))
+inspect_slots = threading.BoundedSemaphore(INSPECT_CONCURRENCY)
 MAX_UPLOAD_BYTES = int(float(os.getenv("MAX_UPLOAD_MB", "10")) * 1024 * 1024)
 
 log = logging.getLogger("guardrails")
@@ -103,15 +111,22 @@ def inspect_image(
     data = file.file.read(MAX_UPLOAD_BYTES + 1)
     if len(data) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="Image too large")
+    with inspect_slots:
+        return inspect(s, data, incident_date)
+
+
+def inspect(s, data, incident_date):
     try:
         original = photos.open_image(data)
-        rgb = photos.to_rgb(original)
     except photos.InvalidImage as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
-
+    # Metadata first: to_rgb rotates the image in place, which drops the EXIF
+    # orientation tag.
     metadata = forensics.check_metadata(
         original, forensics.parse_incident_date(incident_date)
     )
+    rgb = photos.to_rgb(original)
+    del original
     work = photos.working_copy(rgb)
     regions = s.ocr.read(work)
     readable = [r for r in regions if r["score"] >= photos.OCR_MIN_SCORE]

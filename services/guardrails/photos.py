@@ -54,8 +54,11 @@ def open_image(data):
 
 
 def to_rgb(image):
-    """Upright (EXIF orientation applied) RGB copy."""
-    return ImageOps.exif_transpose(image).convert("RGB")
+    """Upright (EXIF orientation applied) RGB image. Rotates `image` in place
+    and converts only if it isn't RGB already: each full-size copy of a 24 MP
+    phone photo is about 70 MB, and the copies added up to an OOM kill."""
+    ImageOps.exif_transpose(image, in_place=True)
+    return image if image.mode == "RGB" else image.convert("RGB")
 
 
 def working_copy(rgb):

@@ -16,7 +16,8 @@ Internal only: the gateway is the public entry point and owns authentication.
 It decides who may see or act on a claim; this service trusts its caller.
 
 With Langfuse keys set, every run is traced (tracing.py): one trace per claim,
-a span per run, per node and per LLM call.
+a span per run, per node and per LLM call. Every run's LLM calls are metered
+(usage.py): token budgets, and per-claim token counts in GET /claims/{id}.
 """
 
 import asyncio
@@ -34,6 +35,7 @@ from pydantic import BaseModel, Field, field_validator
 import http_metrics
 import runstate
 import tracing
+import usage
 from graph import Decision, Deps, build_graph
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
@@ -130,6 +132,7 @@ async def lifespan(app: FastAPI):
         app.state.graph = build_graph(deps, checkpointer)
         app.state.index = ClaimIndex(pool)
         app.state.runstate = runstate.RunState(r)
+        app.state.ledger = usage.Ledger(r)
         await app.state.index.setup()
         yield
         await r.aclose()
@@ -219,8 +222,22 @@ def create_app(lifespan=lifespan, drain_s=DRAIN_S):
                     if owner is None:  # a resumed run: ask the checkpoint
                         snap = await app.state.graph.aget_state(config(claim_id))
                         owner = snap.values.get("customer_id")
-                with tracing.claim_run(claim_id, kind, owner):
-                    await app.state.graph.ainvoke(graph_input, config(claim_id))
+                ledger = getattr(app.state, "ledger", None)
+                with (
+                    usage.metering(claim_id, ledger) as meter,
+                    tracing.claim_run(claim_id, kind, owner),
+                ):
+                    try:
+                        await app.state.graph.ainvoke(graph_input, config(claim_id))
+                    finally:
+                        log.info(
+                            "claim %s %s run: %d LLM call(s), %d in / %d out tokens",
+                            claim_id,
+                            kind,
+                            meter.calls,
+                            meter.input_tokens,
+                            meter.output_tokens,
+                        )
                 await rs.clear_failure(claim_id)
             except Exception as e:  # GET shows "failed"; the checkpoint allows a retry
                 log.exception("claim %s failed", claim_id)
@@ -377,7 +394,20 @@ def create_app(lifespan=lifespan, drain_s=DRAIN_S):
             "error": await error_of(claim_id, status),
             "state": {k: v for k, v in snap.values.items() if k != "trace"},
             "trace": snap.values.get("trace", []),
+            # Summed over all the claim's runs. The gateway shows it to
+            # adjusters only (customer_view is an allowlist).
+            "llm_usage": await llm_usage(claim_id),
         }
+
+    async def llm_usage(claim_id):
+        ledger = getattr(app.state, "ledger", None)
+        if ledger is None:
+            return None
+        try:
+            return await ledger.claim(claim_id)
+        except Exception:  # a Redis blip mustn't hide the claim
+            log.exception("claim %s: usage not read", claim_id)
+            return None
 
     async def resume(claim_id, expected, value):
         snap, question = await snapshot(claim_id)
