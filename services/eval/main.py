@@ -26,7 +26,7 @@ import gate
 import paths
 
 log = logging.getLogger("eval")
-SUITES = ("redteam", "faithfulness", "detection")
+SUITES = ("redteam", "faithfulness", "intake", "opinion", "photos", "detection")
 
 
 class ReportIn(BaseModel):

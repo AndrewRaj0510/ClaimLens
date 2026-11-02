@@ -33,6 +33,7 @@ import asyncio
 import base64
 import json
 import operator
+import re
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from typing import Annotated, Literal, TypedDict
@@ -41,7 +42,7 @@ from langgraph.errors import GraphInterrupt
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import RetryPolicy, interrupt
 from PIL import ImageOps
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, Field, create_model, field_validator
 
 import damage
 import fraud
@@ -137,6 +138,54 @@ def parse_date(value):
         return None
 
 
+MONTHS = (
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec",
+)
+WRITTEN_DATE = re.compile(
+    r"(?:(\d{1,2})(?:st|nd|rd|th)?(?:\s+of)?\s+([a-z]+)\.?"  # 3rd of October
+    r"|([a-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?),?\s+(\d{4})",  # October 3rd, 2026
+    re.IGNORECASE,
+)
+
+
+def calendar_date(value):
+    """The intake's mentioned_date as YYYY-MM-DD, or None.
+
+    The LLM sometimes copies a date as written ("October 3, 2026") or answers
+    "null" or "unclear" as text. The fraud check's date comparison needs ISO or
+    nothing, so a written date is converted, and anything else (a relative date,
+    a word) becomes None. Found by services/eval's intake suite: before this,
+    every written-out date was dropped and the date check never ran on it."""
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if parse_date(text):
+        return text
+    m = WRITTEN_DATE.fullmatch(text)
+    if not m:
+        return None
+    day, month = (m[1], m[2]) if m[1] else (m[4], m[3])
+    if month.lower()[:3] not in MONTHS:
+        return None
+    try:
+        return date(
+            int(m[5]), MONTHS.index(month.lower()[:3]) + 1, int(day)
+        ).isoformat()
+    except ValueError:
+        return None
+
+
 # ---- LLM schemas and prompts ----
 
 
@@ -147,10 +196,17 @@ class Intake(BaseModel):
     )
     summary: str = Field(max_length=400, description="One or two neutral sentences.")
     mentioned_date: str | None = Field(
-        default=None, description="Incident date if the text states one, as YYYY-MM-DD."
+        default=None,
+        description="The incident date as YYYY-MM-DD if the text gives a calendar date; "
+        "null if it gives none or only a relative one (yesterday, last Tuesday).",
     )
     other_vehicle_involved: bool
     injuries_mentioned: bool
+
+    @field_validator("mentioned_date", mode="before")
+    @classmethod
+    def _calendar_date(cls, value):
+        return calendar_date(value)
 
 
 INTAKE_SYSTEM = """You extract facts from a car insurance claim description written by a customer.
@@ -372,6 +428,137 @@ async def write_report(llm, facts):
     return out.model_dump()
 
 
+# The other LLM calls, one function each, so services/eval measures exactly the
+# prompts, schemas and search loop the workflow runs. All raise LLMError.
+
+
+async def read_description(llm, description):
+    """The intake LLM call: facts from the (screened, clean) description."""
+    out = await llm.structured(
+        INTAKE_SYSTEM, tagged("claim_description", description), Intake
+    )
+    return out.model_dump()
+
+
+async def review_photos(vlm, facts, photos):
+    """The vision LLM call. `photos`: redacted JPEG bytes only."""
+    out = await vlm.structured(
+        PHOTO_SYSTEM, tagged("claim", json.dumps(facts)), PhotoReview, images=photos
+    )
+    return out.model_dump()
+
+
+def opinion_facts(state, peril, coverage):
+    """What the opinion LLM is told about the claim, besides the clauses."""
+    return {
+        "peril": peril,
+        "damages": [
+            {k: d[k] for k in ("damage_class", "severity")} for d in state["damages"]
+        ],
+        "summary": state["intake"]["summary"],
+        "coverage_check": coverage,
+    }
+
+
+def opinion_schema(ids):
+    """The opinion's schema: citations can only be clause IDs it was given."""
+    ids = tuple(ids) or ("none",)
+    return create_model(
+        "Opinion",
+        assessment=(Literal["covered", "not_covered", "unclear"], ...),
+        reasoning=(str, Field(max_length=1500)),
+        citations=(list[Literal[ids]], Field(max_length=6)),
+        concerns=(list[str], Field(default_factory=list, max_length=5)),
+    )
+
+
+async def read_policy(
+    llm,
+    facts,
+    clauses,
+    safe,
+    *,
+    tool=None,
+    search=None,
+    screen=None,
+    max_searches=MAX_SEARCHES,
+    searches=None,
+    found=None,
+):
+    """The policy opinion: an optional search turn, then a structured answer.
+
+    clauses: every clause retrieved; it grows as the LLM searches. safe: the
+    screened ones the LLM may see; it grows too. tool: the search_clauses tool
+    schema, or None for no search turn. search(query) returns new results
+    (raises ToolFailed); screen(added) returns (safe_added, findings, ok).
+    searches and found collect what happened, and are filled in even if an
+    LLM call raises, so the caller can record them with its fallback."""
+    searches = [] if searches is None else searches
+    found = [] if found is None else found
+    context = f"{tagged('claim', json.dumps(facts))}\n\n{clauses_text(safe)}"
+    if tool is not None and max_searches > 0:
+        messages = [
+            {"role": "system", "content": OPINION_SYSTEM},
+            {
+                "role": "user",
+                "content": context + "\n\n" + SEARCH_HINT.format(n=max_searches),
+            },
+        ]
+        for _ in range(max_searches):
+            reply = await llm.chat(messages, tools=[tool])
+            calls = reply["tool_calls"][:1]
+            if not calls:
+                break
+            call = calls[0]
+            if call["name"] != "search_clauses":
+                searches.append({"refused": call["name"]})
+                break
+            # The LLM chooses the query only; the caller fixes the policy, so it
+            # can't read another customer's policy.
+            query = str(call["arguments"].get("query", ""))[:500] or facts["peril"]
+            try:
+                results = await search(query)
+            except ToolFailed as e:
+                searches.append({"query": query, "error": str(e)})
+                break  # answer with the clauses already retrieved
+            added = add_clauses(clauses, results)
+            # Search results are tool output: screened like the first batch.
+            safe_added, more, ok = await screen(added)
+            safe += safe_added
+            found += more
+            searches.append({"query": query, "added": [c["id"] for c in safe_added]})
+            messages += [
+                {
+                    "role": "assistant",
+                    "content": reply["content"],
+                    "tool_calls": [
+                        {
+                            "function": {
+                                "name": call["name"],
+                                "arguments": call["arguments"],
+                            }
+                        }
+                    ],
+                },
+                {
+                    "role": "tool",
+                    "tool_name": "search_clauses",
+                    "content": clauses_text(safe_added) or "No new clauses.",
+                },
+            ]
+            if not ok:
+                break
+    ids = tuple(c["id"] for c in safe)
+    out = await llm.structured(
+        OPINION_SYSTEM,
+        f"{tagged('claim', json.dumps(facts))}\n\n{clauses_text(safe)}",
+        opinion_schema(ids),
+    )
+    result = out.model_dump()
+    result["citations"] = [c for c in result["citations"] if c in ids]
+    return {**result, "searches": searches}
+
+
 def template_report(state):
     """Used when the LLM is unavailable, so a claim is never stuck on it."""
     d = state["decision"]
@@ -444,10 +631,7 @@ def build_graph(deps: Deps, checkpointer):
         result = None
         if screen == "clean":
             try:
-                out = await deps.llm.structured(
-                    INTAKE_SYSTEM, tagged("claim_description", description), Intake
-                )
-                result, source = out.model_dump(), "llm"
+                result, source = await read_description(deps.llm, description), "llm"
             except LLMError:
                 source = "fallback"
         else:
@@ -650,13 +834,7 @@ def build_graph(deps: Deps, checkpointer):
             }
         else:
             try:
-                out = await deps.vlm.structured(
-                    PHOTO_SYSTEM,
-                    tagged("claim", json.dumps(facts)),
-                    PhotoReview,
-                    images=safe,
-                )
-                review = {**out.model_dump(), "source": "llm"}
+                review = {**await review_photos(deps.vlm, facts, safe), "source": "llm"}
             except LLMError:
                 review = {
                     "matches_description": "unclear",
@@ -716,104 +894,37 @@ def build_graph(deps: Deps, checkpointer):
         return safe, found, True
 
     async def opinion(state, policy, coverage, peril, clauses, safe):
-        """The LLM's reading of the clauses. `clauses` is every clause retrieved
-        (it grows as the LLM searches); `safe` the screened ones it may see.
-        Returns (opinion, security findings)."""
-        node, found = "policy_lookup", []
-        facts = {
-            "peril": peril,
-            "damages": [
-                {k: d[k] for k in ("damage_class", "severity")}
-                for d in state["damages"]
-            ],
-            "summary": state["intake"]["summary"],
-            "coverage_check": coverage,
-        }
-        context = f"{tagged('claim', json.dumps(facts))}\n\n{clauses_text(safe)}"
-        searches = []
+        """The LLM's reading of the clauses (read_policy), with the policy's
+        search tool. Returns (opinion, security findings)."""
+        node, found, searches = "policy_lookup", [], []
+
+        async def search(query):
+            result = await deps.tools.call(
+                node,
+                "policy",
+                "search_clauses",
+                {
+                    "query": query,
+                    "policy_id": policy["policy_id"],
+                    "limit": CLAUSES_PER_QUERY,
+                },
+            )
+            return result["results"]
+
         try:
             tool = await deps.tools.schema(node, "policy", "search_clauses")
-            messages = [
-                {"role": "system", "content": OPINION_SYSTEM},
-                {
-                    "role": "user",
-                    "content": context + "\n\n" + SEARCH_HINT.format(n=MAX_SEARCHES),
-                },
-            ]
-            for _ in range(MAX_SEARCHES):
-                reply = await deps.llm.chat(messages, tools=[tool])
-                calls = reply["tool_calls"][:1]
-                if not calls:
-                    break
-                call = calls[0]
-                if call["name"] != "search_clauses":
-                    searches.append({"refused": call["name"]})
-                    break
-                # The LLM chooses the query only; the policy is fixed by code, so it
-                # can't read another customer's policy.
-                query = str(call["arguments"].get("query", ""))[:500] or peril
-                try:
-                    result = await deps.tools.call(
-                        node,
-                        "policy",
-                        "search_clauses",
-                        {
-                            "query": query,
-                            "policy_id": policy["policy_id"],
-                            "limit": CLAUSES_PER_QUERY,
-                        },
-                    )
-                except ToolFailed as e:
-                    searches.append({"query": query, "error": str(e)})
-                    break  # answer with the clauses already retrieved
-                added = add_clauses(clauses, result["results"])
-                # Search results are tool output: screened like the first batch.
-                safe_added, more, ok = await screen_clauses(node, added)
-                safe += safe_added
-                found += more
-                searches.append(
-                    {"query": query, "added": [c["id"] for c in safe_added]}
-                )
-                messages += [
-                    {
-                        "role": "assistant",
-                        "content": reply["content"],
-                        "tool_calls": [
-                            {
-                                "function": {
-                                    "name": call["name"],
-                                    "arguments": call["arguments"],
-                                }
-                            }
-                        ],
-                    },
-                    {
-                        "role": "tool",
-                        "tool_name": "search_clauses",
-                        "content": clauses_text(safe_added) or "No new clauses.",
-                    },
-                ]
-                if not ok:
-                    break
-            ids = tuple(c["id"] for c in safe) or ("none",)
-            # Constrain citations to the clause IDs actually retrieved.
-            schema = create_model(
-                "Opinion",
-                assessment=(Literal["covered", "not_covered", "unclear"], ...),
-                reasoning=(str, Field(max_length=1500)),
-                citations=(list[Literal[ids]], Field(max_length=6)),
-                concerns=(list[str], Field(default_factory=list, max_length=5)),
+            result = await read_policy(
+                deps.llm,
+                opinion_facts(state, peril, coverage),
+                clauses,
+                safe,
+                tool=tool,
+                search=search,
+                screen=lambda added: screen_clauses(node, added),
+                searches=searches,
+                found=found,
             )
-            out = await deps.llm.structured(
-                OPINION_SYSTEM,
-                f"{tagged('claim', json.dumps(facts))}\n\n{clauses_text(safe)}",
-                schema,
-            )
-            result = out.model_dump()
-            result["citations"] = [
-                c for c in result["citations"] if c in ids and c != "none"
-            ]
-            return {**result, "source": "llm", "searches": searches}, found
+            return {**result, "source": "llm"}, found
         except LLMError:
             return {
                 "assessment": "unclear",

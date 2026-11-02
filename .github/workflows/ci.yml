@@ -12,7 +12,8 @@
 #               cloud values, so a template error fails here, not in a cluster
 #   eval        the red-team suites against the guardrails with their real
 #               models, then services/eval/gate.py against baseline.json.
-#               Faithfulness (LLM-as-judge) runs weekly and on demand, when the
+#               The LLM suites (intake, policy opinion, photo review, report
+#               faithfulness with its judge) run weekly and on demand, when the
 #               OLLAMA_API_KEY secret is set: the free tier's GPU time is
 #               limited (decision 6). Detection needs CarDD, which can't be in
 #               CI: its committed result is gated, and it's re-run in Colab.
@@ -25,12 +26,12 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      faithfulness:
-        description: "Run the LLM-as-judge suite (uses Ollama Cloud quota)"
+      llm:
+        description: "Run the LLM suites: intake, opinion, photos, faithfulness (uses Ollama Cloud quota)"
         type: boolean
         default: true
   schedule:
-    - cron: "0 6 * * 1"  # Mondays: the LLM suite, so prompt or model drift shows up
+    - cron: "0 6 * * 1"  # Mondays: the LLM suites, so prompt or model drift shows up
 
 permissions:
   contents: read
@@ -207,9 +208,9 @@ jobs:
     needs: lint
     env:
       OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
-      RUN_FAITHFULNESS: >-
+      RUN_LLM_SUITES: >-
         ${{ github.event_name == 'schedule'
-            || (github.event_name == 'workflow_dispatch' && inputs.faithfulness) }}
+            || (github.event_name == 'workflow_dispatch' && inputs.llm) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -231,14 +232,20 @@ jobs:
 
       - name: Red-team suites (development + held-out)
         run: python services/eval/run.py redteam
-      - name: Faithfulness (LLM-as-judge)
-        if: env.RUN_FAITHFULNESS == 'true' && env.OLLAMA_API_KEY != ''
-        run: python services/eval/run.py faithfulness
+      # The LLM suites. Photos downloads 11 pinned Commons photos and redacts
+      # them with the guardrails installed above, as production does.
+      - name: LLM suites (intake, opinion, photos, faithfulness)
+        if: env.RUN_LLM_SUITES == 'true' && env.OLLAMA_API_KEY != ''
+        run: |
+          python services/eval/run.py intake
+          python services/eval/run.py opinion
+          python services/eval/run.py photos
+          python services/eval/run.py faithfulness
       - name: Gates
         run: |
           require=redteam
-          if [ "$RUN_FAITHFULNESS" = "true" ] && [ -n "$OLLAMA_API_KEY" ]; then
-            require="$require,faithfulness"
+          if [ "$RUN_LLM_SUITES" = "true" ] && [ -n "$OLLAMA_API_KEY" ]; then
+            require="$require,intake,opinion,photos,faithfulness"
           fi
           python services/eval/run.py gate --require "$require"
       - uses: actions/upload-artifact@v4

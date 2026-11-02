@@ -1,0 +1,255 @@
+{
+ "suite": "photos",
+ "ran_at": "2026-11-02T18:20:07+00:00",
+ "commit": "93b36496954760ec4725051863e98e310b9de9bd+dirty",
+ "result": {
+  "model": "gemma4:31b",
+  "photos": 11,
+  "photos_withheld": [],
+  "cases": 20,
+  "answered": 20,
+  "failures": [],
+  "accuracy": 0.95,
+  "match_confirmed": 0.889,
+  "mismatch_escalated": 1.0,
+  "mismatch_passed": 0.0,
+  "false_alarm_rate": 0.111,
+  "concern_raised": 1.0,
+  "by_expect": {
+   "match": {
+    "n": 9,
+    "answers": {
+     "yes": 8,
+     "no": 1,
+     "unclear": 0
+    }
+   },
+   "mismatch": {
+    "n": 9,
+    "answers": {
+     "yes": 0,
+     "no": 9,
+     "unclear": 0
+    }
+   },
+   "no_damage": {
+    "n": 2,
+    "answers": {
+     "yes": 0,
+     "no": 2,
+     "unclear": 0
+    }
+   }
+  },
+  "mean_tokens": {
+   "input": 553.95,
+   "output": 110.6
+  },
+  "cases_detail": [
+   {
+    "id": "toyota_front-match",
+    "expect": "match",
+    "answer": "yes",
+    "ok": true,
+    "summary": "The photo shows a white vehicle with significant front-end damage and a buckled hood, which is consistent with the claim of hitting a utility pole.",
+    "concerns": []
+   },
+   {
+    "id": "toyota_front-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The photos show significant front-end collision damage to the hood and bumper, which directly contradicts the claim description stating the front of the car is fine and that the damage was caused by hail on the roof.",
+    "concerns": [
+     "Damage is located at the front of the vehicle, contradicting the claim that the front is fine",
+     "Damage is consistent with a collision rather than a hail storm"
+    ]
+   },
+   {
+    "id": "tree_crash-match",
+    "expect": "match",
+    "answer": "yes",
+    "ok": true,
+    "summary": "The photo shows a red vehicle with severe structural damage to the front and driver's side, including a shattered windshield and heavily bent body panels, consistent with a collision with a tree.",
+    "concerns": []
+   },
+   {
+    "id": "tree_crash-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The photos show a vehicle with severe collision damage, including a shattered windshield and crushed bodywork, which does not match the claim of a single thin scratch on a rear passenger door.",
+    "concerns": [
+     "The damage is catastrophic and completely inconsistent with a 'thin scratch' from being keyed",
+     "The vehicle appears to have been involved in a severe collision and is currently located in a wooded area rather than a car park"
+    ]
+   },
+   {
+    "id": "worn_bumper-match",
+    "expect": "match",
+    "answer": "yes",
+    "ok": true,
+    "summary": "The photo shows a cracked and scraped front bumper adjacent to the headlight, which aligns with the claim description. However, there is significant rust present in the affected area.",
+    "concerns": [
+     "visible rust around the headlight and bumper gap suggests pre-existing damage or long-term exposure"
+    ]
+   },
+   {
+    "id": "worn_bumper-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The photo shows significant wear, peeling paint, and rust on the front bumper and hood, which does not match the claim description of a smashed rear windscreen.",
+    "concerns": [
+     "The damage is on the front of the vehicle, whereas the claim describes a smashed rear windscreen",
+     "The damage appears old and weathered with visible rust, which may not be consistent with a recent storm event"
+    ]
+   },
+   {
+    "id": "bmw_windscreen-match",
+    "expect": "match",
+    "answer": "yes",
+    "ok": true,
+    "summary": "The photo shows a BMW with a significant impact point and shattering on the windshield, which matches the claim of a rock hitting the glass.",
+    "concerns": [
+     "presence of a sign/paper on the hood with text",
+     "extreme lighting/overexposure in the photo"
+    ]
+   },
+   {
+    "id": "bmw_windscreen-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The claim describes rear-end damage to the bumper and boot, but the provided photo shows a shattered windshield and no visible rear damage.",
+    "concerns": [
+     "damage seen (windshield) does not match the claim description (rear-end collision)",
+     "photo contains a sign/text on the hood",
+     "extreme lighting/overexposure"
+    ]
+   },
+   {
+    "id": "smashed_windscreen-match",
+    "expect": "match",
+    "answer": "yes",
+    "ok": true,
+    "summary": "The photo shows a severely shattered windshield, which is consistent with the claim of vandalism.",
+    "concerns": []
+   },
+   {
+    "id": "smashed_windscreen-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The claimant states only a flat tyre occurred, but the photo shows a severely shattered windshield.",
+    "concerns": [
+     "The damage in the photo (shattered windshield) completely contradicts the claim description (flat tyre only)."
+    ]
+   },
+   {
+    "id": "hail_rear_window-match",
+    "expect": "match",
+    "answer": "yes",
+    "ok": true,
+    "summary": "The photo shows a completely shattered rear window with glass covering the interior, which matches the description of severe glass shatter. The boot lid is mostly out of frame, so the reported dents cannot be confirmed from this image.",
+    "concerns": [
+     "boot lid is not clearly visible in the photo to verify dents"
+    ]
+   },
+   {
+    "id": "hail_rear_window-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The photo shows a completely shattered rear windshield with glass covering the interior, which does not match the described impact with a gate post affecting the front of the car.",
+    "concerns": [
+     "The damage shown is to the rear of the vehicle, whereas the claim description specifies damage to the front bumper and bonnet."
+    ]
+   },
+   {
+    "id": "hail_leaves-match",
+    "expect": "match",
+    "answer": "yes",
+    "ok": true,
+    "summary": "The photo shows a white vehicle with a shattered rear window and a significant amount of shredded leaves and organic debris covering the roof and rear deck, which aligns with the claim description.",
+    "concerns": []
+   },
+   {
+    "id": "hail_leaves-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The photo shows the rear of a white vehicle covered in leaves and debris, which does not align with the claim of a side-swipe dent on the driver's door.",
+    "concerns": [
+     "damage does not match the description of a side-swipe dent on the driver's door",
+     "wing mirror is not visible in the photo to verify if it is missing",
+     "detected damage mentions glass shatter, but the photo primarily shows organic debris",
+     "photo is of the rear/passenger side, not the driver's side described in the claim"
+    ]
+   },
+   {
+    "id": "keyed_doors-match",
+    "expect": "match",
+    "answer": "yes",
+    "ok": true,
+    "summary": "The photo shows a long, moderate scratch extending across both side doors, which matches the claim description of the vehicle being keyed.",
+    "concerns": []
+   },
+   {
+    "id": "keyed_doors-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The photo shows side-impact scratches on the driver's side door and rear panel, which does not match the claim description of front-end damage caused by a deer.",
+    "concerns": [
+     "The damage shown is on the side of the vehicle, whereas the claim describes front-end damage (headlight and grille).",
+     "No photos of the front of the vehicle were provided to verify the described damage."
+    ]
+   },
+   {
+    "id": "flat_tyre-match",
+    "expect": "match",
+    "answer": "no",
+    "ok": false,
+    "summary": "The submitted image does not contain a vehicle or any visible damage; it is a series of colored rectangles.",
+    "concerns": [
+     "The image provided is a color palette/gradient block, not a photograph of a vehicle or tire."
+    ]
+   },
+   {
+    "id": "flat_tyre-mismatch",
+    "expect": "mismatch",
+    "answer": "no",
+    "ok": true,
+    "summary": "The submitted image is not a photo of a car; it is a series of colored rectangles. No damage can be verified.",
+    "concerns": [
+     "The provided image is a color palette/gradient and not a photograph of a vehicle",
+     "No windscreen or tires are visible",
+     "Detected damage (flat tire) does not match the claim description (cracked windscreen)"
+    ]
+   },
+   {
+    "id": "intact_polo-damage_claimed",
+    "expect": "no_damage",
+    "answer": "no",
+    "ok": true,
+    "summary": "The photos show significant side-impact damage to the driver's side door and rear quarter panel, which contradicts the claim of being rear-ended with a smashed bumper and crumpled boot.",
+    "concerns": [
+     "damage is on the side of the vehicle, not the rear",
+     "no visible damage to the rear bumper or boot as described in the claim"
+    ]
+   },
+   {
+    "id": "intact_escort-damage_claimed",
+    "expect": "no_damage",
+    "answer": "no",
+    "ok": true,
+    "summary": "The photo shows a white vehicle with no apparent damage to the rear, which contradicts the claim that the rear bumper and boot lid are smashed in.",
+    "concerns": [
+     "The vehicle appears to be in good condition with no visible damage to the rear bumper or boot lid as described in the claim."
+    ]
+   }
+  ],
+  "seconds": 133.3
+ }
+}

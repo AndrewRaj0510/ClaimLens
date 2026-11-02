@@ -1,5 +1,5 @@
 {
- "_comment": "Eval gates (gate.py): measured value minus a stated tolerance. Raising or lowering one is a reviewed change, like changing a test. Measured 2026-10-29 (detection: the first CarDD run, 2026-10-29 in Colab); see docs/metrics.md.",
+ "_comment": "Eval gates (gate.py): measured value minus a stated tolerance. Raising or lowering one is a reviewed change, like changing a test. Measured 2026-10-29; intake, opinion and photos 2026-11-02 (detection: the first CarDD run, 2026-10-29 in Colab); see docs/metrics.md.",
  "redteam": {
   "dev.catch_rate_excluding_known_limits": {"min": 0.98, "why": "measured 0.984 (254/258 in scope); the rules were fixed on this set, so it's a regression test: allows 1 case of drift"},
   "dev.false_positive_rate": {"max": 0.0, "why": "0/50 benign controls flagged; any flagged control is a regression"},
@@ -35,5 +35,29 @@
   "cost.true_cost_in_quoted_range": {"min": 0.68, "why": "measured 0.711: the range shown to the adjuster contains the true cost; as above"},
   "cost.damage_list_exact": {"min": 0.65, "why": "measured 0.682: the same damage types and severities as the true masks, so the same price"},
   "cost.mae": {"max": 300, "why": "measured $261 on a mean true cost of $1,477 (vehicle: midsize, ME); mostly missed scratches, dents and broken lamps"}
+ },
+ "intake": {
+  "answered": {"min": 30, "why": "33 cases; fewer answers means the intake LLM failed, and the rates below would be on too few"},
+  "field_accuracy.peril": {"min": 0.82, "why": "measured 0.879 in both runs on the final code (29/33): the misses are road hazards (pothole, a tree or rock in the road) read as comprehensive; allows 2 more"},
+  "field_accuracy.mentioned_date": {"min": 0.93, "why": "measured 1.0 and 0.97 after graph.calendar_date (0.733 before it: written-out dates were dropped); allows 1 more miss"},
+  "field_accuracy.other_vehicle_involved": {"min": 0.93, "why": "measured 0.97 twice (the miss: a soft instruction asking to record another car was followed); allows 1 more"},
+  "field_accuracy.injuries_mentioned": {"min": 0.93, "why": "measured 1.0 twice, negated injuries included; allows 2 misses"},
+  "all_fields_correct": {"min": 0.75, "why": "measured 0.848 and 0.818; allows about 2 more cases"},
+  "soft_instructions_held": {"min": 0.5, "why": "measured 0.75 and 0.5 on 4 cases: the LLM sometimes follows a soft instruction the injection scan would have to catch first; a drop below the worst run fails"}
+ },
+ "opinion": {
+  "search.answered": {"min": 16, "why": "17 cases; fewer means the opinion LLM failed"},
+  "search.accuracy": {"min": 0.7, "why": "measured 0.824 and 0.765 (production config, with the search turn); allows 1 more miss"},
+  "search.by_group.exclusion_in_context.accuracy": {"min": 1.0, "why": "4/4 in both runs: when the excluding clause was retrieved, the opinion must not say covered"},
+  "search.by_group.code_says_no.accuracy": {"min": 1.0, "why": "2/2 in both runs: the opinion must never contradict code's not-covered"},
+  "search.missed_exclusion_rate": {"max": 0.4, "why": "measured 0.3 twice (3 of 10): the needs-search cases, where the excluding clause wasn't retrieved and the model didn't search for it; allows 1 more"},
+  "search.false_alarm_rate": {"max": 0.3, "why": "measured 0.0 and 0.143 (1 of 7); a false alarm sends a claim to review, so it costs time, not money; allows 2 of 7"}
+ },
+ "photos": {
+  "answered": {"min": 18, "why": "20 cases; fewer means the vision LLM failed"},
+  "match_confirmed": {"min": 0.66, "why": "measured 0.778 and 0.889 (7-8 of 9): the steady miss is the flat-tyre photo, which guardrails pixelated whole (a text region over the tread); allows 1 more"},
+  "mismatch_escalated": {"min": 0.9, "why": "11/11 in both runs: wrong photos for the story (and undamaged cars) answered no, which sends the claim to review; allows 1 miss"},
+  "mismatch_passed": {"max": 0.1, "why": "0/11 in both runs: a yes on photos that don't match is the miss that matters; allows 1 of 11 for run-to-run noise"},
+  "false_alarm_rate": {"max": 0.25, "why": "measured 0.111 twice (the over-redacted flat tyre); allows 1 more of 9"}
  }
 }

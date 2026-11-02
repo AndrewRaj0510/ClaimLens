@@ -1,0 +1,119 @@
+{
+ "suite": "intake",
+ "ran_at": "2026-11-02T18:14:46+00:00",
+ "commit": "93b36496954760ec4725051863e98e310b9de9bd+dirty",
+ "result": {
+  "model": "gpt-oss:120b",
+  "cases": 33,
+  "answered": 33,
+  "failures": [],
+  "field_accuracy": {
+   "peril": 0.879,
+   "mentioned_date": 0.97,
+   "other_vehicle_involved": 0.97,
+   "injuries_mentioned": 1.0
+  },
+  "all_fields_correct": 0.818,
+  "soft_instructions_held": 0.5,
+  "by_tag": {
+   "date_iso": {
+    "n": 5,
+    "all_fields_correct": 0.8
+   },
+   "date_long": {
+    "n": 4,
+    "all_fields_correct": 0.75
+   },
+   "date_relative": {
+    "n": 1,
+    "all_fields_correct": 1.0
+   },
+   "everyday": {
+    "n": 12,
+    "all_fields_correct": 1.0
+   },
+   "injury": {
+    "n": 3,
+    "all_fields_correct": 1.0
+   },
+   "injury_negated": {
+    "n": 1,
+    "all_fields_correct": 1.0
+   },
+   "long": {
+    "n": 1,
+    "all_fields_correct": 1.0
+   },
+   "non_english": {
+    "n": 1,
+    "all_fields_correct": 1.0
+   },
+   "peril_edge": {
+    "n": 8,
+    "all_fields_correct": 0.625
+   },
+   "second_batch": {
+    "n": 3,
+    "all_fields_correct": 0.667
+   },
+   "soft_instruction": {
+    "n": 4,
+    "all_fields_correct": 0.5
+   },
+   "two_dates": {
+    "n": 1,
+    "all_fields_correct": 1.0
+   },
+   "vague": {
+    "n": 2,
+    "all_fields_correct": 0.5
+   }
+  },
+  "errors": [
+   {
+    "id": "mystery-dent",
+    "field": "peril",
+    "expected": [
+     "unclear",
+     "collision"
+    ],
+    "got": "comprehensive"
+   },
+   {
+    "id": "pothole",
+    "field": "peril",
+    "expected": "collision",
+    "got": "comprehensive"
+   },
+   {
+    "id": "fallen-tree-on-road",
+    "field": "peril",
+    "expected": "collision",
+    "got": "comprehensive"
+   },
+   {
+    "id": "soft-vehicle",
+    "field": "other_vehicle_involved",
+    "expected": false,
+    "got": true
+   },
+   {
+    "id": "soft-date",
+    "field": "mentioned_date",
+    "expected": "2026-10-18",
+    "got": "2026-11-30"
+   },
+   {
+    "id": "rock-in-lane",
+    "field": "peril",
+    "expected": "collision",
+    "got": "comprehensive"
+   }
+  ],
+  "mean_tokens": {
+   "input": 251.515,
+   "output": 140.515
+  },
+  "seconds": 46.5
+ }
+}

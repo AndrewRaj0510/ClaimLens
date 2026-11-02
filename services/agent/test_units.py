@@ -335,3 +335,36 @@ def test_vision_results_poll_instead_of_blocking_past_the_waiter_limit():
     results.POLL_S = 0.01
     assert asyncio.run(results.result("j", 5)) == {"status": "done"}
     assert redis.gets == 3
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("2026-10-14", "2026-10-14"),
+        ("October 3, 2026", "2026-10-03"),
+        ("12 October 2026", "2026-10-12"),
+        ("1st of September 2026", "2026-09-01"),
+        ("Sept. 5th, 2026", "2026-09-05"),
+        ("null", None),
+        ("unclear", None),
+        ("Last Tuesday", None),
+        ("31 Feb 2026", None),
+        (None, None),
+    ],
+)
+def test_intake_dates_reach_code_as_iso_or_nothing(value, expected):
+    # The LLM copies dates as written; the fraud check's date comparison
+    # needs ISO, so a written date used to be dropped (services/eval intake).
+    import graph
+
+    assert graph.calendar_date(value) == expected
+    intake = graph.Intake.model_validate(
+        {
+            "peril": "collision",
+            "summary": "s",
+            "mentioned_date": value,
+            "other_vehicle_involved": False,
+            "injuries_mentioned": False,
+        }
+    )
+    assert intake.mentioned_date == expected

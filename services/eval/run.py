@@ -2,6 +2,9 @@
 
     python run.py redteam       [--guardrails-url URL]
     python run.py faithfulness  [--n 12] [--seed 7] [--no-calibrate]
+    python run.py intake        the intake LLM against labelled descriptions
+    python run.py opinion       [--configs search,no_search]
+    python run.py photos        [--guardrails-url URL]
     python run.py detection     --data DIR --model PATH [--split test] [--limit N]
     python run.py gate          [--require redteam,faithfulness]
 
@@ -70,6 +73,29 @@ def faithfulness(args):
     )
 
 
+def intake(args):
+    import intake as suite
+    from llm import OllamaLLM
+
+    return asyncio.run(suite.run(OllamaLLM()))
+
+
+def opinion(args):
+    import opinion as suite
+    from llm import OllamaLLM
+
+    configs = tuple(c for c in args.configs.split(",") if c)
+    return asyncio.run(suite.run(OllamaLLM(), configs))
+
+
+def photos(args):
+    import photo_review as suite
+    from llm import VLM_MODEL, VLM_THINK, OllamaLLM
+
+    vlm = OllamaLLM(model=VLM_MODEL, think=VLM_THINK)  # production's photo model
+    return asyncio.run(suite.run(vlm, args.guardrails_url))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="suite", required=True)
@@ -79,6 +105,11 @@ def main(argv=None):
     p.add_argument("--n", type=int, default=12)
     p.add_argument("--seed", type=int, default=7)
     p.add_argument("--no-calibrate", action="store_true")
+    sub.add_parser("intake")
+    p = sub.add_parser("opinion")
+    p.add_argument("--configs", default="search,no_search")
+    p = sub.add_parser("photos")
+    p.add_argument("--guardrails-url", default=os.getenv("GUARDRAILS_URL"))
     p = sub.add_parser("detection")
     p.add_argument(
         "--data", required=True, help="YOLO-seg folder (convert_cardd.py output)"
@@ -105,6 +136,10 @@ def main(argv=None):
         result = redteam.run(args.guardrails_url)
     elif args.suite == "faithfulness":
         result = faithfulness(args)
+    elif args.suite in ("intake", "opinion", "photos"):
+        result = {"intake": intake, "opinion": opinion, "photos": photos}[args.suite](
+            args
+        )
     else:
         import detection
 

@@ -10,7 +10,7 @@ import faithfulness as fa
 import gate
 import redteam
 from llm import LLMError
-from main import create_app
+from main import SUITES, create_app
 
 BASELINE = {
     "_comment": "ignored",
@@ -57,7 +57,7 @@ def test_the_committed_baseline_is_well_formed():
     for suite, gates in baseline.items():
         if suite.startswith("_"):
             continue
-        assert suite in ("redteam", "faithfulness", "detection")
+        assert suite in SUITES
         for metric, rule in gates.items():
             assert {"min", "max"} & set(rule), metric
             assert rule.get("why"), f"{suite}.{metric} needs a reason"

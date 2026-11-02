@@ -1,0 +1,710 @@
+{
+ "suite": "opinion",
+ "ran_at": "2026-11-02T18:15:53+00:00",
+ "commit": "93b36496954760ec4725051863e98e310b9de9bd+dirty",
+ "result": {
+  "model": "gpt-oss:120b",
+  "cases": 17,
+  "search": {
+   "answered": 17,
+   "failures": [],
+   "accuracy": 0.765,
+   "missed_exclusion_rate": 0.3,
+   "false_alarm_rate": 0.143,
+   "key_cited_rate": 0.824,
+   "search_rate": 0.059,
+   "mean_searches": 0.059,
+   "key_found_by_search": 0.25,
+   "mean_calls": 2.059,
+   "mean_tokens": {
+    "input": 2144.235,
+    "output": 493.059
+   },
+   "by_group": {
+    "code_says_no": {
+     "n": 2,
+     "accuracy": 1.0,
+     "key_cited": 1.0
+    },
+    "covered": {
+     "n": 7,
+     "accuracy": 0.857,
+     "key_cited": 1.0
+    },
+    "exclusion_in_context": {
+     "n": 4,
+     "accuracy": 1.0,
+     "key_cited": 1.0
+    },
+    "needs_search": {
+     "n": 4,
+     "accuracy": 0.25,
+     "key_cited": 0.25
+    }
+   },
+   "cases": [
+    {
+     "id": "rear-ended",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "duties"
+     ],
+     "key": [
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "hail-dents",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "keyed-doors",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "otc",
+      "duties"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "deer",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "stone-chip",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "bollard-distractors",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring"
+     ],
+     "key": [
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "theft-recovered",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "unclear",
+     "cited": [
+      "otc"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": false,
+     "reasoning": "Clause C2 lists theft as an other‑than‑collision peril and specifically includes breakage of glass, so the broken side window is covered. However, the scratch damage is not mentioned in any covered peril or exclusion, leaving its status uncertain. The adjuster should verify whether scratch damage is considered a covered loss under the policy or excluded."
+    },
+    {
+     "id": "tyre-worn",
+     "group": "exclusion_in_context",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "wear"
+     ],
+     "key": [
+      "wear"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "track-day",
+     "group": "exclusion_in_context",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "racing"
+     ],
+     "key": [
+      "racing"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "food-delivery",
+     "group": "exclusion_in_context",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "livery"
+     ],
+     "key": [
+      "livery"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "spouse-hammer",
+     "group": "exclusion_in_context",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "intentional"
+     ],
+     "key": [
+      "intentional"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "no-comprehensive",
+     "group": "code_says_no",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "lapsed",
+     "group": "code_says_no",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "insuring"
+     ],
+     "key": [
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "tyre-worn-search",
+     "group": "needs_search",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "wear"
+     ],
+     "key": [
+      "wear"
+     ],
+     "searches": [
+      "tire flat wear exclusion"
+     ],
+     "ok": true
+    },
+    {
+     "id": "track-day-search",
+     "group": "needs_search",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "duties"
+     ],
+     "key": [
+      "racing"
+     ],
+     "searches": [],
+     "ok": false,
+     "reasoning": "The loss is a collision with a barrier, which falls under the definition of collision in C1. The policy provides coverage for collision loss when the declarations include collision coverage, which the claim facts confirm. No exclusion applies to this type of loss. The adjuster should verify that the policyholder complied with the post‑loss duties (notification, protection of the vehicle, inspectio"
+    },
+    {
+     "id": "rideshare-search",
+     "group": "needs_search",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring"
+     ],
+     "key": [
+      "livery"
+     ],
+     "searches": [],
+     "ok": false,
+     "reasoning": "The loss resulted from a collision, which is expressly covered when Collision Coverage is indicated in the Declarations. Clause C1 defines collision and confirms coverage for such loss."
+    },
+    {
+     "id": "son-deliberate-search",
+     "group": "needs_search",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "otc",
+      "duties"
+     ],
+     "key": [
+      "intentional"
+     ],
+     "searches": [],
+     "ok": false,
+     "reasoning": "The scratch is caused by malicious mischief/vandalism, which is listed as an other‑than‑collision loss in clause C2. Assuming the policy includes Other‑Than‑Collision coverage (as indicated by the coverage check), the loss is payable subject to the deductible. No exclusion applies. The adjuster should verify the OT‑Collision coverage is in force and that the policyholder complies with the notice a"
+    }
+   ]
+  },
+  "no_search": {
+   "answered": 17,
+   "failures": [],
+   "accuracy": 0.765,
+   "missed_exclusion_rate": 0.3,
+   "false_alarm_rate": 0.143,
+   "key_cited_rate": 0.765,
+   "search_rate": 0.0,
+   "mean_searches": 0.0,
+   "key_found_by_search": 0.0,
+   "mean_calls": 1.0,
+   "mean_tokens": {
+    "input": 994.059,
+    "output": 208.647
+   },
+   "by_group": {
+    "code_says_no": {
+     "n": 2,
+     "accuracy": 1.0,
+     "key_cited": 1.0
+    },
+    "covered": {
+     "n": 7,
+     "accuracy": 0.857,
+     "key_cited": 1.0
+    },
+    "exclusion_in_context": {
+     "n": 4,
+     "accuracy": 1.0,
+     "key_cited": 1.0
+    },
+    "needs_search": {
+     "n": 4,
+     "accuracy": 0.25,
+     "key_cited": 0.0
+    }
+   },
+   "cases": [
+    {
+     "id": "rear-ended",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "duties"
+     ],
+     "key": [
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "hail-dents",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "keyed-doors",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "deer",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "stone-chip",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "bollard-distractors",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring"
+     ],
+     "key": [
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "theft-recovered",
+     "group": "covered",
+     "accept": [
+      "covered"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "otc",
+      "wear"
+     ],
+     "key": [
+      "otc",
+      "insuring"
+     ],
+     "searches": [],
+     "ok": false,
+     "reasoning": "The glass breakage is covered as an \"other than collision\" loss under theft (C2) and breakage of glass is specifically listed. However, the scratch damage is not mentioned in any covered peril or exclusion, so it is not clearly covered and may be denied."
+    },
+    {
+     "id": "tyre-worn",
+     "group": "exclusion_in_context",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "wear"
+     ],
+     "key": [
+      "wear"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "track-day",
+     "group": "exclusion_in_context",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "insuring",
+      "racing"
+     ],
+     "key": [
+      "racing"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "food-delivery",
+     "group": "exclusion_in_context",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "insuring",
+      "livery"
+     ],
+     "key": [
+      "livery"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "spouse-hammer",
+     "group": "exclusion_in_context",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "intentional"
+     ],
+     "key": [
+      "intentional"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "no-comprehensive",
+     "group": "code_says_no",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "insuring",
+      "otc"
+     ],
+     "key": [
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "lapsed",
+     "group": "code_says_no",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "insuring"
+     ],
+     "key": [
+      "insuring"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "tyre-worn-search",
+     "group": "needs_search",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "not_covered",
+     "cited": [
+      "insuring"
+     ],
+     "key": [
+      "wear"
+     ],
+     "searches": [],
+     "ok": true
+    },
+    {
+     "id": "track-day-search",
+     "group": "needs_search",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "duties"
+     ],
+     "key": [
+      "racing"
+     ],
+     "searches": [],
+     "ok": false,
+     "reasoning": "The loss is a collision (impact with a barrier) which is covered under the policy when Collision Coverage is indicated in the Declarations. The claim facts confirm the peril is covered. The adjuster should verify the policy indeed includes Collision Coverage and that the insured complied with post‑loss duties."
+    },
+    {
+     "id": "rideshare-search",
+     "group": "needs_search",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "insuring",
+      "duties"
+     ],
+     "key": [
+      "livery"
+     ],
+     "searches": [],
+     "ok": false,
+     "reasoning": "The loss is caused by a collision, which is covered under the policy when Collision Coverage is indicated in the Declarations. Clause C1 defines collision coverage and confirms it applies. No exclusion applies to this type of loss. The adjuster should verify that the policyholder complied with post‑loss duties (notification, protection of the vehicle, inspection) as required by Clause C4."
+    },
+    {
+     "id": "son-deliberate-search",
+     "group": "needs_search",
+     "accept": [
+      "not_covered",
+      "unclear"
+     ],
+     "assessment": "covered",
+     "cited": [
+      "otc",
+      "duties"
+     ],
+     "key": [
+      "intentional"
+     ],
+     "searches": [],
+     "ok": false,
+     "reasoning": "The scratch is caused by malicious mischief, which is listed as an \"other than collision\" loss in clause C2. Assuming the policy includes Other Than Collision coverage (as indicated by the coverage check), the loss is covered subject to the deductible. The adjuster should verify compliance with post‑loss duties such as prompt notification and allowing inspection (clause C4)."
+    }
+   ]
+  },
+  "search_turn": {
+   "tokens_per_case": {
+    "search": 2637.2940000000003,
+    "no_search": 1202.706
+   },
+   "token_saving_without_search": 0.544,
+   "accuracy": {
+    "search": 0.765,
+    "no_search": 0.765
+   },
+   "missed_exclusion_rate": {
+    "search": 0.3,
+    "no_search": 0.3
+   }
+  },
+  "seconds": 65.5
+ }
+}

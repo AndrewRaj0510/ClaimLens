@@ -21,6 +21,7 @@ GUARDRAILS = ROOT / "services" / "guardrails"
 PRICING = ROOT / "mcp_servers" / "pricing"
 SCRIPTS = ROOT / "scripts"
 DATA = ROOT / "data"
+CASES = Path(__file__).resolve().parent / "cases"  # hand-labelled LLM eval cases
 RESULTS = Path(
     os.getenv("EVAL_RESULTS_DIR", Path(__file__).resolve().parent / "results")
 )

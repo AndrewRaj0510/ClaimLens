@@ -1,0 +1,82 @@
+{
+ "_comment": "Policy-opinion cases. The clauses are written for this eval in the style of a personal auto policy (Part D, damage to your auto); they are not quoted from any insurer's form. Each case gives the opinion LLM what production gives it: the claim facts (peril, damages, the intake summary, the code's coverage check) and the clauses retrieval returned (initial). The rest of the library is what its search turn can find. accept: the assessments a careful adjuster would accept. key: the clauses that decide the case; citing one of them is what the adjuster needs to check the opinion.",
+ "clauses": {
+  "insuring": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > INSURING AGREEMENT",
+   "page": 7,
+   "text": "A. We will pay for direct and accidental loss to your covered auto, including its original equipment, minus any applicable deductible shown in the Declarations. We will pay for loss to your covered auto caused by: 1. Other than collision only if the Declarations indicate that Other Than Collision Coverage is provided for that auto. 2. Collision only if the Declarations indicate that Collision Coverage is provided for that auto. B. Collision means the upset of your covered auto or its impact with another vehicle or object."
+  },
+  "otc": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > INSURING AGREEMENT > OTHER THAN COLLISION",
+   "page": 7,
+   "text": "Loss caused by the following is considered other than collision: 1. missiles or falling objects; 2. fire; 3. theft or larceny; 4. explosion or earthquake; 5. windstorm; 6. hail, water or flood; 7. malicious mischief or vandalism; 8. riot or civil commotion; 9. contact with bird or animal; or 10. breakage of glass. If breakage of glass is caused by a collision, you may elect to have it considered a loss caused by collision."
+  },
+  "limit": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > LIMIT OF LIABILITY",
+   "page": 9,
+   "text": "Our limit of liability for loss will be the lesser of the actual cash value of the stolen or damaged property, or the amount necessary to repair or replace the property with other property of like kind and quality. An adjustment for depreciation and physical condition will be made in determining actual cash value in the event of a total loss."
+  },
+  "wear": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > EXCLUSIONS > WEAR AND TEAR",
+   "page": 8,
+   "text": "We will not pay for: 2. Damage due and confined to: a. wear and tear; b. freezing; c. mechanical or electrical breakdown or failure; or d. road damage to tires. This exclusion does not apply if the damage results from the total theft of your covered auto."
+  },
+  "racing": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > EXCLUSIONS > RACING",
+   "page": 8,
+   "text": "We will not pay for: 9. Loss to your covered auto which occurs while it is being maintained or used by any person while that person is employed or engaged in any prearranged or organized racing or speed contest, track day, timed laps or driving event on a racetrack, or in practice or preparation for any such contest or event."
+  },
+  "livery": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > EXCLUSIONS > PUBLIC OR LIVERY CONVEYANCE",
+   "page": 8,
+   "text": "We will not pay for: 1. Loss to your covered auto which occurs while it is being used as a public or livery conveyance, including while it is used to carry persons or to deliver food or goods for a fee or through a delivery or ride-sharing app. This exclusion does not apply to a share-the-expense car pool."
+  },
+  "intentional": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > EXCLUSIONS > INTENTIONAL DAMAGE",
+   "page": 8,
+   "text": "We will not pay for: 11. Loss caused intentionally by you or any family member, or by any person acting at your or a family member's direction."
+  },
+  "war": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > EXCLUSIONS > WAR AND NUCLEAR",
+   "page": 8,
+   "text": "We will not pay for: 3. Loss due to or as a consequence of: a. radioactive contamination; b. discharge of any nuclear weapon, even if accidental; or c. war, insurrection, rebellion or revolution."
+  },
+  "electronics": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > EXCLUSIONS > ELECTRONIC EQUIPMENT",
+   "page": 8,
+   "text": "We will not pay for: 4. Loss to any electronic equipment that reproduces, receives or transmits audio, visual or data signals, including phones, navigation devices and dash cameras, unless it is permanently installed in the opening in the dash or console normally used by the auto manufacturer for such equipment."
+  },
+  "confiscation": {
+   "section": "PART D - COVERAGE FOR DAMAGE TO YOUR AUTO > EXCLUSIONS > CONFISCATION",
+   "page": 8,
+   "text": "We will not pay for: 6. Loss to your covered auto due to destruction or confiscation by governmental or civil authorities."
+  },
+  "duties": {
+   "section": "PART E - DUTIES AFTER AN ACCIDENT OR LOSS",
+   "page": 10,
+   "text": "A person seeking any coverage must: 1. promptly notify us of how, when and where the accident or loss happened; 2. take reasonable steps after loss to protect your covered auto and its equipment from further loss; 3. promptly notify the police if your covered auto is stolen; 4. permit us to inspect and appraise the damaged property before its repair or disposal."
+  }
+ },
+ "cases": [
+  {"id": "rear-ended", "group": "covered", "peril": "collision", "damages": [["dent", "moderate"], ["crack", "minor"]], "summary": "The customer was stopped at a red light when the car behind hit the rear bumper.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "wear", "duties"], "accept": ["covered"], "key": ["insuring"]},
+  {"id": "hail-dents", "group": "covered", "peril": "comprehensive", "damages": [["dent", "minor"], ["glass shatter", "moderate"]], "summary": "Hail overnight dented the roof and bonnet and cracked the sunroof.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "wear", "livery"], "accept": ["covered"], "key": ["otc", "insuring"]},
+  {"id": "keyed-doors", "group": "covered", "peril": "comprehensive", "damages": [["scratch", "moderate"]], "summary": "Someone keyed both doors on the driver's side while the car was parked outside the customer's office.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "intentional", "duties"], "accept": ["covered"], "key": ["otc", "insuring"]},
+  {"id": "deer", "group": "covered", "peril": "comprehensive", "damages": [["lamp broken", "severe"], ["dent", "moderate"]], "summary": "A deer jumped in front of the car at dusk; the front grille and right headlight are smashed.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "wear", "racing"], "accept": ["covered"], "key": ["otc", "insuring"]},
+  {"id": "stone-chip", "group": "covered", "peril": "comprehensive", "damages": [["glass shatter", "moderate"]], "summary": "A stone thrown up on the highway chipped the windscreen and the chip spread into a long crack.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "wear", "electronics"], "accept": ["covered"], "key": ["otc", "insuring"]},
+  {"id": "bollard-distractors", "group": "covered", "peril": "collision", "damages": [["scratch", "minor"], ["dent", "minor"]], "summary": "The customer reversed into a bollard in a supermarket car park; scratches and a small dent on the rear bumper.", "coverage": "covered", "initial": ["insuring", "racing", "livery", "intentional", "war"], "accept": ["covered"], "key": ["insuring"]},
+  {"id": "theft-recovered", "group": "covered", "peril": "comprehensive", "damages": [["glass shatter", "moderate"], ["scratch", "minor"]], "summary": "The car was stolen from a station car park and recovered two days later with a broken side window and a damaged ignition.", "coverage": "covered", "initial": ["insuring", "otc", "wear", "limit", "duties"], "accept": ["covered"], "key": ["otc", "insuring"]},
+
+  {"id": "tyre-worn", "group": "exclusion_in_context", "peril": "collision", "damages": [["tire flat", "moderate"]], "summary": "The customer says the front tyre had worn down to the cords and went flat on the motorway; no other damage.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "wear", "duties"], "accept": ["not_covered", "unclear"], "key": ["wear"]},
+  {"id": "track-day", "group": "exclusion_in_context", "peril": "collision", "damages": [["dent", "severe"], ["crack", "moderate"]], "summary": "The car hit a tyre wall during a track day at a local circuit while the customer was doing timed laps.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "racing", "wear"], "accept": ["not_covered", "unclear"], "key": ["racing"]},
+  {"id": "food-delivery", "group": "exclusion_in_context", "peril": "collision", "damages": [["dent", "moderate"]], "summary": "The customer was delivering takeaway orders for a delivery app when another car pulled out and hit the front wing.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "livery", "wear"], "accept": ["not_covered", "unclear"], "key": ["livery"]},
+  {"id": "spouse-hammer", "group": "exclusion_in_context", "peril": "comprehensive", "damages": [["dent", "moderate"], ["glass shatter", "moderate"]], "summary": "The customer says their spouse hit the car with a hammer during an argument, denting the bonnet and breaking the windscreen.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "intentional", "wear"], "accept": ["not_covered", "unclear"], "key": ["intentional"]},
+
+  {"id": "no-comprehensive", "group": "code_says_no", "peril": "comprehensive", "damages": [["dent", "minor"]], "summary": "Hail dented the roof and bonnet overnight.", "coverage": "no_peril", "initial": ["insuring", "otc", "limit", "wear", "duties"], "accept": ["not_covered", "unclear"], "key": ["insuring"]},
+  {"id": "lapsed", "group": "code_says_no", "peril": "collision", "damages": [["dent", "moderate"]], "summary": "The customer was rear-ended at a junction.", "coverage": "not_in_force", "initial": ["insuring", "otc", "limit", "wear", "duties"], "accept": ["not_covered", "unclear"], "key": ["insuring"]},
+
+  {"id": "tyre-worn-search", "group": "needs_search", "peril": "collision", "damages": [["tire flat", "moderate"]], "summary": "The customer says the rear tyre was badly worn and the tread had gone; it deflated on the drive home. No other damage.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "duties", "war"], "accept": ["not_covered", "unclear"], "key": ["wear"]},
+  {"id": "track-day-search", "group": "needs_search", "peril": "collision", "damages": [["dent", "severe"]], "summary": "The customer spun off at a racetrack during an organised track day and hit the barrier.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "duties", "war"], "accept": ["not_covered", "unclear"], "key": ["racing"]},
+  {"id": "rideshare-search", "group": "needs_search", "peril": "collision", "damages": [["dent", "moderate"], ["scratch", "minor"]], "summary": "The customer was carrying a paying passenger for a ride-sharing app when they clipped a parked van.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "duties", "war"], "accept": ["not_covered", "unclear"], "key": ["livery"]},
+  {"id": "son-deliberate-search", "group": "needs_search", "peril": "comprehensive", "damages": [["scratch", "severe"]], "summary": "The customer says their son scratched the paint deliberately with a key after an argument.", "coverage": "covered", "initial": ["insuring", "otc", "limit", "duties", "war"], "accept": ["not_covered", "unclear"], "key": ["intentional"]}
+ ]
+}
